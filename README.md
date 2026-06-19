@@ -1,17 +1,39 @@
-# load_runner_pro
+# TeReT
 
-A new Flutter project.
+TeReT je mobilna platforma za povezivanje naručitelja prijevoza i prijevoznika kroz sustav obrnute licitacije.
 
-## Getting Started
+## Glavne funkcionalnosti
 
-This project is a starting point for a Flutter application.
+- Objava tereta
+- Obrnuta licitacija prijevoza
+- Slanje i snižavanje ponuda
+- Prihvaćanje ponude
+- Otključavanje kontakta nakon prihvaćanja
+- Potvrda isporuke
+- Ocjenjivanje prijevoznika i naručitelja
+- Push notifikacije
+- Fotografije tereta
+- Filtriranje po regijama i državama
 
-A few resources to get you started if this is your first Flutter project:
+## Tehnologije
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+### Mobilna aplikacija
+- Flutter
+- Dart
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Backend
+- Node.js
+- Express
+
+### Ostalo
+- Firebase Cloud Messaging (FCM)
+- Render
+- GitHub
+
+## Status projekta
+
+TeReT MVP je funkcionalan i trenutno je u završnoj fazi pripreme za objavu na Google Play Store.
+
+## Autor
+
+MEGS / TeReT

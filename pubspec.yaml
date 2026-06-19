@@ -1,0 +1,41 @@
+name: teret_app
+description: TeReT aplikacija
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.3.3
+  cupertino_icons: ^1.0.6
+  http: ^1.2.1
+  image_picker: ^1.1.2
+  flutter_secure_storage: ^9.2.2
+  firebase_core: ^3.15.1
+  firebase_messaging: ^15.0.4
+  flutter_local_notifications: ^17.2.3
+  url_launcher: ^6.3.2
+  intl_phone_field: ^3.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.14.3
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/logo1.png
+    - assets/logo_login3.png
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/logo_login3.png"

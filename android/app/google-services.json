@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "509721505034",
+    "project_id": "teret-app",
+    "storage_bucket": "teret-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:509721505034:android:3e7f42c0d75b24d321def3",
+        "android_client_info": {
+          "package_name": "com.megs.teret"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDudSynL-_x81CU-LqOD8bwG5WdAlMLay0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

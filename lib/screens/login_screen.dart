@@ -154,6 +154,41 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  Future<void> resendVerificationEmail() async {
+    try {
+      final response = await http.post(
+        Uri.parse('${AppConfig.baseUrl}/resend-verification-email'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'email': emailController.text.trim(),
+        }),
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            (data['message'] ?? 'Email za potvrdu je ponovno poslan.')
+                .toString(),
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Greška prilikom slanja emaila za potvrdu.'),
+        ),
+      );
+    }
+  }
+
   InputDecoration buildInputDecoration(String label) {
     return InputDecoration(
       labelText: label,
@@ -166,6 +201,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bool showResendVerificationButton =
+        serverMessage == 'Račun nije potvrđen.' ||
+            serverMessage.contains('Račun nije potvrđen');
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
       body: SafeArea(
@@ -177,7 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 children: [
                   Image.asset(
-              'assets/logo_login3.png',
+                    'assets/logo_login3.png',
                     height: 180,
                   ),
                   const SizedBox(height: 16),
@@ -260,6 +299,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
+                              if (showResendVerificationButton) ...[
+                                const SizedBox(height: 8),
+                                TextButton.icon(
+                                  onPressed: resendVerificationEmail,
+                                  icon: const Icon(
+                                    Icons.mark_email_read_outlined,
+                                  ),
+                                  label: const Text(
+                                    'Pošalji ponovno email za potvrdu',
+                                  ),
+                                ),
+                              ],
                             ],
                             const SizedBox(height: 20),
                             SizedBox(

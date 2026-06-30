@@ -518,6 +518,45 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
           ),
         ),
       )
+          : shipments.isEmpty
+          ? RefreshIndicator(
+        onRefresh: fetchShipments,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          children: const [
+            SizedBox(height: 120),
+            Icon(
+              Icons.local_shipping_outlined,
+              size: 70,
+              color: Colors.grey,
+            ),
+            SizedBox(height: 20),
+            Center(
+              child: Text(
+                'Trenutno nema aktivnih tereta.',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            SizedBox(height: 8),
+            Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30),
+                child: Text(
+                  'Novi tereti pojavit će se ovdje čim ih naručitelji objave.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      )
           : RefreshIndicator(
         onRefresh: fetchShipments,
         child: ListView.builder(

@@ -206,15 +206,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'offer_outbid':
         return 'Ponuda više nije najniža';
       case 'offer_accepted':
-        return 'Dobili ste posao';
+        return '🏆 Dobili ste posao';
       case 'offer_rejected':
         return 'Licitacija je završena';
       case 'contact_unlocked':
-        return 'Dobili ste posao';
+        return '🎉 Dobili ste posao';
       case 'carrier_contact_unlocked':
-        return 'TeReT vas je povezao';
+        return '🤝 TeReT vas je povezao';
       case 'delivery_confirmed':
-        return 'Prijevoz potvrđen';
+        return '✅ Prijevoz potvrđen';
       default:
         return _text(n['title'], 'Obavijest');
     }

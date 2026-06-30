@@ -240,11 +240,11 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
     }
 
     if (_isAcceptedShipment(status)) {
-      return 'Prijevoz dogovoren';
+      return 'Ponuda prihvaćena';
     }
 
     if (_isCompletedShipment(status)) {
-      return 'Prijevoz dogovoren';
+      return 'Korisnici povezani';
     }
 
     if (_isExpiredShipment(status)) {
@@ -448,8 +448,24 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
                 label: 'Moja poruka',
                 value: poruka,
               ),
-            if (isAccepted && !isCommissionPaid)
-              Container(
+            InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: shipmentId == null
+                  ? null
+                  : () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ShipmentDetailsScreen(
+                      shipmentId: shipmentId,
+                    ),
+                  ),
+                );
+
+                if (!mounted) return;
+                fetchMyOffers();
+              },
+              child: Container(
                 margin: const EdgeInsets.only(top: 10, bottom: 10),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -466,19 +482,39 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
                   ),
                 ),
               ),
+            ),
             if (isAccepted && isCommissionPaid)
-              Container(
-                margin: const EdgeInsets.only(top: 10, bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.10),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Text(
-                  'Kontakt otključan — možete započeti dogovor.',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    color: Colors.green,
+              InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: shipmentId == null
+                    ? null
+                    : () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ShipmentDetailsScreen(
+                        shipmentId: shipmentId,
+                      ),
+                    ),
+                  );
+
+                  if (!mounted) return;
+                  fetchMyOffers();
+                },
+                child: Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(top: 10, bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.10),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text(
+                    'Kontakt otključan — možete započeti dogovor.',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: Colors.green,
+                    ),
                   ),
                 ),
               ),
@@ -501,38 +537,7 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
                   ),
                 ),
               )
-            else
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: shipmentId == null
-                      ? null
-                      : () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ShipmentDetailsScreen(
-                          shipmentId: shipmentId,
-                        ),
-                      ),
-                    );
 
-                    if (!mounted) return;
-                    fetchMyOffers();
-                  },
-                  icon: const Icon(Icons.visibility_outlined),
-                  label: const Text('Detalji tereta'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueGrey.shade900,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 13),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-              ),
           ],
         ),
       ),

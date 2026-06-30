@@ -131,13 +131,35 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('${AppConfig.baseUrl}/shipments/${widget.shipmentId}/pay-commission'),
+        Uri.parse('${AppConfig.baseUrl}/create-checkout-session'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
+        body: jsonEncode({
+          'shipmentId': widget.shipmentId,
+        }),
       );
+      final decoded = jsonDecode(response.body);
 
+      if (response.statusCode == 200 && decoded['checkoutUrl'] != null) {
+        final checkoutUrl = Uri.parse(decoded['checkoutUrl'].toString());
+
+        final opened = await launchUrl(
+          checkoutUrl,
+          mode: LaunchMode.externalApplication,
+        );
+
+        if (!opened && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Nije moguće otvoriti Stripe plaćanje.'),
+            ),
+          );
+        }
+
+        return;
+      }
       if (response.statusCode == 401) {
         await TokenStorage.clearToken();
 
@@ -229,6 +251,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
+
       );
 
       String message = 'Prijevoz je označen kao obavljen.';
@@ -956,22 +979,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
     if ((widget.isSenderView || isAcceptedCarrier) &&
         kontaktOtkljucan &&
         commissionPaid) {
-      return Container(
-        margin: const EdgeInsets.only(top: 14),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.green.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.green.shade200),
-        ),
-        child: const Text(
-          'Sad možete kontaktirati naručitelja.',
-          style: TextStyle(
-            fontWeight: FontWeight.w700,
-            color: Colors.green,
-          ),
-        ),
-      );
+      return const SizedBox.shrink();
     }
 
     if (!kontaktOtkljucan &&
@@ -1278,34 +1286,36 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                     ),
                     const SizedBox(height: 16),
                   ],
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: (licitacijaZavrsena
-                          ? Colors.red
-                          : _statusColor(status))
-                          .withOpacity(0.12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      licitacijaZavrsena
-                          ? 'Status: Licitacija završena'
-                          : (!widget.isSenderView && statusIsAccepted && !isAcceptedCarrier)
-                          ? 'Status: Odabran drugi prijevoznik'
-                          : (widget.isSenderView && statusIsAccepted)
-                          ? 'Status: Prihvatili ste ponudu'
-                          : 'Status: ${_formatStatus(status)}',
-                      style: TextStyle(
-                        color: licitacijaZavrsena
+
+                  if (!statusIsCompleted)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: (licitacijaZavrsena
                             ? Colors.red
-                            : _statusColor(status),
-                        fontWeight: FontWeight.w700,
+                            : _statusColor(status))
+                            .withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        licitacijaZavrsena
+                            ? 'Status: Licitacija završena'
+                            : (!widget.isSenderView && statusIsAccepted && !isAcceptedCarrier)
+                            ? 'Status: Odabran drugi prijevoznik'
+                            : (widget.isSenderView && statusIsAccepted)
+                            ? 'Status: Prihvatili ste ponudu'
+                            : 'Status: ${_formatStatus(status)}',
+                        style: TextStyle(
+                          color: licitacijaZavrsena
+                              ? Colors.red
+                              : _statusColor(status),
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
-                  ),
                   _buildStatusBlock(
                     status: status,
                     kontaktOtkljucan: kontaktOtkljucan,
@@ -1316,6 +1326,12 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                     acceptedPrice: acceptedPrice,
                   ),
                   const SizedBox(height: 16),
+                  _buildSenderRatingCard(
+                    senderId: senderId,
+                    senderName: senderName,
+                    senderRatingAverage: senderRatingAverage,
+                    senderRatingsCount: senderRatingsCount,
+                  ),
                   _buildInfoRow('Mjesto utovara', mjestoUtovara),
                   _buildInfoRow('Adresa utovara', adresaUtovara),
                   _buildInfoRow('Mjesto istovara', mjestoIstovara),
@@ -1375,6 +1391,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                           commissionPaid ||
                           widget.isSenderView))
                     _buildInfoRow('Provizija', _formatMoney(provizijaIznos)),
+                  _buildInfoRow('Broj ponuda', '$offerCount'),
+                  _buildInfoRow('Pregledi objave', '$views'),
                   if ((widget.isSenderView || kontaktOtkljucan) &&
                       kontaktTelefon.isNotEmpty)
                     Padding(
@@ -1427,14 +1445,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                         ),
                       ),
                     ),
-                  _buildInfoRow('Broj ponuda', '$offerCount'),
-                  _buildInfoRow('Pregledi objave', '$views'),
-                  _buildSenderRatingCard(
-                    senderId: senderId,
-                    senderName: senderName,
-                    senderRatingAverage: senderRatingAverage,
-                    senderRatingsCount: senderRatingsCount,
-                  ),
+
                   _buildImagesSection(),
                 ],
               ),
@@ -1515,7 +1526,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                         ),
                         const SizedBox(height: 4),
                         const Text(
-                          'Prijevoz je uspješno završen.',
+                          'Hvala na vašoj ocjeni.',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -1524,8 +1535,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                         const SizedBox(height: 4),
                         Text(
                           widget.isSenderView
-                              ? 'Sada možete ocijeniti prijevoznika.'
-                              : 'Sada možete ocijeniti naručitelja.',
+                              ? ' Ocjena doprinosi pouzdanosti platforme.'
+                              : ' Ocjena doprinosi pouzdanosti platforme.',
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey.shade700,

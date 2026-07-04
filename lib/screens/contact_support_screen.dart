@@ -129,7 +129,7 @@ class ContactSupportScreen extends StatelessWidget {
               ),
               const SizedBox(height: 28),
               Text(
-                '© M.E.G.S. EU',
+                '© M.E.G.S. HR',
                 style: TextStyle(
                   color: Colors.grey.shade600,
                   fontWeight: FontWeight.w700,

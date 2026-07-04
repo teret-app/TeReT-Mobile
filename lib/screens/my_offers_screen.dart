@@ -1,13 +1,11 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
 import '../config.dart';
 import '../services/token_storage.dart';
 import 'login_screen.dart';
 import 'shipment_details_screen.dart';
-
+import 'send_offer_screen.dart';
 class MyOffersScreen extends StatefulWidget {
   const MyOffersScreen({super.key});
 
@@ -373,16 +371,18 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
 
     final isAccepted = _isAcceptedOffer(offerStatus);
     final isRejected = _isRejectedOffer(offerStatus);
-
+    final canSendNewOffer =
+        (shipmentStatus == 'active' || shipmentStatus == 'aktivan') &&
+            !isLowest;
     final isCommissionPaid = offer['commissionPaid'] == true ||
         offer['commission_paid'] == true ||
         offer['provizijaPlacena'] == true ||
         offer['provizija_placena'] == true;
 
     return Material(
-        color: Colors.white,
-        elevation: 0.7,
-        borderRadius: BorderRadius.circular(10),
+      color: Colors.white,
+      elevation: 0.7,
+      borderRadius: BorderRadius.circular(10),
       child: Padding(
         padding: const EdgeInsets.all(13),
         child: Column(
@@ -448,42 +448,45 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
                 label: 'Moja poruka',
                 value: poruka,
               ),
-            InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: shipmentId == null
-                  ? null
-                  : () async {
-                await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ShipmentDetailsScreen(
-                      shipmentId: shipmentId,
-                    ),
-                  ),
-                );
 
-                if (!mounted) return;
-                fetchMyOffers();
-              },
-              child: Container(
-                margin: const EdgeInsets.only(top: 10, bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.orange.withOpacity(0.35)),
-                ),
-                child: const Text(
-                  '🔒 Ponuda je prihvaćena. Otvori detalje tereta i otključaj kontakt.',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
-                    height: 1.35,
+            if (isAccepted && !isRejected && !isCommissionPaid)
+              InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: shipmentId == null
+                    ? null
+                    : () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ShipmentDetailsScreen(
+                        shipmentId: shipmentId,
+                      ),
+                    ),
+                  );
+
+                  if (!mounted) return;
+                  fetchMyOffers();
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(top: 10, bottom: 10),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.orange.withOpacity(0.35)),
+                  ),
+                  child: const Text(
+                    '🔒 Ponuda je prihvaćena. Otvori detalje tereta i otključaj kontakt.',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                      height: 1.35,
+                    ),
                   ),
                 ),
               ),
-            ),
-            if (isAccepted && isCommissionPaid)
+
+            if (isAccepted && !isRejected && isCommissionPaid)
               InkWell(
                 borderRadius: BorderRadius.circular(12),
                 onTap: shipmentId == null
@@ -518,26 +521,78 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
                   ),
                 ),
               ),
-            const SizedBox(height: 6),
-            if (isRejected)
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.red.shade200),
-                ),
-                child: const Text(
-                  'Drugi prijevoznik je odabran za ovaj prijevoz.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              )
 
+            const SizedBox(height: 6),
+            if (canSendNewOffer)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.local_offer),
+                  label: const Text('Pošalji novu ponudu'),
+                  onPressed: shipmentId == null
+                      ? null
+                      : () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => SendOfferScreen(
+                          shipmentId: shipmentId,
+                        ),
+                      ),
+                    );
+
+                    if (!mounted) return;
+                    fetchMyOffers();
+                  },
+                ),
+              ),
+            if (isRejected)
+              Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: const Text(
+                      'Drugi prijevoznik je odabran za ovaj prijevoz.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.local_offer),
+                      label: const Text('Pošalji novu ponudu'),
+                      onPressed: shipmentId == null
+                          ? null
+                          : () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => SendOfferScreen(
+                              shipmentId: shipmentId,
+                            ),
+                          ),
+                        );
+
+                        if (!mounted) return;
+                        fetchMyOffers();
+                      },
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ),

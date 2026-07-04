@@ -93,10 +93,11 @@ class TermsScreen extends StatelessWidget {
               sectionTitle('3. Naknada za korištenje platforme'),
 
               sectionText(
-                'Platforma TeReT potpuno je besplatna za korištenje i nema nikakve članarine ni kotizacije. '
-                    'Naknada se plaća po zaključenom poslu, a to je u onom trenutku kad naručitelj prihvati ponudu prijevoznika. '
-                    'Prijevoznik plaća naknadu u iznosu od 5% dogovorene cijene prijevoza.',
-              ),
+                  'Platforma TeReT potpuno je besplatna za korištenje i nema nikakve članarine ni kotizacije. '
+                      'Naknada se plaća isključivo po zaključenom poslu, odnosno kada naručitelj prihvati ponudu prijevoznika. '
+                      'Iznosi 5% od dogovorene cijene prijevoza, a za dogovorene prijevoze u vrijednosti do 100,00 € minimalna naknada iznosi 5,00 €.',
+                ),
+
 
               sectionTitle('4. Otključavanje kontakt podataka'),
 
@@ -117,8 +118,9 @@ class TermsScreen extends StatelessWidget {
 
               sectionText(
                 'U slučaju otkazivanja prijevoza od strane naručitelja ili prijevoznika, '
-                    'TeReT ne snosi nikakvu odgovornost. Korisnici su odgovorni za posljedice otkazivanja, '
-                    'uključujući eventualne međusobne dogovore.',
+                    'TeReT ne snosi nikakvu odgovornost za posljedice otkazivanja. '
+                    'Korisnici su sami odgovorni za međusobne dogovore, troškove, štetu, kašnjenja ili druge posljedice koje mogu nastati zbog otkazivanja. '
+                    'Ako je naknada za korištenje platforme već plaćena i kontakt podaci su otključani, naknada se ne vraća jer se smatra da je usluga povezivanja putem platforme izvršena.',
               ),
 
               sectionTitle('7. Odgovornost za prijevoz'),

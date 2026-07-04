@@ -1,7 +1,8 @@
 import 'user_profile_screen.dart';
 import 'dart:convert';
 import 'dart:typed_data';
-
+import 'dart:async';
+import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
@@ -33,12 +34,36 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
   String errorMessage = '';
   Map<String, dynamic>? shipment;
 
+  final AppLinks _appLinks = AppLinks();
+  StreamSubscription<Uri>? _linkSubscription;
   @override
   void initState() {
     super.initState();
     fetchShipmentDetails();
+    _listenForPaymentReturn();
   }
+  void _listenForPaymentReturn() {
+    _linkSubscription = _appLinks.uriLinkStream.listen((uri) async {
+      if (uri.scheme == 'teret' && uri.host == 'payment-success') {
+        final returnedShipmentId =
+        int.tryParse(uri.queryParameters['shipmentId'] ?? '');
 
+        if (returnedShipmentId == widget.shipmentId) {
+          await Future.delayed(const Duration(seconds: 2));
+
+          if (!mounted) return;
+          await fetchShipmentDetails();
+
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Plaćanje uspješno. Kontakt je otključan.'),
+            ),
+          );
+        }
+      }
+    });
+  }
   Future<void> fetchShipmentDetails() async {
     if (!mounted) return;
 
@@ -942,10 +967,13 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Ponuda je prihvaćena. Za otključavanje kontakt podataka potrebno je '
-                  'povezati Stripe račun i platiti naknadu platforme '
-                  'u iznosu od 5% dogovorene cijene prijevoza.',
-            ),
+                  'Posao je Vaš.\n\n'
+                      'Za otključavanje kontakt podataka potrebno je povezati Stripe račun '
+                      'i platiti naknadu platforme.\n\n'
+                      'Naknada iznosi 5% od dogovorene cijene prijevoza, '
+                      'a za prijevoze u vrijednosti do 100,00 € '
+                      'minimalna naknada iznosi 5,00 €.',
+                ),
             if (acceptedPrice != null) ...[
               const SizedBox(height: 8),
               Text('Dogovorena cijena prijevoza: ${_formatMoney(acceptedPrice)}'),
@@ -953,7 +981,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
             if (provizijaIznos != null) ...[
               const SizedBox(height: 6),
               Text(
-                'Iznos naknade (5%): ${_formatMoney(provizijaIznos)}',
+                'Iznos naknade: ${_formatMoney(provizijaIznos)}',
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ],
@@ -1605,5 +1633,10 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
       ),
       body: _buildBody(),
     );
+  }
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+    super.dispose();
   }
 }

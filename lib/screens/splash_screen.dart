@@ -65,36 +65,49 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _checkLogin() async {
     await Future.delayed(const Duration(seconds: 8));
 
-    final token = await TokenStorage.getToken();
-    final roleRaw = await TokenStorage.getRole();
-    final role = (roleRaw ?? '').trim().toLowerCase();
+    try {
+      final token = await TokenStorage.getToken();
+      final roleRaw = await TokenStorage.getRole();
+      final role = (roleRaw ?? '').trim().toLowerCase();
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (token != null && token.isNotEmpty) {
-      if (role == 'sender') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const SenderHomeScreen()),
-        );
-        return;
+      if (token != null && token.isNotEmpty) {
+        if (role == 'sender') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const SenderHomeScreen()),
+          );
+          return;
+        }
+
+        if (role == 'transporter' || role == 'carrier') {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const TransporterHomeScreen()),
+          );
+          return;
+        }
       }
 
-      if (role == 'transporter') {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const TransporterHomeScreen()),
-        );
-        return;
-      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+    } catch (e, stackTrace) {
+      debugPrint('Splash error: $e');
+      debugPrint('$stackTrace');
+
+      if (!mounted) return;
+
+      await TokenStorage.clearAll();
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
     }
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-    );
   }
-
   @override
   void dispose() {
     _controller.dispose();
@@ -310,7 +323,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Brži put do prijevoza',
+                      'Radar prijevoza',
                       style: TextStyle(
                         color: const Color(0xFF8FEAFF).withValues(alpha: 0.95),
                         fontSize: 16,

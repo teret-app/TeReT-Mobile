@@ -18,7 +18,14 @@ class SenderHomeScreen extends StatefulWidget {
   @override
   State<SenderHomeScreen> createState() => _SenderHomeScreenState();
 }
+bool containsForbiddenContactInfo(String text) {
+  final pattern = RegExp(
+    r'(\+?\d[\d\s\-\/().]{6,}\d)|([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})|(whatsapp|viber|telegram|signal|messenger|facebook|instagram|gmail|mail|email|e-mail|nazovi|zovi|javi se|kontaktiraj|kontakt|mobitel|telefon|broj)',
+    caseSensitive: false,
+  );
 
+  return pattern.hasMatch(text);
+}
 class _SenderHomeScreenState extends State<SenderHomeScreen> {
   final _formKey = GlobalKey<FormState>();
   final ImagePicker _picker = ImagePicker();
@@ -604,6 +611,9 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                           if (value == null || value.trim().isEmpty) {
                             return 'Unesite naziv tereta.';
                           }
+                          if (containsForbiddenContactInfo(value)) {
+                            return 'Naziv ne smije sadržavati kontakt podatke.';
+                          }
                           return null;
                         },
                       ),
@@ -615,6 +625,9 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return 'Unesite opis tereta.';
+                          }
+                          if (containsForbiddenContactInfo(value)) {
+                            return 'Opis ne smije sadržavati kontakt podatke.';
                           }
                           return null;
                         },

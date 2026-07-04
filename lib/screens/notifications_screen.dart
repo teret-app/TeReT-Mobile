@@ -8,7 +8,7 @@ import '../services/token_storage.dart';
 import 'login_screen.dart';
 import 'shipment_details_screen.dart';
 import 'shipment_offers_screen.dart';
-
+import 'my_offers_screen.dart';
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
 
@@ -137,7 +137,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   bool _opensOffersScreen(String type) {
-    return type == 'offer_created' || type == 'offer_updated';
+    return type == 'offer_created' ||
+        type == 'offer_updated' ||
+        type == 'offer_outbid';
   }
 
   bool _opensShipmentDetails(String type) {
@@ -268,7 +270,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => ShipmentOffersScreen(shipmentId: shipmentId),
+          builder: (_) => const MyOffersScreen(),
         ),
       );
     } else if (_opensShipmentDetails(type)) {

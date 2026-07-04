@@ -12,7 +12,7 @@ import 'screens/odabir_uloge_screen.dart';
 import 'screens/splash_screen.dart';
 import 'screens/user_profile_screen.dart';
 import 'screens/shipment_details_screen.dart';
-
+import 'screens/my_offers_screen.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 final FlutterLocalNotificationsPlugin localNotifications =
@@ -32,17 +32,24 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 void _openShipmentFromNotification(Map<String, dynamic> data) {
-  final shipmentIdRaw = data['shipmentId'];
+  final type = data['type']?.toString();
 
-  if (shipmentIdRaw == null) {
+  if (type == 'offer_outbid') {
+    navigatorKey.currentState?.push(
+      MaterialPageRoute(
+        builder: (_) => const MyOffersScreen(),
+      ),
+    );
     return;
   }
+
+  final shipmentIdRaw = data['shipmentId'];
+
+  if (shipmentIdRaw == null) return;
 
   final shipmentId = int.tryParse(shipmentIdRaw.toString());
 
-  if (shipmentId == null) {
-    return;
-  }
+  if (shipmentId == null) return;
 
   navigatorKey.currentState?.push(
     MaterialPageRoute(
@@ -180,32 +187,3 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: navigatorKey,
-      title: 'TeReT',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      initialRoute: '/splash',
-      routes: {
-        '/splash': (context) => const SplashScreen(),
-        '/login': (context) => const LoginScreen(),
-        '/register': (context) => const OdabirUlogeScreen(),
-        '/user_profile': (context) {
-          final args =
-          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-
-          return UserProfileScreen(
-            userId: args['userId'],
-            userName: args['userName'] ?? 'Prijevoznik',
-          );
-        },
-        '/sender_home': (context) => const SenderHomeScreen(),
-        '/transporter_home': (context) => const TransporterHomeScreen(),
-      },
-    );
-  }

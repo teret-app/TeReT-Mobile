@@ -190,20 +190,14 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
     required String shipmentStatus,
     required bool isLowest,
   }) {
-    if (_isCompletedShipment(shipmentStatus)) {
-      return 'Licitacija završena';
+    if (_isAcceptedShipment(shipmentStatus) ||
+        _isCompletedShipment(shipmentStatus) ||
+        _isExpiredShipment(shipmentStatus)) {
+      return 'Završeno';
     }
 
     if (_isAcceptedOffer(offerStatus)) {
       return 'Prihvaćena';
-    }
-
-    if (_isRejectedOffer(offerStatus)) {
-      return 'Nadmašena';
-    }
-
-    if (_isExpiredShipment(shipmentStatus)) {
-      return 'Licitacija završena';
     }
 
     if (isLowest) {
@@ -222,7 +216,7 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
       case 'Nadmašena':
         return Colors.orange;
       case 'Završeno':
-        return Colors.blue;
+        return Colors.grey;
       case 'Licitacija završena':
         return Colors.red;
       default:
@@ -371,9 +365,11 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
 
     final isAccepted = _isAcceptedOffer(offerStatus);
     final isRejected = _isRejectedOffer(offerStatus);
-    final canSendNewOffer =
-        (shipmentStatus == 'active' || shipmentStatus == 'aktivan') &&
-            !isLowest;
+    final sStatus = shipmentStatus.toLowerCase().trim();
+    final isShipmentActive =
+        sStatus == 'active' || sStatus == 'aktivan' || sStatus == 'open';
+
+    final canSendNewOffer = isShipmentActive && !isLowest;
     final isCommissionPaid = offer['commissionPaid'] == true ||
         offer['commission_paid'] == true ||
         offer['provizijaPlacena'] == true ||
@@ -569,28 +565,29 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
 
                   const SizedBox(height: 10),
 
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.local_offer),
-                      label: const Text('Pošalji novu ponudu'),
-                      onPressed: shipmentId == null
-                          ? null
-                          : () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => SendOfferScreen(
-                              shipmentId: shipmentId,
+                  if (canSendNewOffer)
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.local_offer),
+                        label: const Text('Pošalji novu ponudu'),
+                        onPressed: shipmentId == null
+                            ? null
+                            : () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => SendOfferScreen(
+                                shipmentId: shipmentId,
+                              ),
                             ),
-                          ),
-                        );
+                          );
 
-                        if (!mounted) return;
-                        fetchMyOffers();
-                      },
+                          if (!mounted) return;
+                          fetchMyOffers();
+                        },
+                      ),
                     ),
-                  ),
                 ],
               ),
           ],

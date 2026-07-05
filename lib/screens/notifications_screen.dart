@@ -7,8 +7,8 @@ import '../config.dart';
 import '../services/token_storage.dart';
 import 'login_screen.dart';
 import 'shipment_details_screen.dart';
-import 'shipment_offers_screen.dart';
 import 'my_offers_screen.dart';
+
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
 
@@ -27,6 +27,24 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     loadNotifications();
   }
 
+  Future<String?> _getTokenOrLogout() async {
+    final token = await TokenStorage.getToken();
+
+    if (token == null || token.isEmpty) {
+      if (!mounted) return null;
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+            (route) => false,
+      );
+
+      return null;
+    }
+
+    return token;
+  }
+
   Future<void> loadNotifications() async {
     if (!mounted) return;
 
@@ -35,17 +53,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       errorMessage = '';
     });
 
-    final token = await TokenStorage.getToken();
-
-    if (token == null || token.isEmpty) {
-      if (!mounted) return;
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-            (route) => false,
-      );
-      return;
-    }
+    final token = await _getTokenOrLogout();
+    if (token == null) return;
 
     try {
       final response = await http.get(
@@ -60,8 +69,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
-        List list = data is List ? data : [];
+        final List list = data is List ? data : [];
 
         list.sort((a, b) {
           final aRead = a['isRead'] == true;
@@ -83,24 +91,30 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           notifications = list;
           isLoading = false;
         });
-      } else if (response.statusCode == 401) {
+        return;
+      }
+
+      if (response.statusCode == 401) {
         await TokenStorage.clearToken();
 
         if (!mounted) return;
+
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (_) => const LoginScreen()),
               (route) => false,
         );
-      } else {
-        setState(() {
-          notifications = [];
-          isLoading = false;
-          errorMessage = 'Greška pri dohvaćanju obavijesti.';
-        });
+        return;
       }
+
+      setState(() {
+        notifications = [];
+        isLoading = false;
+        errorMessage = 'Greška pri dohvaćanju obavijesti.';
+      });
     } catch (_) {
       if (!mounted) return;
+
       setState(() {
         isLoading = false;
         errorMessage = 'Greška konekcije sa serverom.';
@@ -121,6 +135,124 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         },
       );
     } catch (_) {}
+  }
+
+  Future<bool> deleteNotification(int id) async {
+    final token = await _getTokenOrLogout();
+    if (token == null) return false;
+
+    try {
+      final response = await http.delete(
+        Uri.parse('${AppConfig.baseUrl}/notifications/$id'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      return response.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<void> deleteReadNotifications() async {
+    final confirm = await _confirmDialog(
+      title: 'Obrisati pročitane obavijesti?',
+      message: 'Sve pročitane obavijesti bit će uklonjene iz prikaza.',
+    );
+
+    if (confirm != true) return;
+
+    final token = await _getTokenOrLogout();
+    if (token == null) return;
+
+    try {
+      final response = await http.delete(
+        Uri.parse('${AppConfig.baseUrl}/notifications/read'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        await loadNotifications();
+        _showSnack('Pročitane obavijesti su obrisane.');
+      } else {
+        _showSnack('Brisanje nije uspjelo.');
+      }
+    } catch (_) {
+      if (!mounted) return;
+      _showSnack('Greška konekcije sa serverom.');
+    }
+  }
+
+  Future<void> deleteAllNotifications() async {
+    final confirm = await _confirmDialog(
+      title: 'Obrisati sve obavijesti?',
+      message: 'Sve obavijesti bit će uklonjene iz prikaza.',
+    );
+
+    if (confirm != true) return;
+
+    final token = await _getTokenOrLogout();
+    if (token == null) return;
+
+    try {
+      final response = await http.delete(
+        Uri.parse('${AppConfig.baseUrl}/notifications'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        await loadNotifications();
+        _showSnack('Sve obavijesti su obrisane.');
+      } else {
+        _showSnack('Brisanje nije uspjelo.');
+      }
+    } catch (_) {
+      if (!mounted) return;
+      _showSnack('Greška konekcije sa serverom.');
+    }
+  }
+
+  Future<bool?> _confirmDialog({
+    required String title,
+    required String message,
+  }) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Odustani'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Obriši'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSnack(String message) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   String _text(dynamic value, [String fallback = '']) {
@@ -285,10 +417,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       );
     }
 
-
-
-
-
     if (!mounted) return;
     loadNotifications();
   }
@@ -385,16 +513,65 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ),
             ),
             const SizedBox(width: 8),
-
-    if (_opensOffersScreen(type) || _opensShipmentDetails(type))
-    Icon(
-    Icons.chevron_right,
-    size: 20,
-    color: Colors.grey.shade500,
-    ),
+            if (_opensOffersScreen(type) || _opensShipmentDetails(type))
+              Icon(
+                Icons.chevron_right,
+                size: 20,
+                color: Colors.grey.shade500,
+              ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _dismissibleCard(Map<String, dynamic> n) {
+    final idRaw = n['id'];
+    final id = idRaw is int ? idRaw : int.tryParse('$idRaw');
+
+    if (id == null) {
+      return _card(n);
+    }
+
+    return Dismissible(
+      key: ValueKey('notification_$id'),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        margin: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+        padding: const EdgeInsets.only(right: 20),
+        alignment: Alignment.centerRight,
+        decoration: BoxDecoration(
+          color: Colors.red.shade600,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Icon(
+          Icons.delete,
+          color: Colors.white,
+        ),
+      ),
+      confirmDismiss: (_) async {
+        final success = await deleteNotification(id);
+
+        if (!success) {
+          _showSnack('Brisanje obavijesti nije uspjelo.');
+          return false;
+        }
+
+        return true;
+      },
+      onDismissed: (_) {
+        setState(() {
+          notifications.removeWhere((item) {
+            if (item is Map) {
+              return '${item['id']}' == '$id';
+            }
+            return false;
+          });
+        });
+
+        _showSnack('Obavijest je obrisana.');
+      },
+      child: _card(n),
     );
   }
 
@@ -475,11 +652,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           final item = notifications[i];
 
           if (item is Map<String, dynamic>) {
-            return _card(item);
+            return _dismissibleCard(item);
           }
 
           if (item is Map) {
-            return _card(Map<String, dynamic>.from(item));
+            return _dismissibleCard(Map<String, dynamic>.from(item));
           }
 
           return const SizedBox.shrink();
@@ -488,8 +665,38 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
+  void _openNotificationMenu() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.mark_email_read_outlined),
+              title: const Text('Obriši pročitane'),
+              onTap: () {
+                Navigator.pop(context);
+                deleteReadNotifications();
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_sweep_outlined),
+              title: const Text('Obriši sve obavijesti'),
+              onTap: () {
+                Navigator.pop(context);
+                deleteAllNotifications();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final hasNotifications = notifications.isNotEmpty;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
       appBar: AppBar(
@@ -507,6 +714,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             onPressed: loadNotifications,
             icon: const Icon(Icons.refresh),
           ),
+          if (hasNotifications)
+            IconButton(
+              tooltip: 'Upravljanje obavijestima',
+              onPressed: _openNotificationMenu,
+              icon: const Icon(Icons.more_vert),
+            ),
         ],
       ),
       body: _body(),

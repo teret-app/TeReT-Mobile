@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
 import '../config.dart';
 import '../services/token_storage.dart';
 import 'login_screen.dart';
 import 'shipment_details_screen.dart';
 import 'send_offer_screen.dart';
+
 class MyOffersScreen extends StatefulWidget {
   const MyOffersScreen({super.key});
 
@@ -65,16 +67,8 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
         return;
       }
 
-      String message = 'Greška pri dohvaćanju mojih ponuda.';
-      try {
-        final decoded = jsonDecode(response.body);
-        if (decoded is Map && decoded['message'] != null) {
-          message = decoded['message'].toString();
-        }
-      } catch (_) {}
-
       setState(() {
-        errorMessage = message;
+        errorMessage = 'Greška pri dohvaćanju mojih ponuda.';
         isLoading = false;
       });
     } catch (_) {
@@ -83,6 +77,79 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
         errorMessage = 'Greška konekcije sa serverom.';
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> _hideOfferFromHistory(int offerId) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Ukloniti iz povijesti?'),
+        content: const Text(
+          'Ponuda će nestati iz vašeg popisa, ali neće biti trajno obrisana iz sustava.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Odustani'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Ukloni'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final token = await TokenStorage.getToken();
+
+    if (token == null || token.isEmpty) {
+      _goToLogin('Niste prijavljeni. Prijavite se ponovno.');
+      return;
+    }
+
+    try {
+      final response = await http.put(
+        Uri.parse('${AppConfig.baseUrl}/offers/$offerId/hide'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200) {
+        setState(() {
+          offers.removeWhere((item) {
+            if (item is Map) {
+              return '${item['id']}' == '$offerId';
+            }
+            return false;
+          });
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Ponuda je uklonjena iz povijesti.'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Uklanjanje nije uspjelo.'),
+          ),
+        );
+      }
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Greška konekcije sa serverom.'),
+        ),
+      );
     }
   }
 
@@ -99,8 +166,7 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
   String _text(dynamic value, [String fallback = '—']) {
     if (value == null) return fallback;
     final text = value.toString().trim();
-    if (text.isEmpty) return fallback;
-    return text;
+    return text.isEmpty ? fallback : text;
   }
 
   double? _number(dynamic value) {
@@ -116,6 +182,7 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
     if (number == number.roundToDouble()) {
       return '${number.toInt()} €';
     }
+
     return '${number.toStringAsFixed(2)} €';
   }
 
@@ -185,6 +252,27 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
         s == 'isteklo';
   }
 
+  bool _isActiveShipment(String status) {
+    final s = status.toLowerCase().trim();
+
+    return s == 'active' || s == 'aktivan' || s == 'open';
+  }
+
+  bool _canHideOffer({
+    required String offerStatus,
+    required String shipmentStatus,
+  }) {
+    if (_isRejectedOffer(offerStatus)) return true;
+    if (_isExpiredShipment(shipmentStatus)) return true;
+    if (_isCompletedShipment(shipmentStatus)) return true;
+
+    if (_isAcceptedShipment(shipmentStatus) && !_isAcceptedOffer(offerStatus)) {
+      return true;
+    }
+
+    return false;
+  }
+
   String _offerDisplayStatus({
     required String offerStatus,
     required String shipmentStatus,
@@ -210,7 +298,6 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
   Color _offerDisplayColor(String label) {
     switch (label) {
       case 'Prihvaćena':
-        return Colors.green;
       case 'Najniža':
         return Colors.green;
       case 'Nadmašena':
@@ -225,45 +312,19 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
   }
 
   String _shipmentStatusText(String status) {
-    final s = status.toLowerCase().trim();
-
-    if (s == 'active' || s == 'aktivan' || s == 'open') {
-      return 'Aktivan';
-    }
-
-    if (_isAcceptedShipment(status)) {
-      return 'Ponuda prihvaćena';
-    }
-
-    if (_isCompletedShipment(status)) {
-      return 'Korisnici povezani';
-    }
-
-    if (_isExpiredShipment(status)) {
-      return 'Licitacija završena';
-    }
+    if (_isActiveShipment(status)) return 'Aktivan';
+    if (_isAcceptedShipment(status)) return 'Ponuda prihvaćena';
+    if (_isCompletedShipment(status)) return 'Korisnici povezani';
+    if (_isExpiredShipment(status)) return 'Licitacija završena';
 
     return status == '—' ? '—' : status;
   }
 
   Color _shipmentStatusColor(String status) {
-    final s = status.toLowerCase().trim();
-
-    if (s == 'active' || s == 'aktivan' || s == 'open') {
-      return Colors.green;
-    }
-
-    if (_isAcceptedShipment(status)) {
-      return Colors.orange;
-    }
-
-    if (_isCompletedShipment(status)) {
-      return Colors.blue;
-    }
-
-    if (_isExpiredShipment(status)) {
-      return Colors.red;
-    }
+    if (_isActiveShipment(status)) return Colors.green;
+    if (_isAcceptedShipment(status)) return Colors.orange;
+    if (_isCompletedShipment(status)) return Colors.blue;
+    if (_isExpiredShipment(status)) return Colors.red;
 
     return Colors.blueGrey;
   }
@@ -339,7 +400,12 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
         ? Map<String, dynamic>.from(rawShipment)
         : <String, dynamic>{};
 
+    final offerId = offer['id'] is int
+        ? offer['id'] as int
+        : int.tryParse('${offer['id']}') ?? 0;
+
     final shipmentId = shipment['id'];
+
     final offerStatus = _text(offer['status'], 'active');
     final shipmentStatus = _text(shipment['status'], '—');
 
@@ -365,11 +431,16 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
 
     final isAccepted = _isAcceptedOffer(offerStatus);
     final isRejected = _isRejectedOffer(offerStatus);
-    final sStatus = shipmentStatus.toLowerCase().trim();
-    final isShipmentActive =
-        sStatus == 'active' || sStatus == 'aktivan' || sStatus == 'open';
+    final isShipmentActive = _isActiveShipment(shipmentStatus);
 
     final canSendNewOffer = isShipmentActive && !isLowest;
+
+    final canHideOffer = offerId > 0 &&
+        _canHideOffer(
+          offerStatus: offerStatus,
+          shipmentStatus: shipmentStatus,
+        );
+
     final isCommissionPaid = offer['commissionPaid'] == true ||
         offer['commission_paid'] == true ||
         offer['provizijaPlacena'] == true ||
@@ -444,7 +515,6 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
                 label: 'Moja poruka',
                 value: poruka,
               ),
-
             if (isAccepted && !isRejected && !isCommissionPaid)
               InkWell(
                 borderRadius: BorderRadius.circular(12),
@@ -481,7 +551,6 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
                   ),
                 ),
               ),
-
             if (isAccepted && !isRejected && isCommissionPaid)
               InkWell(
                 borderRadius: BorderRadius.circular(12),
@@ -517,7 +586,6 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
                   ),
                 ),
               ),
-
             const SizedBox(height: 6),
             if (canSendNewOffer)
               SizedBox(
@@ -562,34 +630,19 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
                       ),
                     ),
                   ),
-
-                  const SizedBox(height: 10),
-
-                  if (canSendNewOffer)
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        icon: const Icon(Icons.local_offer),
-                        label: const Text('Pošalji novu ponudu'),
-                        onPressed: shipmentId == null
-                            ? null
-                            : () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => SendOfferScreen(
-                                shipmentId: shipmentId,
-                              ),
-                            ),
-                          );
-
-                          if (!mounted) return;
-                          fetchMyOffers();
-                        },
-                      ),
-                    ),
                 ],
               ),
+            if (canHideOffer) ...[
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _hideOfferFromHistory(offerId),
+                  icon: const Icon(Icons.delete_outline),
+                  label: const Text('Ukloni iz povijesti'),
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -598,9 +651,7 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
 
   Widget _buildBody() {
     if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     if (errorMessage.isNotEmpty) {
@@ -672,9 +723,10 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
 
     return RefreshIndicator(
       onRefresh: fetchMyOffers,
-      child: ListView.builder(
+      child: ListView.separated(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         itemCount: offers.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
           return _buildOfferCard(offers[index]);
         },

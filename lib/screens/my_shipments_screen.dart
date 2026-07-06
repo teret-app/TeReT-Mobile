@@ -48,7 +48,7 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
         );
         return;
       }
-      final start = DateTime.now();
+
       final res = await http.get(
         Uri.parse('${AppConfig.baseUrl}/my-shipments'),
         headers: {
@@ -56,9 +56,7 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
           'Content-Type': 'application/json',
         },
       );
-      print(
-        'MY SHIPMENTS API: ${DateTime.now().difference(start).inMilliseconds} ms',
-      );
+
       if (!mounted) return;
 
       if (res.statusCode == 200) {
@@ -89,12 +87,90 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
           errorMessage = 'Greška pri dohvaćanju mojih objava.';
         });
       }
-    } catch (e) {
+    } catch (_) {
       if (!mounted) return;
       setState(() {
         isLoading = false;
         errorMessage = 'Greška konekcije sa serverom.';
       });
+    }
+  }
+
+  Future<void> _hideShipmentFromHistory(int shipmentId) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Ukloniti iz povijesti?'),
+        content: const Text(
+          'Objava će nestati iz vašeg popisa. Neće biti trajno obrisana iz sustava.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Odustani'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Ukloni'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final token = await TokenStorage.getToken();
+
+    if (token == null || token.isEmpty) {
+      if (!mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+            (route) => false,
+      );
+      return;
+    }
+
+    try {
+      final res = await http.put(
+        Uri.parse('${AppConfig.baseUrl}/shipments/$shipmentId/hide'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (!mounted) return;
+
+      if (res.statusCode == 200) {
+        setState(() {
+          shipments.removeWhere((item) {
+            if (item is Map) {
+              return '${item['id']}' == '$shipmentId';
+            }
+            return false;
+          });
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Objava je uklonjena iz povijesti.'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Uklanjanje nije uspjelo.'),
+          ),
+        );
+      }
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Greška konekcije sa serverom.'),
+        ),
+      );
     }
   }
 
@@ -154,7 +230,6 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
 
   bool _isActiveStatus(String status) {
     final s = status.toLowerCase().trim();
-
     return s == 'aktivan' || s == 'active' || s == 'open';
   }
 
@@ -184,44 +259,33 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
         s == 'isteklo';
   }
 
+  bool _canHideFromHistory(String status, bool timerExpired) {
+    final s = status.toLowerCase().trim();
+
+    return timerExpired ||
+        _isCompletedStatus(status) ||
+        _isExpiredStatus(status) ||
+        s == 'withdrawn' ||
+        s == 'povuceno' ||
+        s == 'povučeno';
+  }
+
   String _statusLabel(String status) {
     final s = status.toLowerCase().trim();
 
-    if (_isActiveStatus(status)) {
-      return 'Aktivno';
-    }
-
-    if (_isAcceptedStatus(status)) {
-      return 'Prijevoz dogovoren';
-    }
-
-    if (_isCompletedStatus(status)) {
-      return 'Završeno';
-    }
-
-    if (_isExpiredStatus(status)) {
-      return 'Licitacija završena';
-    }
+    if (_isActiveStatus(status)) return 'Aktivno';
+    if (_isAcceptedStatus(status)) return 'Prijevoz dogovoren';
+    if (_isCompletedStatus(status)) return 'Završeno';
+    if (_isExpiredStatus(status)) return 'Licitacija završena';
 
     return s.isEmpty ? 'Nepoznato' : status;
   }
 
   Color _statusColor(String status) {
-    if (_isActiveStatus(status)) {
-      return Colors.green;
-    }
-
-    if (_isAcceptedStatus(status)) {
-      return Colors.orange;
-    }
-
-    if (_isCompletedStatus(status)) {
-      return Colors.blue;
-    }
-
-    if (_isExpiredStatus(status)) {
-      return Colors.red;
-    }
+    if (_isActiveStatus(status)) return Colors.green;
+    if (_isAcceptedStatus(status)) return Colors.orange;
+    if (_isCompletedStatus(status)) return Colors.blue;
+    if (_isExpiredStatus(status)) return Colors.red;
 
     return Colors.grey;
   }
@@ -241,10 +305,7 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
   }
 
   String _formatLicitacijaTimer(Map<String, dynamic> shipment) {
-    final raw = _text(
-      shipment['licitacija_zavrsava_at'],
-      '',
-    );
+    final raw = _text(shipment['licitacija_zavrsava_at'], '');
 
     if (raw.isEmpty) return '';
 
@@ -383,14 +444,16 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
             !isAccepted &&
             !isCompleted;
 
+    final bool showHideButton =
+        shipmentId > 0 && _canHideFromHistory(status, timerExpired);
+
     final bool canOpenOffers = shipmentId > 0;
     final bool canOpenBidHistory = shipmentId > 0;
 
     return Material(
-        color: Colors.white,
-        elevation: 0.7,
-        borderRadius: BorderRadius.circular(10),
-
+      color: Colors.white,
+      elevation: 0.7,
+      borderRadius: BorderRadius.circular(10),
       child: Padding(
         padding: const EdgeInsets.all(13),
         child: Column(
@@ -508,6 +571,17 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
                 ),
               ),
             ],
+            if (showHideButton) ...[
+              const SizedBox(height: 7),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _hideShipmentFromHistory(shipmentId),
+                  icon: const Icon(Icons.delete_outline),
+                  label: const Text('Ukloni iz povijesti'),
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -535,9 +609,7 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
                   child: Text(
                     errorMessage,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 16,
-                    ),
+                    style: const TextStyle(fontSize: 16),
                   ),
                 ),
               ),
@@ -569,9 +641,10 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
 
     return RefreshIndicator(
       onRefresh: fetchShipments,
-      child: ListView.builder(
+      child: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: shipments.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
           final item = shipments[index];
 
@@ -594,8 +667,16 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FB),
       appBar: AppBar(
-        title: const Text('Moje objave'),
+        title: const Text(
+          'Moje objave',
+          style: TextStyle(fontWeight: FontWeight.w800),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0,
       ),
       body: _buildBody(),
     );

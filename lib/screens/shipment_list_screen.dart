@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../config.dart';
+import '../utils/country_helper.dart';
 import '../services/token_storage.dart';
 import 'login_screen.dart';
 import 'role_picker_screen.dart';
@@ -95,7 +96,7 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
 
       if (response.statusCode == 200) {
         final list = data is List ? data : [];
-
+        debugPrint(jsonEncode(list));
         setState(() {
           shipments = list.where((item) {
             if (item is! Map) return false;
@@ -169,11 +170,23 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
   }
 
   String formatRoute(Map item) {
+    final fromCountry = readString(
+      item,
+      ['drzava_utovara', 'drzavaUtovara', 'country_utovara', 'loadingCountry'],
+      fallback: '',
+    );
+
+    final toCountry = readString(
+      item,
+      ['drzava_istovara', 'drzavaIstovara', 'country_istovara', 'unloadingCountry'],
+      fallback: '',
+    );
+
     final from = readString(item, ['mjesto_utovara']);
     final to = readString(item, ['mjesto_istovara']);
-    return '$from → $to';
-  }
 
+    return '${countryFlag(fromCountry)} $from → ${countryFlag(toCountry)} $to';
+  }
   String formatLicitacijaTimer(Map item) {
     final raw = readString(
       item,

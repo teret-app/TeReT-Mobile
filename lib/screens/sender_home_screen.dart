@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import '../config.dart';
+import '../utils/country_helper.dart';
 import '../services/token_storage.dart';
 import 'login_screen.dart';
 import 'my_shipments_screen.dart';
@@ -57,7 +58,8 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
   String? odabraniNacinUtovara;
   String? odabraniTipLokacijeUtovara;
   String? odabraniTipLokacijeIstovara;
-
+  String odabranaDrzavaUtovara = 'Hrvatska';
+  String odabranaDrzavaIstovara = 'Hrvatska';
   bool prilazZaTegljac = false;
   bool trebaPomocVozaca = false;
   bool liftNaUtovaru = false;
@@ -251,7 +253,23 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
       ),
     );
   }
-
+  Widget buildCountryDropdown({
+    required String label,
+    required String value,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return DropdownButtonFormField<String>(
+      value: value,
+      decoration: poljeDekoracija(label),
+      items: countryOptions.map((country) {
+        return DropdownMenuItem<String>(
+          value: country.name,
+          child: Text('${country.flag} ${country.name}'),
+        );
+      }).toList(),
+      onChanged: onChanged,
+    );
+  }
   Widget buildImagePreview() {
     if (odabraneSlike.isEmpty) {
       return Container(
@@ -352,8 +370,11 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
       final payload = {
         'naziv_tereta': nazivTeretaController.text.trim(),
         'opis_tereta': opisTeretaController.text.trim(),
+        'drzava_utovara': odabranaDrzavaUtovara,
         'mjesto_utovara': mjestoUtovaraController.text.trim(),
         'adresa_utovara': adresaUtovaraController.text.trim(),
+
+        'drzava_istovara': odabranaDrzavaIstovara,
         'mjesto_istovara': mjestoIstovaraController.text.trim(),
         'adresa_istovara': adresaIstovaraController.text.trim(),
         'trajanje_licitacije': odabranoTrajanjeLicitacije,
@@ -410,6 +431,9 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
           odabraniNacinUtovara = null;
           odabraniTipLokacijeUtovara = null;
           odabraniTipLokacijeIstovara = null;
+
+          odabranaDrzavaUtovara = 'Hrvatska';
+          odabranaDrzavaIstovara = 'Hrvatska';
 
           prilazZaTegljac = false;
           trebaPomocVozaca = false;
@@ -634,6 +658,17 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                       ),
                       const SizedBox(height: 18),
                       buildSectionTitle('Ruta'),
+                      buildCountryDropdown(
+                        label: 'Država utovara',
+                        value: odabranaDrzavaUtovara,
+                        onChanged: (value) {
+                          if (value == null) return;
+                          setState(() {
+                            odabranaDrzavaUtovara = value;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 12),
                       TextFormField(
                         controller: mjestoUtovaraController,
                         decoration: poljeDekoracija('Mjesto utovara'),
@@ -653,6 +688,17 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                             return 'Unesite adresu utovara.';
                           }
                           return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      buildCountryDropdown(
+                        label: 'Država istovara',
+                        value: odabranaDrzavaIstovara,
+                        onChanged: (value) {
+                          if (value == null) return;
+                          setState(() {
+                            odabranaDrzavaIstovara = value;
+                          });
                         },
                       ),
                       const SizedBox(height: 12),

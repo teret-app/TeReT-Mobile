@@ -5,7 +5,7 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import '../config.dart';
 import 'login_screen.dart';
 import 'terms_screen.dart';
-
+import '../utils/country_helper.dart';
 class RegisterScreen extends StatefulWidget {
   final String role;
 
@@ -139,7 +139,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
   }
-
+    Widget countryItem(String flag, String country) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            flag,
+            style: const TextStyle(fontSize: 20),
+          ),
+          const SizedBox(width: 10),
+          Text(country),
+        ],
+      );
+    }
   Widget buildTermsCheckbox() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -263,52 +275,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         DropdownButtonFormField<String>(
                           value: selectedCountry,
                           decoration: buildInputDecoration('Država'),
-                          items: const [
-                            DropdownMenuItem(value: 'Hrvatska', child: Text('Hrvatska')),
-                            DropdownMenuItem(value: 'Slovenija', child: Text('Slovenija')),
-                            DropdownMenuItem(value: 'Austrija', child: Text('Austrija')),
-                            DropdownMenuItem(value: 'Njemačka', child: Text('Njemačka')),
-                            DropdownMenuItem(value: 'Italija', child: Text('Italija')),
-                            DropdownMenuItem(value: 'Mađarska', child: Text('Mađarska')),
-                            DropdownMenuItem(value: 'Češka', child: Text('Češka')),
-                            DropdownMenuItem(value: 'Slovačka', child: Text('Slovačka')),
-                            DropdownMenuItem(value: 'Poljska', child: Text('Poljska')),
-                            DropdownMenuItem(value: 'Francuska', child: Text('Francuska')),
-                            DropdownMenuItem(value: 'Belgija', child: Text('Belgija')),
-                            DropdownMenuItem(value: 'Nizozemska', child: Text('Nizozemska')),
-                            DropdownMenuItem(value: 'Španjolska', child: Text('Španjolska')),
-                            DropdownMenuItem(value: 'Portugal', child: Text('Portugal')),
-                            DropdownMenuItem(value: 'Danska', child: Text('Danska')),
-                            DropdownMenuItem(value: 'Švedska', child: Text('Švedska')),
-                            DropdownMenuItem(value: 'Finska', child: Text('Finska')),
-                            DropdownMenuItem(value: 'Irska', child: Text('Irska')),
-                            DropdownMenuItem(value: 'Rumunjska', child: Text('Rumunjska')),
-                            DropdownMenuItem(value: 'Bugarska', child: Text('Bugarska')),
-                            DropdownMenuItem(value: 'Grčka', child: Text('Grčka')),
-                            DropdownMenuItem(value: 'Litva', child: Text('Litva')),
-                            DropdownMenuItem(value: 'Latvija', child: Text('Latvija')),
-                            DropdownMenuItem(value: 'Estonija', child: Text('Estonija')),
-                            DropdownMenuItem(value: 'Luksemburg', child: Text('Luksemburg')),
-                            DropdownMenuItem(value: 'Malta', child: Text('Malta')),
-                            DropdownMenuItem(value: 'Cipar', child: Text('Cipar')),
-
-                            DropdownMenuItem(value: 'Srbija', child: Text('Srbija')),
-                            DropdownMenuItem(value: 'Bosna i Hercegovina', child: Text('Bosna i Hercegovina')),
-                            DropdownMenuItem(value: 'Crna Gora', child: Text('Crna Gora')),
-                            DropdownMenuItem(value: 'Sjeverna Makedonija', child: Text('Sjeverna Makedonija')),
-                            DropdownMenuItem(value: 'Albanija', child: Text('Albanija')),
-                            DropdownMenuItem(value: 'Kosovo', child: Text('Kosovo')),
-
-                            DropdownMenuItem(value: 'Švicarska', child: Text('Švicarska')),
-                            DropdownMenuItem(value: 'Ujedinjeno Kraljevstvo', child: Text('Ujedinjeno Kraljevstvo')),
-                            DropdownMenuItem(value: 'Norveška', child: Text('Norveška')),
-                            DropdownMenuItem(value: 'Island', child: Text('Island')),
-                            DropdownMenuItem(value: 'Lihtenštajn', child: Text('Lihtenštajn')),
-
-                            DropdownMenuItem(value: 'SAD', child: Text('SAD')),
-                            DropdownMenuItem(value: 'Kanada', child: Text('Kanada')),
-                            DropdownMenuItem(value: 'Australija', child: Text('Australija')),
-                          ],
+                            items: countryOptions.map((country) {
+                  return DropdownMenuItem<String>(
+                  value: country.name,
+                  child: countryItem(country.flag, country.name),
+                  );
+                  }).toList(),
                           onChanged: (value) {
                             if (value == null) return;
 

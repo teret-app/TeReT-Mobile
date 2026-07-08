@@ -701,7 +701,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
   }
   Widget _buildImagesSection() {
     final images = _extractImages();
-    print(images);
+
 
     if (images.isEmpty) {
       return const SizedBox.shrink();

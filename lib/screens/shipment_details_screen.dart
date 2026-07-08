@@ -404,7 +404,21 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
 
     if (rawImages is List) {
       return rawImages
-          .map((e) => e.toString())
+          .map((e) {
+        if (e is String) return e;
+
+        if (e is Map) {
+          return (e['url'] ??
+              e['path'] ??
+              e['src'] ??
+              e['base64'] ??
+              e['data'] ??
+              '')
+              .toString();
+        }
+
+        return '';
+      })
           .where((e) => e.trim().isNotEmpty)
           .toList();
     }
@@ -419,7 +433,21 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
 
         if (decoded is List) {
           return decoded
-              .map((e) => e.toString())
+              .map((e) {
+            if (e is String) return e;
+
+            if (e is Map) {
+              return (e['url'] ??
+                  e['path'] ??
+                  e['src'] ??
+                  e['base64'] ??
+                  e['data'] ??
+                  '')
+                  .toString();
+            }
+
+            return '';
+          })
               .where((e) => e.trim().isNotEmpty)
               .toList();
         }
@@ -673,7 +701,11 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
   }
   Widget _buildImagesSection() {
     final images = _extractImages();
+    print(images);
 
+    if (images.isEmpty) {
+      return const SizedBox.shrink();
+    }
     if (images.isEmpty) {
       return const SizedBox.shrink();
     }

@@ -23,6 +23,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController companyNameController = TextEditingController();
+  final TextEditingController oibController = TextEditingController();
+  final TextEditingController companyAddressController =
+  TextEditingController();
+  final TextEditingController postalCodeController =
+  TextEditingController();
   final TextEditingController nicknameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -35,6 +40,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String verificationUrl = '';
   String selectedCountry = 'Hrvatska';
   String selectedRegion = 'Evropa';
+  String wantsR1Invoice = 'Ne';
   String get selectedRole => widget.role;
 
   String get roleTitle {
@@ -46,6 +52,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     fullNameController.dispose();
     companyNameController.dispose();
+    oibController.dispose();
+    companyAddressController.dispose();
+    postalCodeController.dispose();
     nicknameController.dispose();
     phoneController.dispose();
     emailController.dispose();
@@ -89,6 +98,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'country': selectedCountry,
           'region': selectedRegion,
           'acceptedTerms': true,
+          'wantsR1Invoice': wantsR1Invoice == 'Da',
+          'r1Oib': oibController.text.trim(),
+          'r1Address': companyAddressController.text.trim(),
+          'r1PostalCode': postalCodeController.text.trim(),
         }),
       );
 
@@ -262,6 +275,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
 
                         const SizedBox(height: 14),
+                        if (selectedRole == 'carrier') ...[
+                          DropdownButtonFormField<String>(
+                            value: wantsR1Invoice,
+                            decoration: buildInputDecoration(
+                              'Želim R1 račun ',
+                            ),
+
+                            items: const [
+                              DropdownMenuItem(
+                                value: 'Ne',
+                                child: Text('Ne'),
+                              ),
+                              DropdownMenuItem(
+                                value: 'Da',
+                                child: Text('Da'),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              if (value == null) return;
+
+                              setState(() {
+                                wantsR1Invoice = value;
+                              });
+                            },
+                          ),
+                          if (wantsR1Invoice == 'Da') ...[
+                            const SizedBox(height: 14),
+
+                            TextFormField(
+                              controller: oibController,
+                              decoration: buildInputDecoration('OIB'),
+                            ),
+
+                            const SizedBox(height: 14),
+
+                            TextFormField(
+                              controller: companyAddressController,
+                              decoration: buildInputDecoration('Adresa tvrtke'),
+                            ),
+
+                            const SizedBox(height: 14),
+
+                            TextFormField(
+                              controller: postalCodeController,
+                              decoration: buildInputDecoration('Poštanski broj'),
+                            ),
+                          ],
+                          const SizedBox(height: 14),
+                        ],
 
                         TextFormField(
                           controller: nicknameController,

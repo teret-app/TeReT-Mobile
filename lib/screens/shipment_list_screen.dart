@@ -350,8 +350,40 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
         status == 'offer_accepted';
 
     final naziv = readString(item, ['naziv_tereta', 'title'], fallback: 'Teret');
-    final tezina = readString(item, ['tezina_kg'], fallback: '');
-    final datum = readString(item, ['datum_utovara'], fallback: '');
+    final tezina = readString(
+      item,
+      [
+        'tezina_cca_kg',
+        'tezinaCcaKg',
+        'tezina_kg',
+        'tezinaKg',
+        'tezina',
+        'weight_kg',
+        'weightKg',
+        'weight',
+      ],
+      fallback: '',
+    );
+    final createdAtRaw = readString(
+      item,
+      ['createdAt', 'created_at'],
+      fallback: '',
+    );
+
+    String datumObjave = '';
+
+    if (createdAtRaw.isNotEmpty) {
+      try {
+        final createdAt = DateTime.parse(createdAtRaw).toLocal();
+
+        datumObjave =
+        '${createdAt.day.toString().padLeft(2, '0')}.'
+            '${createdAt.month.toString().padLeft(2, '0')}.'
+            '${createdAt.year}.';
+      } catch (_) {
+        datumObjave = '';
+      }
+    }
 
     final ponude = readInt(item, ['offersCount', 'broj_ponuda']) ?? 0;
     final lowestOffer = readInt(item, ['lowestOffer']);
@@ -446,7 +478,7 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
                 ],
                 const SizedBox(height: 4),
                 Text(
-                  '$tezina kg • $datum',
+                  'cca $tezina kg • Objavljeno $datumObjave',
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.grey.shade700,
@@ -502,7 +534,7 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
                       ).then((_) => fetchShipments(silent: true));
                     },
                     icon: const Icon(Icons.inventory_2_outlined, size: 18),
-                    label: const Text('Detalji tereta'),
+                    label: const Text('Pogledaj detalje'),
                   ),
                 ),
               ],
@@ -546,7 +578,7 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
             SizedBox(height: 20),
             Center(
               child: Text(
-                'Trenutno nema aktivnih tereta.',
+                'Trenutno nema dostupnih tereta.',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

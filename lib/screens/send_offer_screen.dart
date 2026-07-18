@@ -649,6 +649,36 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                         },
                       ),
                       const SizedBox(height: 24),
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          border: Border.all(color: Colors.orange.shade300),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '⚡',
+                              style: TextStyle(fontSize: 22),
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'Ako ste blizu mjesta utovara i teret možete preuzeti odmah, navedite to u poruci uz ponudu. Brz dolazak može biti presudan pri odabiru prijevoznika.',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       SizedBox(
                         width: double.infinity,
                         height: 52,

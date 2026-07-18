@@ -2,7 +2,7 @@ name: teret_app
 description: TeReT aplikacija
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.0+6
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -21,7 +21,7 @@ dependencies:
   url_launcher: ^6.3.2
   intl_phone_field: ^3.2.0
   app_links: ^7.0.0
-
+  permission_handler: ^11.3.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

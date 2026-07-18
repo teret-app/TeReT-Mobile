@@ -700,7 +700,7 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
             ),
             SizedBox(height: 16),
             Text(
-              'Još nemaš nijednu ponudu.',
+              'Još niste poslali nijednu ponudu.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 19,
@@ -709,7 +709,7 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
             ),
             SizedBox(height: 10),
             Text(
-              'Kad pošalješ ponudu na neki teret, ovdje će se prikazati.',
+              'Kad pošaljete ponudu za neki teret, ovdje će biti prikazane sve vaše ponude.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,

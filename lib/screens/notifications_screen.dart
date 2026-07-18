@@ -8,7 +8,7 @@ import '../services/token_storage.dart';
 import 'login_screen.dart';
 import 'shipment_details_screen.dart';
 import 'my_offers_screen.dart';
-
+import 'shipment_offers_screen.dart';
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
 
@@ -268,10 +268,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return int.tryParse('$directShipmentId');
   }
 
-  bool _opensOffersScreen(String type) {
-    return type == 'offer_created' ||
-        type == 'offer_updated' ||
-        type == 'offer_outbid';
+  bool _opensMyOffersScreen(String type) {
+    return type == 'offer_outbid';
+  }
+
+  bool _opensShipmentOffersScreen(String type) {
+    return type == 'offer_created' || type == 'offer_updated';
   }
 
   bool _opensShipmentDetails(String type) {
@@ -398,11 +400,20 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       return;
     }
 
-    if (_opensOffersScreen(type)) {
+    if (_opensMyOffersScreen(type)) {
       await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => const MyOffersScreen(),
+        ),
+      );
+    } else if (_opensShipmentOffersScreen(type)) {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ShipmentOffersScreen(
+            shipmentId: shipmentId,
+          ),
         ),
       );
     } else if (_opensShipmentDetails(type)) {
@@ -513,7 +524,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            if (_opensOffersScreen(type) || _opensShipmentDetails(type))
+            if (_opensMyOffersScreen(type) ||
+                _opensShipmentOffersScreen(type) ||
+                _opensShipmentDetails(type))
               Icon(
                 Icons.chevron_right,
                 size: 20,

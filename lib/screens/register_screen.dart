@@ -23,11 +23,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController companyNameController = TextEditingController();
-  final TextEditingController oibController = TextEditingController();
-  final TextEditingController companyAddressController =
-  TextEditingController();
-  final TextEditingController postalCodeController =
-  TextEditingController();
   final TextEditingController nicknameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
@@ -40,7 +35,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String verificationUrl = '';
   String selectedCountry = 'Hrvatska';
   String selectedRegion = 'Evropa';
-  String wantsR1Invoice = 'Ne';
   String get selectedRole => widget.role;
 
   String get roleTitle {
@@ -52,9 +46,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     fullNameController.dispose();
     companyNameController.dispose();
-    oibController.dispose();
-    companyAddressController.dispose();
-    postalCodeController.dispose();
     nicknameController.dispose();
     phoneController.dispose();
     emailController.dispose();
@@ -98,10 +89,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'country': selectedCountry,
           'region': selectedRegion,
           'acceptedTerms': true,
-          'wantsR1Invoice': wantsR1Invoice == 'Da',
-          'r1Oib': oibController.text.trim(),
-          'r1Address': companyAddressController.text.trim(),
-          'r1PostalCode': postalCodeController.text.trim(),
         }),
       );
 
@@ -152,19 +139,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
   }
-    Widget countryItem(String flag, String country) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            flag,
-            style: const TextStyle(fontSize: 20),
-          ),
-          const SizedBox(width: 10),
-          Text(country),
-        ],
-      );
-    }
+  Widget countryItem(String flag, String country) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          flag,
+          style: const TextStyle(fontSize: 20),
+        ),
+        const SizedBox(width: 10),
+        Text(country),
+      ],
+    );
+  }
   Widget buildTermsCheckbox() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -226,394 +213,381 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 500),
               child: Column(
-                  children: [
+                children: [
 
 
-               Card (
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const SizedBox(height: 8),
-                        Text(
-                          'Registracija — $roleTitle',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        TextFormField(
-                          controller: fullNameController,
-                          textInputAction: TextInputAction.next,
-                          decoration: buildInputDecoration('Ime i prezime'),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Unesite ime i prezime';
-                            }
-                            return null;
-                          },
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        TextFormField(
-                          controller: companyNameController,
-                          textInputAction: TextInputAction.next,
-                          decoration: buildInputDecoration(
-                            'Naziv tvrtke / obrta (nije obavezno)',
-                          ),
-                        ),
-
-                        const SizedBox(height: 14),
-                        if (selectedRole == 'carrier') ...[
-                          DropdownButtonFormField<String>(
-                            value: wantsR1Invoice,
-                            decoration: buildInputDecoration(
-                              'Želim R1 račun ',
-                            ),
-
-                            items: const [
-                              DropdownMenuItem(
-                                value: 'Ne',
-                                child: Text('Ne'),
-                              ),
-                              DropdownMenuItem(
-                                value: 'Da',
-                                child: Text('Da'),
-                              ),
-                            ],
-                            onChanged: (value) {
-                              if (value == null) return;
-
-                              setState(() {
-                                wantsR1Invoice = value;
-                              });
-                            },
-                          ),
-                          if (wantsR1Invoice == 'Da') ...[
-                            const SizedBox(height: 14),
-
-                            TextFormField(
-                              controller: oibController,
-                              decoration: buildInputDecoration('OIB'),
-                            ),
-
-                            const SizedBox(height: 14),
-
-                            TextFormField(
-                              controller: companyAddressController,
-                              decoration: buildInputDecoration('Adresa tvrtke'),
-                            ),
-
-                            const SizedBox(height: 14),
-
-                            TextFormField(
-                              controller: postalCodeController,
-                              decoration: buildInputDecoration('Poštanski broj'),
-                            ),
-                          ],
-                          const SizedBox(height: 14),
-                        ],
-
-                        TextFormField(
-                          controller: nicknameController,
-                          textInputAction: TextInputAction.next,
-                          decoration: buildInputDecoration(
-                            'Grad / sjedište ',
-                          ),
-                        ),
-
-                        const SizedBox(height: 14),
-                        DropdownButtonFormField<String>(
-                          value: selectedCountry,
-                          decoration: buildInputDecoration('Država'),
-                            items: countryOptions.map((country) {
-                  return DropdownMenuItem<String>(
-                  value: country.name,
-                  child: countryItem(country.flag, country.name),
-                  );
-                  }).toList(),
-                          onChanged: (value) {
-                            if (value == null) return;
-
-                            setState(() {
-                              selectedCountry = value;
-
-                              if ([
-                                'Hrvatska',
-                                'Slovenija',
-                                'Austrija',
-                                'Njemačka',
-                                'Italija',
-                                'Mađarska',
-                                'Češka',
-                                'Slovačka',
-                                'Poljska',
-                                'Francuska',
-                                'Belgija',
-                                'Nizozemska',
-                                'Španjolska',
-                                'Portugal',
-                                'Danska',
-                                'Švedska',
-                                'Finska',
-                                'Irska',
-                                'Rumunjska',
-                                'Bugarska',
-                                'Grčka',
-                                'Litva',
-                                'Latvija',
-                                'Estonija',
-                                'Luksemburg',
-                                'Malta',
-                                'Cipar',
-                              ].contains(value)) {
-                                selectedRegion = 'Evropa';
-                              } else if ([
-                                'Srbija',
-                                'Bosna i Hercegovina',
-                                'Crna Gora',
-                                'Sjeverna Makedonija',
-                                'Albanija',
-                                'Kosovo',
-                              ].contains(value)) {
-                                selectedRegion = 'Evropa';
-                              } else if (value == 'Švicarska') {
-                                selectedRegion = 'SWITZERLAND';
-                              } else if (value == 'Ujedinjeno Kraljevstvo') {
-                                selectedRegion = 'UK';
-                              } else if ([
-                                'Norveška',
-                                'Island',
-                                'Lihtenštajn',
-                              ].contains(value)) {
-                                selectedRegion = 'Evropa';
-                              } else if (value == 'SAD') {
-                                selectedRegion = 'USA';
-                              } else if (value == 'Kanada') {
-                                selectedRegion = 'CANADA';
-                              } else if (value == 'Australija') {
-                                selectedRegion = 'AUSTRALIA_NZ';
-                              }
-                            });
-                          },
-                        ),
-
-                        const SizedBox(height: 14),
-                        IntlPhoneField(
-                          decoration: buildInputDecoration('Broj mobitela'),
-                          initialCountryCode: 'HR',
-                          disableLengthCheck: true,
-                          onChanged: (phone) {
-                            phoneController.text = phone.completeNumber;
-
-                            final code = phone.countryCode;
-
-                            if (['381', '387', '382', '389', '383', '355']
-                                .contains(code)) {
-                              selectedRegion = 'Evropa';
-                            } else if (code == '44') {
-                              selectedRegion = 'UK';
-                            } else if (code == '1') {
-                              selectedRegion = 'USA';
-                            } else if (code == '61' || code == '64') {
-                              selectedRegion = 'AUSTRALIA_NZ';
-                            } else {
-                              selectedRegion = 'Evropa';
-                            }
-                          },
-                          validator: (phone) {
-                            if (phone == null || phone.number.trim().isEmpty) {
-                              return 'Unesite broj mobitela';
-                            }
-                            return null;
-                          },
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        TextFormField(
-                          controller: emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
-                          decoration: buildInputDecoration('Email'),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Unesite email';
-                            }
-                            if (!value.contains('@')) {
-                              return 'Unesite ispravan email';
-                            }
-                            return null;
-                          },
-                        ),
-
-                        const SizedBox(height: 14),
-
-                        TextFormField(
-                          controller: passwordController,
-                          obscureText: obscurePassword,
-                          textInputAction: TextInputAction.done,
-                          decoration: buildInputDecoration('Lozinka').copyWith(
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                obscurePassword
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  obscurePassword = !obscurePassword;
-                                });
-                              },
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Unesite lozinku';
-                            }
-                            if (value.trim().length < 4) {
-                              return 'Lozinka mora imati barem 4 znaka';
-                            }
-                            return null;
-                          },
-                          onFieldSubmitted: (_) {
-                            if (!isLoading) {
-                              register();
-                            }
-                          },
-                        ),
-
-                        const SizedBox(height: 12),
-                        buildTermsCheckbox(),
-
-                        if (errorMessage.isNotEmpty) ...[
-                          const SizedBox(height: 16),
-                          Text(
-                            errorMessage,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              color: Colors.red,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-
-                        if (verificationUrl.isNotEmpty) ...[
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.08),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.green),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                const Text(
-                                  'Registracija je uspješna.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.green,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                const Text(
-                                  'Za testiranje kopirajte ovaj link i otvorite ga u browseru:',
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 8),
-                                SelectableText(
-                                  verificationUrl,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => const LoginScreen(
-                                          errorMessage:
-                                          'Nakon potvrde email adrese možete se prijaviti.',
-                                        ),
-                                      ),
-                                          (route) => false,
-                                    );
-                                  },
-                                  child: const Text('Idi na prijavu'),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-
-                        const SizedBox(height: 20),
-
-                        SizedBox(
-                          height: 52,
-                          child: ElevatedButton(
-                            onPressed: isLoading ? null : register,
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: isLoading
-                                ? const SizedBox(
-                              width: 22,
-                              height: 22,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2.4,
-                                color: Colors.white,
-                              ),
-                            )
-                                : const Text(
-                              'Registriraj se',
-                              style: TextStyle(
-                                fontSize: 16,
+                  Card (
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const SizedBox(height: 8),
+                            Text(
+                              'Registracija — $roleTitle',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 22,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ),
-                        ),
+                            const SizedBox(height: 20),
 
-                        const SizedBox(height: 14),
+                            TextFormField(
+                              controller: fullNameController,
+                              textInputAction: TextInputAction.next,
+                              decoration: buildInputDecoration('Ime i prezime'),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Unesite ime i prezime';
+                                }
+                                return null;
+                              },
+                            ),
 
-                        TextButton(
-                          onPressed: isLoading
-                              ? null
-                              : () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const LoginScreen(),
+                            const SizedBox(height: 14),
+
+                            TextFormField(
+                              controller: companyNameController,
+                              textInputAction: TextInputAction.next,
+                              decoration: buildInputDecoration(
+                                'Naziv tvrtke / obrta (nije obavezno)',
                               ),
-                            );
-                          },
-                          child: const Text('Već imaš račun? Prijavi se'),
+                            ),
+
+                            const SizedBox(height: 14),
+
+                            if (selectedRole == 'carrier') ...[
+                              Card(
+                                color: Colors.amber.shade50,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(
+                                    color: Colors.amber.shade300,
+                                  ),
+                                ),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(14),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Icon(
+                                        Icons.info_outline,
+                                        color: Colors.orange,
+                                      ),
+                                      SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          'Ako trebate R1 račun, prilikom plaćanja putem Stripe Checkouta unesite točne podatke za račun kako bismo vam mogli izdati i dostaviti R1 račun.',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            height: 1.4,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                            ],
+
+                            TextFormField(
+                              controller: nicknameController,
+                              textInputAction: TextInputAction.next,
+                              decoration: buildInputDecoration(
+                                'Grad / sjedište ',
+                              ),
+                            ),
+
+                            const SizedBox(height: 14),
+                            DropdownButtonFormField<String>(
+                              value: selectedCountry,
+                              decoration: buildInputDecoration('Država'),
+                              items: countryOptions.map((country) {
+                                return DropdownMenuItem<String>(
+                                  value: country.name,
+                                  child: countryItem(country.flag, country.name),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                if (value == null) return;
+
+                                setState(() {
+                                  selectedCountry = value;
+
+                                  if ([
+                                    'Hrvatska',
+                                    'Slovenija',
+                                    'Austrija',
+                                    'Njemačka',
+                                    'Italija',
+                                    'Mađarska',
+                                    'Češka',
+                                    'Slovačka',
+                                    'Poljska',
+                                    'Francuska',
+                                    'Belgija',
+                                    'Nizozemska',
+                                    'Španjolska',
+                                    'Portugal',
+                                    'Danska',
+                                    'Švedska',
+                                    'Finska',
+                                    'Irska',
+                                    'Rumunjska',
+                                    'Bugarska',
+                                    'Grčka',
+                                    'Litva',
+                                    'Latvija',
+                                    'Estonija',
+                                    'Luksemburg',
+                                    'Malta',
+                                    'Cipar',
+                                  ].contains(value)) {
+                                    selectedRegion = 'Evropa';
+                                  } else if ([
+                                    'Srbija',
+                                    'Bosna i Hercegovina',
+                                    'Crna Gora',
+                                    'Sjeverna Makedonija',
+                                    'Albanija',
+                                    'Kosovo',
+                                  ].contains(value)) {
+                                    selectedRegion = 'Evropa';
+                                  } else if (value == 'Švicarska') {
+                                    selectedRegion = 'SWITZERLAND';
+                                  } else if (value == 'Ujedinjeno Kraljevstvo') {
+                                    selectedRegion = 'UK';
+                                  } else if ([
+                                    'Norveška',
+                                    'Island',
+                                    'Lihtenštajn',
+                                  ].contains(value)) {
+                                    selectedRegion = 'Evropa';
+                                  } else if (value == 'SAD') {
+                                    selectedRegion = 'USA';
+                                  } else if (value == 'Kanada') {
+                                    selectedRegion = 'CANADA';
+                                  } else if (value == 'Australija') {
+                                    selectedRegion = 'AUSTRALIA_NZ';
+                                  }
+                                });
+                              },
+                            ),
+
+                            const SizedBox(height: 14),
+                            IntlPhoneField(
+                              decoration: buildInputDecoration('Broj mobitela'),
+                              initialCountryCode: 'HR',
+                              disableLengthCheck: true,
+                              onChanged: (phone) {
+                                phoneController.text = phone.completeNumber;
+
+                                final code = phone.countryCode;
+
+                                if (['381', '387', '382', '389', '383', '355']
+                                    .contains(code)) {
+                                  selectedRegion = 'Evropa';
+                                } else if (code == '44') {
+                                  selectedRegion = 'UK';
+                                } else if (code == '1') {
+                                  selectedRegion = 'USA';
+                                } else if (code == '61' || code == '64') {
+                                  selectedRegion = 'AUSTRALIA_NZ';
+                                } else {
+                                  selectedRegion = 'Evropa';
+                                }
+                              },
+                              validator: (phone) {
+                                if (phone == null || phone.number.trim().isEmpty) {
+                                  return 'Unesite broj mobitela';
+                                }
+                                return null;
+                              },
+                            ),
+
+                            const SizedBox(height: 14),
+
+                            TextFormField(
+                              controller: emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              textInputAction: TextInputAction.next,
+                              decoration: buildInputDecoration('Email'),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Unesite email';
+                                }
+                                if (!value.contains('@')) {
+                                  return 'Unesite ispravan email';
+                                }
+                                return null;
+                              },
+                            ),
+
+                            const SizedBox(height: 14),
+
+                            TextFormField(
+                              controller: passwordController,
+                              obscureText: obscurePassword,
+                              textInputAction: TextInputAction.done,
+                              decoration: buildInputDecoration('Lozinka').copyWith(
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    obscurePassword
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      obscurePassword = !obscurePassword;
+                                    });
+                                  },
+                                ),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Unesite lozinku';
+                                }
+                                if (value.trim().length < 4) {
+                                  return 'Lozinka mora imati barem 4 znaka';
+                                }
+                                return null;
+                              },
+                              onFieldSubmitted: (_) {
+                                if (!isLoading) {
+                                  register();
+                                }
+                              },
+                            ),
+
+                            const SizedBox(height: 12),
+                            buildTermsCheckbox(),
+
+                            if (errorMessage.isNotEmpty) ...[
+                              const SizedBox(height: 16),
+                              Text(
+                                errorMessage,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+
+                            if (verificationUrl.isNotEmpty) ...[
+                              const SizedBox(height: 16),
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.withOpacity(0.08),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(color: Colors.green),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    const Text(
+                                      'Registracija je uspješna.',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const Text(
+                                      'Za testiranje kopirajte ovaj link i otvorite ga u browseru:',
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    SelectableText(
+                                      verificationUrl,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pushAndRemoveUntil(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => const LoginScreen(
+                                              errorMessage:
+                                              'Nakon potvrde email adrese možete se prijaviti.',
+                                            ),
+                                          ),
+                                              (route) => false,
+                                        );
+                                      },
+                                      child: const Text('Idi na prijavu'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+
+                            const SizedBox(height: 20),
+
+                            SizedBox(
+                              height: 52,
+                              child: ElevatedButton(
+                                onPressed: isLoading ? null : register,
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: isLoading
+                                    ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.4,
+                                    color: Colors.white,
+                                  ),
+                                )
+                                    : const Text(
+                                  'Registriraj se',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 14),
+
+                            TextButton(
+                              onPressed: isLoading
+                                  ? null
+                                  : () {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const LoginScreen(),
+                                  ),
+                                );
+                              },
+                              child: const Text('Već imaš račun? Prijavi se'),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-            ),
-                  ],
+                ],
               ),
             ),
           ),

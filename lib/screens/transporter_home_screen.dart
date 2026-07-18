@@ -12,7 +12,8 @@ import 'shipment_list_screen.dart';
 import 'my_offers_screen.dart';
 import 'notifications_screen.dart';
 import 'legal_settings_screen.dart';
-
+import 'package:flutter/foundation.dart';
+import 'package:permission_handler/permission_handler.dart';
 class TransporterHomeScreen extends StatefulWidget {
   const TransporterHomeScreen({super.key});
 
@@ -25,7 +26,7 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
   int unreadCount = 0;
 
   Timer? notificationTimer;
-
+  bool notificationsEnabled = true;
   final List<Widget> _screens = const [
     ShipmentListScreen(),
     MyOffersScreen(),
@@ -36,7 +37,7 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
   void initState() {
     super.initState();
     loadUnreadNotifications();
-
+    checkNotificationPermission();
     notificationTimer = Timer.periodic(
       const Duration(seconds: 10),
           (_) => loadUnreadNotifications(),
@@ -73,7 +74,17 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
 
     return shouldExit == true;
   }
+  Future<void> checkNotificationPermission() async {
+    if (kIsWeb) return;
 
+    final status = await Permission.notification.status;
+
+    if (!mounted) return;
+
+    setState(() {
+      notificationsEnabled = status.isGranted;
+    });
+  }
   Future<void> loadUnreadNotifications() async {
     try {
       final token = await TokenStorage.getToken();
@@ -160,7 +171,61 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
       ],
     );
   }
+  Widget buildNotificationsWarning() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.amber.shade100,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: Colors.orange,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(
+                Icons.notifications_off,
+                color: Colors.deepOrange,
+              ),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Obavijesti su isključene',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Uključite obavijesti kako biste na vrijeme primali nove terete, informacije o ponudi i ostale važne obavijesti o licitacijama.',
+          ),
+          const SizedBox(height: 12),
+          ElevatedButton.icon(
+            onPressed: () async {
+              await openAppSettings();
 
+              await Future.delayed(
+                const Duration(seconds: 1),
+              );
+
+              await checkNotificationPermission();
+            },
+            icon: const Icon(Icons.settings),
+            label: const Text('Uključi obavijesti'),
+          ),
+        ],
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -202,7 +267,15 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
             ),
           ],
         ),
-        body: _screens[_selectedIndex],
+        body: Column(
+          children: [
+            if (!notificationsEnabled)
+              buildNotificationsWarning(),
+            Expanded(
+              child: _screens[_selectedIndex],
+            ),
+          ],
+        ),
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,

@@ -31,6 +31,27 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
   bool isLoading = true;
   bool isPayingCommission = false;
   bool isConfirmingDelivery = false;
+  bool currentUserIsSender = false;
+  bool get isSenderView =>
+      widget.isSenderView ||
+          currentUserIsSender ||
+          shipment?['isSenderOwner'] == true;
+  int? _getUserIdFromToken(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return null;
+
+      final normalizedPayload = base64Url.normalize(parts[1]);
+      final payloadJson = utf8.decode(base64Url.decode(normalizedPayload));
+      final payload = jsonDecode(payloadJson);
+
+      if (payload is! Map || payload['id'] == null) return null;
+
+      return int.tryParse(payload['id'].toString());
+    } catch (_) {
+      return null;
+    }
+  }
   String errorMessage = '';
   Map<String, dynamic>? shipment;
 
@@ -74,7 +95,6 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
 
     try {
       final token = await TokenStorage.getToken();
-
       if (token == null || token.isEmpty) {
         if (!mounted) return;
         Navigator.pushAndRemoveUntil(
@@ -95,10 +115,21 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
 
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);
+        final decodedShipment = Map<String, dynamic>.from(decoded);
+
+        final currentUserId = _getUserIdFromToken(token);
+        final senderId = int.tryParse(
+          decodedShipment['senderId']?.toString() ?? '',
+        );
 
         if (!mounted) return;
         setState(() {
-          shipment = Map<String, dynamic>.from(decoded);
+          currentUserIsSender =
+              currentUserId != null &&
+                  senderId != null &&
+                  currentUserId == senderId;
+
+          shipment = decodedShipment;
           isLoading = false;
         });
       } else if (response.statusCode == 401) {
@@ -628,7 +659,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
     required String senderRatingAverage,
     required dynamic senderRatingsCount,
   }) {
-    if (widget.isSenderView || senderId == null) {
+    if (isSenderView || senderId == null) {
       return const SizedBox.shrink();
     }
 
@@ -940,7 +971,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
     required num? provizijaIznos,
     required num? acceptedPrice,
   }) {
-    if (widget.isSenderView) {
+    if (isSenderView) {
       if (_isAcceptedStatus(status)) {
         return Container(
           margin: const EdgeInsets.only(top: 14),
@@ -999,13 +1030,13 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-                  'Posao je Vaš.\n\n'
-                      'Za otključavanje kontakt podataka potrebno je povezati Stripe račun '
-                      'i platiti naknadu platforme.\n\n'
-                      'Naknada iznosi 5% od dogovorene cijene prijevoza, '
-                      'a za prijevoze u vrijednosti do 100,00 € '
-                      'minimalna naknada iznosi 5,00 €.',
-                ),
+              'Posao je Vaš.\n\n'
+                  'Za otključavanje kontakt podataka potrebno je platiti naknadu platforme putem '
+                  'Stripe Checkouta.\n\n'
+                  'Naknada iznosi 5% od dogovorene cijene prijevoza, '
+                  'a za prijevoze u vrijednosti do 100,00 € '
+                  'minimalna naknada iznosi 5,00 €.',
+            ),
             if (acceptedPrice != null) ...[
               const SizedBox(height: 8),
               Text('Dogovorena cijena prijevoza: ${_formatMoney(acceptedPrice)}'),
@@ -1036,14 +1067,14 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
       );
     }
 
-    if ((widget.isSenderView || isAcceptedCarrier) &&
+    if ((isSenderView || isAcceptedCarrier) &&
         kontaktOtkljucan &&
         commissionPaid) {
       return const SizedBox.shrink();
     }
 
     if (!kontaktOtkljucan &&
-        !widget.isSenderView &&
+        !isSenderView &&
         !commissionPaid &&
         !acceptedTransporterMustPay &&
         _isAcceptedStatus(status)) {
@@ -1134,6 +1165,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
     ]);
 
     final rokUtovara = _textValue([
+      'rok_preuzimanja',
+      'rokPreuzimanja',
       'rok_utovara',
       'rokUtovara',
       'hitnost',
@@ -1168,12 +1201,41 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
       'broj_mobitela',
     ], '');
 
-    final tezina = _numValue(['tezina_kg/lb', 'tezinaKg/lb', 'weight']);
-    final duzina = _numValue(['duzina_cm/in', 'duzinaCm/in', 'length']);
-    final sirina = _numValue(['sirina_cm/in', 'sirinaCm/in', 'width']);
-    final visina = _numValue(['visina_cm/in', 'visinaCm/in', 'height']);
-    final brojPaleta = _numValue(['broj_paleta', 'brojPaleta', 'pallets']);
+    final tezina = _numValue([
+      'tezina_cca_kg',
+      'tezinaCcaKg',
+      'tezina_kg',
+      'tezinaKg',
+      'tezina',
+      'weight_kg',
+      'weightKg',
+      'weight',
+      'tezina_kg/lb',
+      'tezinaKg/lb',
+    ]);
 
+    final duzina = _numValue([
+      'duzina_cm',
+      'duzinaCm',
+      'length',
+    ]);
+
+    final sirina = _numValue([
+      'sirina_cm',
+      'sirinaCm',
+      'width',
+    ]);
+
+    final visina = _numValue([
+      'visina_cm',
+      'visinaCm',
+      'height',
+    ]);
+    final brojPaleta = _numValue([
+      'brojPaleta',
+      'broj_paleta',
+      'pallets',
+    ]);
     final offerCount =
         _numValue(['offerCount', 'offersCount', 'ponudeCount']) ?? 0;
 
@@ -1186,7 +1248,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
     final senderRatingsCount = shipment!['senderRatingsCount'] ?? 0;
 
     final senderName = shipment!['senderName']?.toString() ?? 'Naručitelj';
-    print('IS SENDER VIEW = ${widget.isSenderView}');
+    print('IS SENDER VIEW = ${isSenderView}');
     final senderId = shipment!['senderId'];
     final acceptedPrice = _numValue(['acceptedPrice']);
     final provizijaIznos = _numValue(['provizija_iznos']);
@@ -1217,7 +1279,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
     final ratingTargetLabel =
     shipment!['ratingTargetLabel']?.toString().trim().isNotEmpty == true
         ? shipment!['ratingTargetLabel'].toString()
-        : widget.isSenderView
+        : isSenderView
         ? 'prijevoznika'
         : 'naručitelja';
 
@@ -1258,19 +1320,19 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
     print('IS ACCEPTED CARRIER = ${shipment!['isAcceptedCarrier']}');
     print('ACCEPTED TRANSPORTER MUST PAY = ${shipment!['acceptedTransporterMustPay']}');
     final isLosingCarrier =
-        !widget.isSenderView &&
+        !isSenderView &&
             statusIsAccepted &&
             !isAcceptedCarrier;
     print('IS ACCEPTED CARRIER = $isAcceptedCarrier');
     print('CAN RATE = $canRate');
     print('HAS RATED = $hasRated');
     print('STATUS COMPLETED = $statusIsCompleted');
-    if (!widget.isSenderView && !kontaktOtkljucan) {
+    if (!isSenderView && !kontaktOtkljucan) {
       adresaUtovara = _maskAddressForTransporter(adresaUtovara);
       adresaIstovara = _maskAddressForTransporter(adresaIstovara);
     }
 
-    final showConfirmDeliveryButton = widget.isSenderView &&
+    final showConfirmDeliveryButton = isSenderView &&
         statusIsAccepted &&
         commissionPaid &&
         !statusIsCompleted;
@@ -1363,9 +1425,9 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                       child: Text(
                         licitacijaZavrsena
                             ? 'Status: Licitacija završena'
-                            : (!widget.isSenderView && statusIsAccepted && !isAcceptedCarrier)
+                            : (!isSenderView && statusIsAccepted && !isAcceptedCarrier)
                             ? 'Status: Odabran drugi prijevoznik'
-                            : (widget.isSenderView && statusIsAccepted)
+                            : (isSenderView && statusIsAccepted)
                             ? 'Status: Prihvatili ste ponudu'
                             : 'Status: ${_formatStatus(status)}',
                         style: TextStyle(
@@ -1396,8 +1458,10 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                   _buildInfoRow('Adresa utovara', adresaUtovara),
                   _buildInfoRow('Mjesto istovara', mjestoIstovara),
                   _buildInfoRow('Adresa istovara', adresaIstovara),
-                  _buildInfoRow('Datum utovara', datumUtovara),
-                  _buildInfoRow('Rok utovara', rokUtovara),
+                  _buildInfoRow(
+                    'Rok utovara nakon isteka licitacije',
+                    rokUtovara,
+                  ),
                   if (statusIsActive &&
                       !statusIsAccepted &&
                       !kontaktOtkljucan &&
@@ -1449,11 +1513,11 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                   if (provizijaIznos != null &&
                       (acceptedTransporterMustPay ||
                           commissionPaid ||
-                          widget.isSenderView))
+                          isSenderView))
                     _buildInfoRow('Provizija', _formatMoney(provizijaIznos)),
                   _buildInfoRow('Broj ponuda', '$offerCount'),
                   _buildInfoRow('Pregledi objave', '$views'),
-                  if ((widget.isSenderView || kontaktOtkljucan) &&
+                  if ((isSenderView || kontaktOtkljucan) &&
                       kontaktTelefon.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10),
@@ -1486,7 +1550,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                         ],
                       ),
                     ),
-                  if (!widget.isSenderView &&
+                  if (!isSenderView &&
                       kontaktOtkljucan &&
                       kontaktTelefon.isNotEmpty)
                     Padding(
@@ -1513,7 +1577,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
           ),
           const SizedBox(height: 12),
 
-          if (!widget.isSenderView && canSendOffer) ...[
+          if (!isSenderView && canSendOffer) ...[
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -1551,7 +1615,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
             _buildConfirmDeliveryButton(),
           ],
           if (statusIsCompleted &&
-              (widget.isSenderView || isAcceptedCarrier)) ...[
+              (isSenderView || isAcceptedCarrier)) ...[
             const SizedBox(height: 12),
             Container(
               width: double.infinity,
@@ -1594,7 +1658,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          widget.isSenderView
+                          isSenderView
                               ? ' Ocjena doprinosi pouzdanosti platforme.'
                               : ' Ocjena doprinosi pouzdanosti platforme.',
                           style: TextStyle(
@@ -1611,16 +1675,16 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
           ],
           if (statusIsCompleted &&
               !hasRated &&
-              (widget.isSenderView || isAcceptedCarrier)) ...[
+              (isSenderView || isAcceptedCarrier)) ...[
             const SizedBox(height: 12),
             _buildRatingButton(
-              canRate: widget.isSenderView || isAcceptedCarrier,
+              canRate: isSenderView || isAcceptedCarrier,
               hasRated: hasRated,
               ratingTargetLabel: ratingTargetLabel,
             ),
           ],
           const SizedBox(height: 12),
-          if (!widget.isSenderView &&
+          if (!isSenderView &&
               !canSendOffer &&
               !acceptedTransporterMustPay &&
               !statusIsActive &&

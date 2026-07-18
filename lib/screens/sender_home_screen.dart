@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
@@ -33,7 +34,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
 
   int unreadCount = 0;
   Timer? notificationTimer;
-
+  bool notificationsEnabled = true;
   final TextEditingController nazivTeretaController = TextEditingController();
   final TextEditingController opisTeretaController = TextEditingController();
 
@@ -69,6 +70,8 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
   List<XFile> odabraneSlike = [];
 
   final List<String> trajanjeLicitacijeOpcije = [
+    '1 sat',
+    '2 sata',
     '6 sati',
     '12 sati',
     '24 sata',
@@ -88,19 +91,31 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
     'Proizvodni pogon',
     'Skladište',
     'Kuća',
+    'Gradilište',
+    'Poslovni prostor',
   ];
 
   @override
   void initState() {
     super.initState();
     loadUnreadCount();
-
+    checkNotificationPermission();
     notificationTimer = Timer.periodic(
       const Duration(seconds: 10),
           (_) => loadUnreadCount(),
     );
   }
+  Future<void> checkNotificationPermission() async {
+    if (kIsWeb) return;
 
+    final status = await Permission.notification.status;
+
+    if (!mounted) return;
+
+    setState(() {
+      notificationsEnabled = status.isGranted;
+    });
+  }
   Future<void> loadUnreadCount() async {
     final token = await TokenStorage.getToken();
     if (token == null || token.isEmpty) return;
@@ -379,7 +394,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
         'adresa_istovara': adresaIstovaraController.text.trim(),
         'trajanje_licitacije': odabranoTrajanjeLicitacije,
         'rok_preuzimanja': odabraniRokPreuzimanja,
-        'tezina_kg': tezinaController.text.trim(),
+        'tezina_cca_kg': tezinaController.text.trim(),
         'broj_paleta': brojPaletaController.text.trim(),
         'duzina_cm': duzinaController.text.trim(),
         'sirina_cm': sirinaController.text.trim(),
@@ -409,7 +424,11 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (!mounted) return;
 
-        prikaziPoruku('Teret je uspješno objavljen.');
+        prikaziPoruku(
+          '✅ Teret je uspješno objavljen.\n\n'
+              'Ne morate čekati završetak licitacije. '
+              'Ponudu možete prihvatiti u bilo kojem trenutku čim pronađete prijevoznika koji vam odgovara.',
+        );
 
         setState(() {
           nazivTeretaController.clear();
@@ -611,7 +630,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Brza objava tereta',
+                        ' Objava tereta',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
@@ -619,7 +638,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Unesite samo najvažnije podatke. Dodatne detalje možete dodati po želji.',
+                        'Ispunite podatke o teretu kako bi prijevoznici mogli slati ponude.',
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.grey.shade700,
@@ -778,7 +797,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                       TextFormField(
                         controller: tezinaController,
                         keyboardType: TextInputType.number,
-                        decoration: poljeDekoracija('Težina (kg/lb)'),
+                        decoration: poljeDekoracija('Težina cca (kg/lb)'),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(

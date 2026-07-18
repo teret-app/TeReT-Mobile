@@ -1,5 +1,6 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -48,7 +49,10 @@ class _LoginScreenState extends State<LoginScreen> {
     final role = (value ?? '').toString().trim().toLowerCase();
 
     if (role == 'sender') return 'sender';
-    if (role == 'carrier' || role == 'transporter') return 'transporter';
+
+    if (role == 'carrier' || role == 'transporter') {
+      return 'transporter';
+    }
 
     return '';
   }
@@ -109,13 +113,17 @@ class _LoginScreenState extends State<LoginScreen> {
         if (role == 'sender') {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (_) => const SenderHomeScreen()),
+            MaterialPageRoute(
+              builder: (_) => const SenderHomeScreen(),
+            ),
                 (route) => false,
           );
         } else {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: (_) => const TransporterHomeScreen()),
+            MaterialPageRoute(
+              builder: (_) => const TransporterHomeScreen(),
+            ),
                 (route) => false,
           );
         }
@@ -125,9 +133,10 @@ class _LoginScreenState extends State<LoginScreen> {
         if (!mounted) return;
 
         setState(() {
-          serverMessage = (data['message'] ??
-              'Račun nije potvrđen. Molimo potvrdite email adresu prije prijave.')
-              .toString();
+          serverMessage = (
+              data['message'] ??
+                  'Račun nije potvrđen. Molimo potvrdite email adresu prije prijave.'
+          ).toString();
         });
       } else {
         if (!mounted) return;
@@ -138,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
         });
       }
     } catch (e) {
-      print('LOGIN ERROR: $e');
+      debugPrint('LOGIN ERROR: $e');
 
       if (!mounted) return;
 
@@ -155,14 +164,32 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> resendVerificationEmail() async {
+    final email = emailController.text.trim();
+
+    if (email.isEmpty || !email.contains('@')) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Prvo unesite ispravnu email adresu.',
+          ),
+        ),
+      );
+
+      return;
+    }
+
     try {
       final response = await http.post(
-        Uri.parse('${AppConfig.baseUrl}/resend-verification-email'),
+        Uri.parse(
+          '${AppConfig.baseUrl}/resend-verification-email',
+        ),
         headers: {
           'Content-Type': 'application/json',
         },
         body: jsonEncode({
-          'email': emailController.text.trim(),
+          'email': email,
         }),
       );
 
@@ -173,8 +200,10 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            (data['message'] ?? 'Email za potvrdu je ponovno poslan.')
-                .toString(),
+            (
+                data['message'] ??
+                    'Email za potvrdu je ponovno poslan.'
+            ).toString(),
           ),
         ),
       );
@@ -183,10 +212,200 @@ class _LoginScreenState extends State<LoginScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Greška prilikom slanja emaila za potvrdu.'),
+          content: Text(
+            'Greška prilikom slanja emaila za potvrdu.',
+          ),
         ),
       );
     }
+  }
+
+  Future<void> showForgotPasswordDialog() async {
+    final forgotEmailController = TextEditingController(
+      text: emailController.text.trim(),
+    );
+
+    bool isSending = false;
+    String dialogMessage = '';
+    bool requestSuccessful = false;
+
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: !isSending,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            Future<void> sendResetRequest() async {
+              final email = forgotEmailController.text.trim();
+
+              if (email.isEmpty || !email.contains('@')) {
+                setDialogState(() {
+                  dialogMessage =
+                  'Unesite ispravnu email adresu.';
+                  requestSuccessful = false;
+                });
+
+                return;
+              }
+
+              setDialogState(() {
+                isSending = true;
+                dialogMessage = '';
+                requestSuccessful = false;
+              });
+
+              try {
+                final response = await http.post(
+                  Uri.parse(
+                    '${AppConfig.baseUrl}/forgot-password',
+                  ),
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: jsonEncode({
+                    'email': email,
+                  }),
+                );
+
+                Map<String, dynamic> data = {};
+
+                try {
+                  final decoded = jsonDecode(response.body);
+
+                  if (decoded is Map<String, dynamic>) {
+                    data = decoded;
+                  }
+                } catch (_) {
+                  data = {};
+                }
+
+                if (!dialogContext.mounted) return;
+
+                if (response.statusCode >= 200 &&
+                    response.statusCode < 300) {
+                  setDialogState(() {
+                    isSending = false;
+                    requestSuccessful = true;
+                    dialogMessage = (
+                        data['message'] ??
+                            'Ako račun s tim emailom postoji, poslana je poveznica za promjenu lozinke.'
+                    ).toString();
+                  });
+                } else {
+                  setDialogState(() {
+                    isSending = false;
+                    requestSuccessful = false;
+                    dialogMessage = (
+                        data['message'] ??
+                            'Slanje poveznice nije uspjelo.'
+                    ).toString();
+                  });
+                }
+              } catch (e) {
+                if (!dialogContext.mounted) return;
+
+                setDialogState(() {
+                  isSending = false;
+                  requestSuccessful = false;
+                  dialogMessage =
+                  'Greška konekcije sa serverom.';
+                });
+              }
+            }
+
+            return AlertDialog(
+              title: const Text(
+                'Zaboravljena lozinka',
+              ),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment:
+                  CrossAxisAlignment.stretch,
+                  children: [
+                    const Text(
+                      'Unesite email adresu povezanu s vašim računom. Poslat ćemo vam poveznicu za postavljanje nove lozinke.',
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: forgotEmailController,
+                      enabled: !isSending,
+                      keyboardType:
+                      TextInputType.emailAddress,
+                      textInputAction: TextInputAction.done,
+                      autofocus: true,
+                      decoration: buildInputDecoration(
+                        'Email',
+                      ),
+                      onSubmitted: (_) {
+                        if (!isSending) {
+                          sendResetRequest();
+                        }
+                      },
+                    ),
+                    if (dialogMessage.isNotEmpty) ...[
+                      const SizedBox(height: 14),
+                      Text(
+                        dialogMessage,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: requestSuccessful
+                              ? Colors.green.shade700
+                              : Colors.red,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isSending
+                      ? null
+                      : () async {
+                    FocusScope.of(dialogContext).unfocus();
+
+                    await Future.delayed(
+                      const Duration(milliseconds: 150),
+                    );
+
+                    if (dialogContext.mounted) {
+                      Navigator.pop(dialogContext);
+                    }
+                  },
+                  child: Text(
+                    requestSuccessful
+                        ? 'Zatvori'
+                        : 'Odustani',
+                  ),
+                ),
+                if (!requestSuccessful)
+                  ElevatedButton(
+                    onPressed:
+                    isSending ? null : sendResetRequest,
+                    child: isSending
+                        ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child:
+                      CircularProgressIndicator(
+                        strokeWidth: 2.2,
+                        color: Colors.white,
+                      ),
+                    )
+                        : const Text(
+                      'Pošalji poveznicu',
+                    ),
+                  ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+
   }
 
   InputDecoration buildInputDecoration(String label) {
@@ -195,7 +414,10 @@ class _LoginScreenState extends State<LoginScreen> {
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 16,
+        vertical: 14,
+      ),
     );
   }
 
@@ -212,25 +434,48 @@ class _LoginScreenState extends State<LoginScreen> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 500),
+              constraints: const BoxConstraints(
+                maxWidth: 500,
+              ),
               child: Column(
                 children: [
                   Image.asset(
                     'assets/logo_login3.png',
                     height: 180,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Dobro došli u TeReT',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Platforma za jednostavno povezivanje naručitelja i prijevoznika.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
                   Card(
                     elevation: 2,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius:
+                      BorderRadius.circular(16),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Form(
                         key: _formKey,
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          crossAxisAlignment:
+                          CrossAxisAlignment.stretch,
                           children: [
                             const SizedBox(height: 8),
                             const Text(
@@ -238,49 +483,67 @@ class _LoginScreenState extends State<LoginScreen> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 22,
-                                fontWeight: FontWeight.bold,
+                                fontWeight:
+                                FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 20),
                             TextFormField(
                               controller: emailController,
-                              keyboardType: TextInputType.emailAddress,
-                              textInputAction: TextInputAction.next,
-                              decoration: buildInputDecoration('Email'),
+                              keyboardType:
+                              TextInputType.emailAddress,
+                              textInputAction:
+                              TextInputAction.next,
+                              decoration:
+                              buildInputDecoration(
+                                'Email',
+                              ),
                               validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
+                                if (value == null ||
+                                    value.trim().isEmpty) {
                                   return 'Unesite email';
                                 }
+
                                 if (!value.contains('@')) {
                                   return 'Unesite ispravan email';
                                 }
+
                                 return null;
                               },
                             ),
                             const SizedBox(height: 14),
                             TextFormField(
-                              controller: passwordController,
-                              obscureText: obscurePassword,
-                              textInputAction: TextInputAction.done,
+                              controller:
+                              passwordController,
+                              obscureText:
+                              obscurePassword,
+                              textInputAction:
+                              TextInputAction.done,
                               decoration:
-                              buildInputDecoration('Lozinka').copyWith(
+                              buildInputDecoration(
+                                'Lozinka',
+                              ).copyWith(
                                 suffixIcon: IconButton(
                                   icon: Icon(
                                     obscurePassword
                                         ? Icons.visibility
-                                        : Icons.visibility_off,
+                                        : Icons
+                                        .visibility_off,
                                   ),
                                   onPressed: () {
                                     setState(() {
-                                      obscurePassword = !obscurePassword;
+                                      obscurePassword =
+                                      !obscurePassword;
                                     });
                                   },
                                 ),
                               ),
                               validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
+                                if (value == null ||
+                                    value.trim().isEmpty) {
                                   return 'Unesite lozinku';
                                 }
+
                                 return null;
                               },
                               onFieldSubmitted: (_) {
@@ -289,22 +552,35 @@ class _LoginScreenState extends State<LoginScreen> {
                                 }
                               },
                             ),
+                            Center(
+                              child: TextButton(
+                                onPressed: isLoading
+                                    ? null
+                                    : showForgotPasswordDialog,
+                                child: const Text(
+                                  'Zaboravili ste lozinku?',
+                                ),
+                              ),
+                            ),
                             if (serverMessage.isNotEmpty) ...[
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 8),
                               Text(
                                 serverMessage,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                   color: Colors.red,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight:
+                                  FontWeight.w600,
                                 ),
                               ),
                               if (showResendVerificationButton) ...[
                                 const SizedBox(height: 8),
                                 TextButton.icon(
-                                  onPressed: resendVerificationEmail,
+                                  onPressed:
+                                  resendVerificationEmail,
                                   icon: const Icon(
-                                    Icons.mark_email_read_outlined,
+                                    Icons
+                                        .mark_email_read_outlined,
                                   ),
                                   label: const Text(
                                     'Pošalji ponovno email za potvrdu',
@@ -316,17 +592,24 @@ class _LoginScreenState extends State<LoginScreen> {
                             SizedBox(
                               height: 52,
                               child: ElevatedButton(
-                                onPressed: isLoading ? null : login,
-                                style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                                onPressed:
+                                isLoading ? null : login,
+                                style:
+                                ElevatedButton.styleFrom(
+                                  shape:
+                                  RoundedRectangleBorder(
+                                    borderRadius:
+                                    BorderRadius.circular(
+                                      12,
+                                    ),
                                   ),
                                 ),
                                 child: isLoading
                                     ? const SizedBox(
                                   width: 22,
                                   height: 22,
-                                  child: CircularProgressIndicator(
+                                  child:
+                                  CircularProgressIndicator(
                                     strokeWidth: 2.4,
                                     color: Colors.white,
                                   ),
@@ -335,7 +618,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   'Prijavi se',
                                   style: TextStyle(
                                     fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight:
+                                    FontWeight.bold,
                                   ),
                                 ),
                               ),
@@ -353,7 +637,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 );
                               },
-                              child: const Text('Nemaš račun? Registriraj se'),
+                              child: const Text(
+                                'Nemaš račun? Registriraj se',
+                              ),
                             ),
                           ],
                         ),

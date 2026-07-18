@@ -63,48 +63,69 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _checkLogin() async {
-    await Future.delayed(const Duration(seconds: 8));
-
     try {
-      final token = await TokenStorage.getToken();
-      final roleRaw = await TokenStorage.getRole();
-      final role = (roleRaw ?? '').trim().toLowerCase();
+      // Splash ostaje vidljiv najmanje 3 sekunde.
+      await Future.delayed(const Duration(seconds: 5));
+
+      final results = await Future.wait([
+        TokenStorage.getToken(),
+        TokenStorage.getRole(),
+      ]).timeout(
+        const Duration(seconds: 5),
+        onTimeout: () => [null, null],
+      );
+
+      final token = results[0]?.toString() ?? '';
+      final role = (results[1]?.toString() ?? '').trim().toLowerCase();
 
       if (!mounted) return;
 
-      if (token != null && token.isNotEmpty) {
-        if (role == 'sender') {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const SenderHomeScreen()),
-          );
-          return;
-        }
-
-        if (role == 'transporter' || role == 'carrier') {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const TransporterHomeScreen()),
-          );
-          return;
-        }
+      if (token.isNotEmpty && role == 'sender') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const SenderHomeScreen(),
+          ),
+        );
+        return;
       }
+
+      if (token.isNotEmpty &&
+          (role == 'transporter' || role == 'carrier')) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const TransporterHomeScreen(),
+          ),
+        );
+        return;
+      }
+
+      await TokenStorage.clearAll();
+
+      if (!mounted) return;
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        MaterialPageRoute(
+          builder: (_) => const LoginScreen(),
+        ),
       );
     } catch (e, stackTrace) {
       debugPrint('Splash error: $e');
       debugPrint('$stackTrace');
 
-      if (!mounted) return;
+      try {
+        await TokenStorage.clearAll();
+      } catch (_) {}
 
-      await TokenStorage.clearAll();
+      if (!mounted) return;
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        MaterialPageRoute(
+          builder: (_) => const LoginScreen(),
+        ),
       );
     }
   }

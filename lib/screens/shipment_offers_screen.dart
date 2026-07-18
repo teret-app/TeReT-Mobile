@@ -119,7 +119,12 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
       } else if (data is Map && data['offers'] is List) {
         loadedOffers = data['offers'];
       }
+      loadedOffers.sort((a, b) {
+        final amountA = double.tryParse('${a['amount'] ?? a['price'] ?? a['cijena'] ?? 0}') ?? 0;
+        final amountB = double.tryParse('${b['amount'] ?? b['price'] ?? b['cijena'] ?? 0}') ?? 0;
 
+        return amountA.compareTo(amountB);
+      });
       for (final offer in loadedOffers) {
         if (offer is! Map) continue;
 

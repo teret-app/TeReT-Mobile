@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import 'register_screen.dart';
 
 class OdabirUlogeScreen extends StatelessWidget {
@@ -27,8 +28,12 @@ class OdabirUlogeScreen extends StatelessWidget {
         icon: Icon(icon),
         label: Text(title),
         style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 18),
-          textStyle: const TextStyle(fontSize: 16),
+          padding: const EdgeInsets.symmetric(
+            vertical: 18,
+          ),
+          textStyle: const TextStyle(
+            fontSize: 16,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -39,9 +44,12 @@ class OdabirUlogeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations t =
+    AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Odabir uloge'),
+        title: Text(t.roleSelection),
         centerTitle: true,
       ),
       backgroundColor: const Color(0xFFF5F7FB),
@@ -50,47 +58,45 @@ class OdabirUlogeScreen extends StatelessWidget {
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 500),
+              constraints: const BoxConstraints(
+                maxWidth: 500,
+              ),
               child: Column(
                 children: [
-                  // ✅ LOGO
                   Image.asset(
                     'assets/logo_login3.png',
                     height: 180,
                   ),
                   const SizedBox(height: 24),
-
                   Card(
                     elevation: 2,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius:
+                      BorderRadius.circular(16),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(20),
                       child: Column(
                         children: [
-                          const Text(
-                            'Kako želite koristiti aplikaciju?',
+                          Text(
+                            t.howDoYouWantToUseApp,
                             textAlign: TextAlign.center,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           const SizedBox(height: 30),
-
                           _roleButton(
                             context: context,
-                            title: 'Naručitelj prijevoza',
+                            title: t.transportCustomer,
                             icon: Icons.inventory_2,
                             role: 'sender',
                           ),
-
                           const SizedBox(height: 16),
-
                           _roleButton(
                             context: context,
-                            title: 'Prijevoznik',
+                            title: t.carrier,
                             icon: Icons.local_shipping,
                             role: 'carrier',
                           ),

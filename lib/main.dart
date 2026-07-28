@@ -1,9 +1,14 @@
 import 'dart:convert';
-import 'services/language_service.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+// Generira se automatski iz ARB datoteka.
+import 'l10n/app_localizations.dart';
+
+import 'services/language_service.dart';
 
 import 'screens/login_screen.dart';
 import 'screens/sender_home_screen.dart';
@@ -13,6 +18,7 @@ import 'screens/splash_screen.dart';
 import 'screens/user_profile_screen.dart';
 import 'screens/shipment_details_screen.dart';
 import 'screens/my_offers_screen.dart';
+
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 final FlutterLocalNotificationsPlugin localNotifications =
@@ -25,10 +31,12 @@ const AndroidNotificationChannel androidChannel = AndroidNotificationChannel(
   importance: Importance.high,
 );
 
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+Future<void> _firebaseMessagingBackgroundHandler(
+    RemoteMessage message,
+    ) async {
   await Firebase.initializeApp();
 
-  print('📩 Background poruka: ${message.messageId}');
+  debugPrint('📩 Background poruka: ${message.messageId}');
 }
 
 void _openShipmentFromNotification(Map<String, dynamic> data) {
@@ -45,11 +53,15 @@ void _openShipmentFromNotification(Map<String, dynamic> data) {
 
   final shipmentIdRaw = data['shipmentId'];
 
-  if (shipmentIdRaw == null) return;
+  if (shipmentIdRaw == null) {
+    return;
+  }
 
   final shipmentId = int.tryParse(shipmentIdRaw.toString());
 
-  if (shipmentId == null) return;
+  if (shipmentId == null) {
+    return;
+  }
 
   navigatorKey.currentState?.push(
     MaterialPageRoute(
@@ -61,10 +73,12 @@ void _openShipmentFromNotification(Map<String, dynamic> data) {
   );
 }
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp();
+
+  await LanguageService.loadLanguage();
 
   await localNotifications
       .resolvePlatformSpecificImplementation<
@@ -78,13 +92,26 @@ void main() async {
     const InitializationSettings(
       android: initializationSettingsAndroid,
     ),
-    onDidReceiveNotificationResponse: (NotificationResponse response) {
-      if (response.payload == null || response.payload!.isEmpty) {
+    onDidReceiveNotificationResponse: (
+        NotificationResponse response,
+        ) {
+      final payload = response.payload;
+
+      if (payload == null || payload.isEmpty) {
         return;
       }
 
-      final data = jsonDecode(response.payload!) as Map<String, dynamic>;
-      _openShipmentFromNotification(data);
+      try {
+        final decodedPayload = jsonDecode(payload);
+
+        if (decodedPayload is Map<String, dynamic>) {
+          _openShipmentFromNotification(decodedPayload);
+        }
+      } catch (error) {
+        debugPrint(
+          'Greška pri čitanju notification payloada: $error',
+        );
+      }
     },
   );
 
@@ -92,18 +119,9 @@ void main() async {
     _firebaseMessagingBackgroundHandler,
   );
 
-  NotificationSettings settings =
-  await FirebaseMessaging.instance.requestPermission(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
+  final token = await FirebaseMessaging.instance.getToken();
 
-  print('🔔 Permission status: ${settings.authorizationStatus}');
-
-  String? token = await FirebaseMessaging.instance.getToken();
-
-  print('🔥 FCM TOKEN: $token');
+  debugPrint('🔥 FCM TOKEN: $token');
 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     final notification = message.notification;
@@ -129,19 +147,26 @@ void main() async {
       payload: jsonEncode(message.data),
     );
 
-    print('📩 Foreground poruka: ${notification.title}');
-    print('📩 Foreground body: ${notification.body}');
-    print('📩 Data: ${message.data}');
+    debugPrint(
+      '📩 Foreground poruka: ${notification.title}',
+    );
+    debugPrint(
+      '📩 Foreground body: ${notification.body}',
+    );
+    debugPrint('📩 Data: ${message.data}');
   });
 
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    _openShipmentFromNotification(message.data);
-  });
+  FirebaseMessaging.onMessageOpenedApp.listen(
+        (RemoteMessage message) {
+      _openShipmentFromNotification(message.data);
+    },
+  );
 
   runApp(const MyApp());
 
   WidgetsBinding.instance.addPostFrameCallback((_) async {
-    final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    final initialMessage =
+    await FirebaseMessaging.instance.getInitialMessage();
 
     if (initialMessage != null) {
       _openShipmentFromNotification(initialMessage.data);
@@ -161,29 +186,55 @@ class MyApp extends StatelessWidget {
           navigatorKey: navigatorKey,
           title: 'TeReT',
           debugShowCheckedModeBanner: false,
+
+          locale: Locale(language),
+
+          localizationsDelegates:
+          AppLocalizations.localizationsDelegates,
+
+          supportedLocales:
+          AppLocalizations.supportedLocales,
+
           theme: ThemeData(
             primarySwatch: Colors.blue,
           ),
+
           initialRoute: '/splash',
+
           routes: {
             '/splash': (context) => const SplashScreen(),
+
             '/login': (context) => const LoginScreen(),
-            '/register': (context) => const OdabirUlogeScreen(),
+
+            '/register': (context) =>
+            const OdabirUlogeScreen(),
+
             '/user_profile': (context) {
-              final args = ModalRoute.of(context)!.settings.arguments
-              as Map<String, dynamic>;
+              final route = ModalRoute.of(context);
+
+              final arguments = route?.settings.arguments;
+
+              final args =
+              arguments is Map<String, dynamic>
+                  ? arguments
+                  : <String, dynamic>{};
 
               return UserProfileScreen(
                 userId: args['userId'],
-                userName: args['userName'] ?? 'Prijevoznik',
+                userName:
+                args['userName']?.toString() ??
+                    'Prijevoznik',
               );
             },
-            '/sender_home': (context) => const SenderHomeScreen(),
-            '/transporter_home': (context) => const TransporterHomeScreen(),
+
+            '/sender_home': (context) =>
+            const SenderHomeScreen(),
+
+            '/transporter_home': (context) =>
+            const TransporterHomeScreen(),
           },
         );
       },
     );
   }
 }
-

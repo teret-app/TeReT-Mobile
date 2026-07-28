@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
 
   Widget sectionTitle(String text) {
     return Padding(
-      padding: const EdgeInsets.only(top: 22, bottom: 10),
+      padding: const EdgeInsets.only(
+        top: 22,
+        bottom: 10,
+      ),
       child: Text(
         text,
         style: const TextStyle(
@@ -31,10 +36,12 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Pravila privatnosti'),
+        title: Text(l10n.privacyTitle),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -50,13 +57,11 @@ class PrivacyPolicyScreen extends StatelessWidget {
                       height: 170,
                       fit: BoxFit.contain,
                     ),
-
                     const SizedBox(height: 20),
-
-                    const Text(
-                      'Pravila privatnosti',
+                    Text(
+                      l10n.privacyTitle,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.w800,
                       ),
@@ -64,56 +69,31 @@ class PrivacyPolicyScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
               const SizedBox(height: 30),
 
-              sectionTitle('1. Prikupljanje podataka'),
+              sectionTitle(l10n.privacySection1Title),
+              sectionText(l10n.privacySection1Text),
 
-              sectionText(
-                'TeReT prikuplja osnovne podatke korisnika potrebne za korištenje platforme, uključujući ime i prezime, broj telefona, email adresu te podatke o prijevozu i objavljenim teretima.',
-              ),
+              sectionTitle(l10n.privacySection2Title),
+              sectionText(l10n.privacySection2Text),
 
-              sectionTitle('2. Korištenje podataka'),
+              sectionTitle(l10n.privacySection3Title),
+              sectionText(l10n.privacySection3Text),
 
-              sectionText(
-                'Prikupljeni podaci koriste se isključivo za omogućavanje komunikacije između naručitelja prijevoza i prijevoznika te za funkcioniranje platforme.',
-              ),
+              sectionTitle(l10n.privacySection4Title),
+              sectionText(l10n.privacySection4Text),
 
-              sectionTitle('3. Dijeljenje podataka'),
+              sectionTitle(l10n.privacySection5Title),
+              sectionText(l10n.privacySection5Text),
 
-              sectionText(
-                'Kontakt podaci korisnika nisu javno dostupni. Podaci se otključavaju tek nakon prihvaćanja ponude i uspješne naplate platforme.',
-              ),
+              sectionTitle(l10n.privacySection6Title),
+              sectionText(l10n.privacySection6Text),
 
-              sectionTitle('4. Sigurnost podataka'),
+              sectionTitle(l10n.privacySection7Title),
+              sectionText(l10n.privacySection7Text),
 
-              sectionText(
-                'TeReT poduzima razumne tehničke i organizacijske mjere kako bi zaštitio korisničke podatke od neovlaštenog pristupa, gubitka ili zlouporabe.',
-              ),
-
-              sectionTitle('5. Email verifikacija'),
-
-              sectionText(
-                'Radi sigurnosti i zaštite korisnika, TeReT koristi verifikaciju email adrese prilikom registracije računa.',
-              ),
-
-              sectionTitle('6. Kolačići i tehnički podaci'),
-
-              sectionText(
-                'Aplikacija može prikupljati tehničke podatke potrebne za rad sustava, sigurnost i poboljšanje korisničkog iskustva.',
-              ),
-
-              sectionTitle('7. Prava korisnika'),
-
-              sectionText(
-                'Korisnici imaju pravo zatražiti izmjenu ili brisanje svojih podataka u skladu s važećim zakonima i pravilima zaštite privatnosti.',
-              ),
-
-              sectionTitle('8. Kontakt'),
-
-              sectionText(
-                'Za sva pitanja vezana uz privatnost i zaštitu podataka korisnici se mogu obratiti putem kontakt opcije unutar aplikacije.',
-              ),
+              sectionTitle(l10n.privacySection8Title),
+              sectionText(l10n.privacySection8Text),
 
               const SizedBox(height: 40),
             ],

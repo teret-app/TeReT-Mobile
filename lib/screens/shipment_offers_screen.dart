@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../config.dart';
+import '../l10n/app_localizations.dart';
 import '../services/token_storage.dart';
 import 'login_screen.dart';
 
@@ -59,8 +60,10 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Sesija je istekla. Prijavite se ponovno.'),
+      SnackBar(
+        content: Text(
+          AppLocalizations.of(context)!.sessionExpiredLoginAgain,
+        ),
       ),
     );
 
@@ -92,7 +95,8 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
       }
 
       if (response.statusCode != 200) {
-        String message = 'Greška kod učitavanja ponuda.';
+        String message =
+            AppLocalizations.of(context)!.errorLoadingOffers;
 
         try {
           final body = jsonDecode(response.body);
@@ -152,7 +156,8 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        errorMessage = 'Greška konekcije sa serverom.';
+        errorMessage =
+            AppLocalizations.of(context)!.serverConnectionError;
         isLoading = false;
       });
     }
@@ -166,18 +171,24 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Jesi li siguran?'),
-          content: const Text(
-            'Prihvatom ove ponude zaključuješ dogovor i odabireš ovog prijevoznika.',
+          title: Text(
+            AppLocalizations.of(context)!.areYouSure,
+          ),
+          content: Text(
+            AppLocalizations.of(context)!.acceptOfferConfirmationText,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Odustani'),
+              child: Text(
+                AppLocalizations.of(context)!.cancel,
+              ),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text('Prihvati ponudu'),
+              child: Text(
+                AppLocalizations.of(context)!.acceptOffer,
+              ),
             ),
           ],
         );
@@ -196,7 +207,11 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
     if (offerId == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Neispravan ID ponude.')),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.invalidOfferId,
+          ),
+        ),
       );
       return;
     }
@@ -226,7 +241,8 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
       if (response.statusCode == 200) {
         if (!mounted) return;
 
-        String message = 'Ponuda je uspješno prihvaćena.';
+        String message =
+            AppLocalizations.of(context)!.offerAcceptedSuccessfully;
 
         try {
           final body = jsonDecode(response.body);
@@ -241,7 +257,8 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
 
         await fetchOffers();
       } else {
-        String message = 'Prihvat ponude nije uspio.';
+        String message =
+            AppLocalizations.of(context)!.acceptOfferFailed;
 
         try {
           final body = jsonDecode(response.body);
@@ -258,7 +275,11 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Greška konekcije sa serverom.')),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.serverConnectionError,
+          ),
+        ),
       );
     } finally {
       if (!mounted) return;
@@ -271,41 +292,43 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
   String formatPrice(dynamic value) {
     if (value == null) return '-';
 
-    if (value is int) return '$value €';
-    if (value is double) {
-      if (value == value.roundToDouble()) {
-        return '${value.toInt()} €';
-      }
-      return '${value.toStringAsFixed(2)} €';
+    final number = double.tryParse(
+      value.toString().replaceAll(',', '.'),
+    );
+
+    if (number == null) {
+      return '${value.toString()} €';
     }
 
-    return '$value €';
-  }
+    final formattedValue =
+    number.toStringAsFixed(2).replaceAll('.', ',');
 
+    return '$formattedValue €';
+  }
   String formatOfferStatus(dynamic statusRaw) {
     final status = (statusRaw ?? '').toString().toLowerCase();
 
     if (status == 'accepted' ||
         status == 'prihvaceno' ||
         status == 'prihvaćeno') {
-      return 'Prihvaćena';
+      return AppLocalizations.of(context)!.accepted;
     }
 
     if (status == 'nadmaseno' || status == 'nadmašeno') {
-      return 'Nadmašena';
+      return AppLocalizations.of(context)!.outbid;
     }
 
     if (status == 'rejected' || status == 'odbijeno') {
-      return 'Odbijena';
+      return AppLocalizations.of(context)!.rejected;
     }
 
     if (status == 'pending' ||
         status == 'na_cekanju' ||
         status == 'na čekanju') {
-      return 'Na čekanju';
+      return AppLocalizations.of(context)!.pending;
     }
 
-    return 'Aktivna';
+    return AppLocalizations.of(context)!.activeFeminine;
   }
 
   Color statusColor(dynamic statusRaw) {
@@ -345,7 +368,9 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
   }
 
   String getCarrierDisplayName(dynamic offer) {
-    if (offer is! Map) return 'Prijevoznik';
+    if (offer is! Map) {
+      return AppLocalizations.of(context)!.carrier;
+    }
 
     final carrier = offer['carrier'];
 
@@ -375,7 +400,9 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
         .toString()
         .trim();
 
-    return fallbackName.isNotEmpty ? fallbackName : 'Prijevoznik';
+    return fallbackName.isNotEmpty
+        ? fallbackName
+        : AppLocalizations.of(context)!.carrier;
   }
 
   String getCarrierRatingText(dynamic offer) {
@@ -398,7 +425,10 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
       return '';
     }
 
-    return '⭐ $averageRating (${ratingsCount ?? 0} ocjena)';
+    return AppLocalizations.of(context)!.ratingSummary(
+      averageRating.toString(),
+      (ratingsCount ?? 0).toString(),
+    );
   }
 
   int? getCarrierId(dynamic offer) {
@@ -421,8 +451,10 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
 
     if (carrierId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Nije pronađen ID prijevoznika za ovu ponudu.'),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.carrierIdNotFound,
+          ),
         ),
       );
       return;
@@ -466,17 +498,32 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: () => openCarrierProfile(offer),
-              child: Text(
-                transporterName,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.blue,
-                  decoration: TextDecoration.underline,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.carrierUppercase,
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.grey.shade600,
+                    letterSpacing: 0.8,
+                  ),
                 ),
-              ),
+                const SizedBox(height: 4),
+                GestureDetector(
+                  onTap: () => openCarrierProfile(offer),
+                  child: Text(
+                    transporterName,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ],
             ),
             if (carrierRatingText.isNotEmpty) ...[
               const SizedBox(height: 4),
@@ -494,7 +541,8 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
             ],
             const SizedBox(height: 4),
             Text(
-              'Ponuda: ${formatPrice(price)}',
+              AppLocalizations.of(context)!
+                  .offerWithPrice(formatPrice(price)),
               style: const TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.w800,
@@ -531,10 +579,10 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
                   color: Colors.green.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
-                    'Ova ponuda je prihvaćena',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.thisOfferAccepted,
+                    style: const TextStyle(
                       color: Colors.green,
                       fontWeight: FontWeight.w700,
                     ),
@@ -558,9 +606,9 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                      : const Text(
-                    'Prihvati ponudu',
-                    style: TextStyle(
+                      : Text(
+                    AppLocalizations.of(context)!.acceptOffer,
+                    style: const TextStyle(
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -574,10 +622,10 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
                   color: Colors.orange.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Center(
+                child: Center(
                   child: Text(
-                    'Ova ponuda je nadmašena',
-                    style: TextStyle(
+                    AppLocalizations.of(context)!.thisOfferOutbid,
+                    style: const TextStyle(
                       color: Colors.orange,
                       fontWeight: FontWeight.w600,
                     ),
@@ -594,19 +642,21 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ponude za teret'),
+        title: Text(
+          AppLocalizations.of(context)!.shipmentOffers,
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
         actions: [
           IconButton(
-            tooltip: 'Osvježi',
+            tooltip: AppLocalizations.of(context)!.refresh,
             onPressed: fetchOffers,
             icon: const Icon(Icons.refresh),
           ),
           IconButton(
-            tooltip: 'Odjava',
+            tooltip: AppLocalizations.of(context)!.logout,
             onPressed: logoutAndGoToLogin,
             icon: const Icon(Icons.logout),
           ),
@@ -635,12 +685,12 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
             ? ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16),
-          children: const [
-            SizedBox(height: 100),
+          children: [
+            const SizedBox(height: 100),
             Center(
               child: Text(
-                'Za ovaj teret još nema ponuda.',
-                style: TextStyle(fontSize: 16),
+                AppLocalizations.of(context)!.noOffersForShipment,
+                style: const TextStyle(fontSize: 16),
               ),
             ),
           ],
@@ -656,9 +706,9 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
                   color: Colors.green.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
-                  'Jedna ponuda je već prihvaćena i teret je zaključen.',
-                  style: TextStyle(
+                child: Text(
+                  AppLocalizations.of(context)!.offerAlreadyAcceptedShipmentClosed,
+                  style: const TextStyle(
                     color: Colors.green,
                     fontWeight: FontWeight.w700,
                   ),

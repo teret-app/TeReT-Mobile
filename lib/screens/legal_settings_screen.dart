@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import 'about_app_screen.dart';
 import 'contact_support_screen.dart';
 import 'privacy_policy_screen.dart';
@@ -20,11 +21,15 @@ class LegalSettingsScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(
+          color: Colors.grey.shade300,
+        ),
       ),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: Colors.deepPurple.withValues(alpha: 0.1),
+          backgroundColor: Colors.deepPurple.withValues(
+            alpha: 0.1,
+          ),
           child: Icon(
             icon,
             color: Colors.deepPurple,
@@ -45,12 +50,16 @@ class LegalSettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
       appBar: AppBar(
-        title: const Text(
-          'Postavke i informacije',
-          style: TextStyle(fontWeight: FontWeight.w700),
+        title: Text(
+          l10n.legalSettingsTitle,
+          style: const TextStyle(
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
       body: SafeArea(
@@ -59,8 +68,8 @@ class LegalSettingsScreen extends StatelessWidget {
           children: [
             buildTile(
               icon: Icons.description_outlined,
-              title: 'Uvjeti korištenja',
-              subtitle: 'Pravila korištenja platforme TeReT',
+              title: l10n.legalSettingsTermsTitle,
+              subtitle: l10n.legalSettingsTermsSubtitle,
               context: context,
               onTap: () {
                 Navigator.push(
@@ -73,8 +82,8 @@ class LegalSettingsScreen extends StatelessWidget {
             ),
             buildTile(
               icon: Icons.privacy_tip_outlined,
-              title: 'Pravila privatnosti',
-              subtitle: 'Zaštita i obrada podataka korisnika',
+              title: l10n.legalSettingsPrivacyTitle,
+              subtitle: l10n.legalSettingsPrivacySubtitle,
               context: context,
               onTap: () {
                 Navigator.push(
@@ -87,8 +96,8 @@ class LegalSettingsScreen extends StatelessWidget {
             ),
             buildTile(
               icon: Icons.mail_outline,
-              title: 'Kontakt',
-              subtitle: 'Kontakt informacije i podrška',
+              title: l10n.legalSettingsContactTitle,
+              subtitle: l10n.legalSettingsContactSubtitle,
               context: context,
               onTap: () {
                 Navigator.push(
@@ -101,8 +110,8 @@ class LegalSettingsScreen extends StatelessWidget {
             ),
             buildTile(
               icon: Icons.info_outline,
-              title: 'O aplikaciji',
-              subtitle: 'Informacije o TeReT aplikaciji',
+              title: l10n.legalSettingsAboutTitle,
+              subtitle: l10n.legalSettingsAboutSubtitle,
               context: context,
               onTap: () {
                 Navigator.push(
@@ -113,9 +122,7 @@ class LegalSettingsScreen extends StatelessWidget {
                 );
               },
             ),
-
             const SizedBox(height: 20),
-
             const Center(
               child: Text(
                 '© M.E.G.S. HR',

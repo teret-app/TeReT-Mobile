@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../config.dart';
-import '../utils/country_helper.dart';
+import '../l10n/app_localizations.dart';
 import '../services/token_storage.dart';
+import '../utils/country_helper.dart';
 import 'login_screen.dart';
 import 'role_picker_screen.dart';
 import 'shipment_details_screen.dart';
 import 'user_profile_screen.dart';
+
 class ShipmentListScreen extends StatefulWidget {
   const ShipmentListScreen({super.key});
 
@@ -22,13 +24,13 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
   bool isLoading = true;
   String errorMessage = '';
   List<dynamic> shipments = [];
-
   Timer? refreshTimer;
   Timer? timerRefresh;
 
   @override
   void initState() {
     super.initState();
+
     fetchShipments();
 
     refreshTimer = Timer.periodic(
@@ -39,7 +41,9 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
     timerRefresh = Timer.periodic(
       const Duration(seconds: 30),
           (_) {
-        if (mounted) setState(() {});
+        if (mounted) {
+          setState(() {});
+        }
       },
     );
   }
@@ -56,7 +60,9 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
 
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_) => const RolePickerScreen()),
+      MaterialPageRoute(
+        builder: (_) => const RolePickerScreen(),
+      ),
           (route) => false,
     );
   }
@@ -74,16 +80,20 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
     try {
       final token = await TokenStorage.getToken();
 
+      if (!mounted) return;
+
       if (token == null || token.isEmpty) {
-        if (!mounted) return;
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          MaterialPageRoute(
+            builder: (_) => const LoginScreen(),
+          ),
               (route) => false,
         );
         return;
       }
-
+      final stopwatch = Stopwatch()..start();
+      debugPrint('SHIPMENTS REQUEST START');
       final response = await http.get(
         Uri.parse('${AppConfig.baseUrl}/shipments'),
         headers: {
@@ -91,19 +101,26 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
           'Authorization': 'Bearer $token',
         },
       );
+      stopwatch.stop();
+      debugPrint(
+        'SHIPMENTS REQUEST FINISHED: ${stopwatch.elapsedMilliseconds} ms',
+      );
+      if (!mounted) return;
 
-      final data = jsonDecode(response.body);
+      final dynamic data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        final list = data is List ? data : [];
-        debugPrint(jsonEncode(list));
+        final list = data is List ? data : <dynamic>[];
+
         setState(() {
           shipments = list.where((item) {
             if (item is! Map) return false;
 
-            final status = readString(item, ['status'], fallback: 'aktivan')
-                .toLowerCase()
-                .trim();
+            final status = readString(
+              item,
+              ['status'],
+              fallback: 'aktivan',
+            ).toLowerCase().trim();
 
             return status == 'aktivan' ||
                 status == 'active' ||
@@ -115,6 +132,7 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
           }).toList();
 
           isLoading = false;
+          errorMessage = '';
         });
       } else {
         if (!silent) {
@@ -125,6 +143,8 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
         }
       }
     } catch (e) {
+      if (!mounted) return;
+
       if (!silent) {
         setState(() {
           errorMessage = 'Greška konekcije sa serverom.';
@@ -136,10 +156,11 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
 
   bool isNewShipment(Map item) {
     final createdAt = item['createdAt'];
+
     if (createdAt == null) return false;
 
     try {
-      final created = DateTime.parse(createdAt);
+      final created = DateTime.parse(createdAt.toString());
       final now = DateTime.now();
 
       return now.difference(created).inMinutes <= 60;
@@ -148,49 +169,117 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
     }
   }
 
-  String readString(Map item, List<String> keys, {String fallback = '-'}) {
+  String readString(
+      Map item,
+      List<String> keys, {
+        String fallback = '-',
+      }) {
     for (final key in keys) {
       final value = item[key];
+
       if (value != null && value.toString().trim().isNotEmpty) {
         return value.toString().trim();
       }
     }
+
     return fallback;
   }
 
   int? readInt(Map item, List<String> keys) {
     for (final key in keys) {
       final value = item[key];
+
       if (value == null) continue;
 
       final parsed = int.tryParse(value.toString());
-      if (parsed != null) return parsed;
+
+      if (parsed != null) {
+        return parsed;
+      }
     }
+
     return null;
+  }
+
+  num? readNumber(Map item, List<String> keys) {
+    for (final key in keys) {
+      final value = item[key];
+
+      if (value == null) continue;
+
+      final parsed = num.tryParse(
+        value.toString().replaceAll(',', '.'),
+      );
+
+      if (parsed != null) {
+        return parsed;
+      }
+    }
+
+    return null;
+  }
+
+  String formatMoney(num? value) {
+    if (value == null) return '-';
+
+    return '${value.toStringAsFixed(2).replaceAll('.', ',')} €';
   }
 
   String formatRoute(Map item) {
     final fromCountry = readString(
       item,
-      ['drzava_utovara', 'drzavaUtovara', 'country_utovara', 'loadingCountry'],
+      [
+        'drzava_utovara',
+        'drzavaUtovara',
+        'country_utovara',
+        'loadingCountry',
+      ],
       fallback: '',
     );
 
     final toCountry = readString(
       item,
-      ['drzava_istovara', 'drzavaIstovara', 'country_istovara', 'unloadingCountry'],
+      [
+        'drzava_istovara',
+        'drzavaIstovara',
+        'country_istovara',
+        'unloadingCountry',
+      ],
       fallback: '',
     );
 
-    final from = readString(item, ['mjesto_utovara']);
-    final to = readString(item, ['mjesto_istovara']);
+    final from = readString(
+      item,
+      [
+        'mjesto_utovara',
+        'mjestoUtovara',
+        'loadingPlace',
+      ],
+    );
 
-    return '${countryFlag(fromCountry)} $from → ${countryFlag(toCountry)} $to';
+    final to = readString(
+      item,
+      [
+        'mjesto_istovara',
+        'mjestoIstovara',
+        'unloadingPlace',
+      ],
+    );
+
+    return '${countryFlag(fromCountry)} $from → '
+        '${countryFlag(toCountry)} $to';
   }
-  String formatLicitacijaTimer(Map item) {
+
+  String formatAuctionTimer(
+      AppLocalizations l10n,
+      Map item,
+      ) {
     final raw = readString(
       item,
-      ['licitacija_zavrsava_at', 'licitacijaZavrsavaAt'],
+      [
+        'licitacija_zavrsava_at',
+        'licitacijaZavrsavaAt',
+      ],
       fallback: '',
     );
 
@@ -198,50 +287,96 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
 
     try {
       final end = DateTime.parse(raw).toLocal();
-      final diff = end.difference(DateTime.now());
+      final difference = end.difference(DateTime.now());
 
-      if (diff.isNegative || diff.inSeconds <= 0) {
-        return 'Licitacija završena';
+      if (difference.isNegative || difference.inSeconds <= 0) {
+        return l10n.auctionFinished;
       }
 
-      final hours = diff.inHours;
-      final minutes = diff.inMinutes.remainder(60);
+      final hours = difference.inHours;
+      final minutes = difference.inMinutes.remainder(60);
 
       if (hours > 0) {
-        return 'Još ${hours}h ${minutes}min';
+        return l10n.auctionEndsInHours(hours, minutes);
       }
 
-      return 'Još ${minutes}min';
+      return l10n.auctionEndsInMinutes(minutes);
     } catch (_) {
       return '';
     }
   }
 
-  String formatNacinUtovara(Map item) {
+  String localizedAuctionDuration(
+      AppLocalizations l10n,
+      String value,
+      ) {
+    if (value.trim().isEmpty || value == '-') {
+      return '-';
+    }
+
+    final normalized = value.toLowerCase().trim();
+    final numberMatch = RegExp(r'\d+').firstMatch(normalized);
+    final hours = int.tryParse(numberMatch?.group(0) ?? '');
+
+    if (hours == null) {
+      return value;
+    }
+
+    return l10n.auctionDurationHours(hours);
+  }
+
+  String loadingMethodCode(Map item) {
     final value = readString(
       item,
-      ['nacin_utovara', 'nacinUtovara', 'loadingType'],
+      [
+        'nacin_utovara',
+        'nacinUtovara',
+        'loadingType',
+      ],
       fallback: '',
     );
 
-    final lower = value.toLowerCase().trim();
+    final normalized = value.toLowerCase().trim();
 
-    if (lower.contains('vili') || lower.contains('stroj')) {
-      return 'STROJNO';
+    if (normalized.contains('vili') ||
+        normalized.contains('stroj') ||
+        normalized.contains('machine')) {
+      return 'machine';
     }
 
-    if (lower.contains('ruč') ||
-        lower.contains('ruc') ||
-        lower.contains('manual')) {
-      return 'RUČNO';
+    if (normalized.contains('ruč') ||
+        normalized.contains('ruc') ||
+        normalized.contains('manual')) {
+      return 'manual';
     }
 
     return '';
   }
 
-  Color nacinUtovaraColor(String value) {
-    if (value == 'STROJNO') return Colors.deepOrange;
-    if (value == 'RUČNO') return Colors.blueGrey;
+  String localizedLoadingMethod(
+      AppLocalizations l10n,
+      String methodCode,
+      ) {
+    if (methodCode == 'machine') {
+      return l10n.machineLoadingUppercase;
+    }
+
+    if (methodCode == 'manual') {
+      return l10n.manualLoadingUppercase;
+    }
+
+    return '';
+  }
+
+  Color loadingMethodColor(String methodCode) {
+    if (methodCode == 'machine') {
+      return Colors.deepOrange;
+    }
+
+    if (methodCode == 'manual') {
+      return Colors.blueGrey;
+    }
+
     return Colors.grey;
   }
 
@@ -251,8 +386,14 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
     IconData? icon,
   }) {
     return Container(
-      margin: const EdgeInsets.only(right: 4, bottom: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      margin: const EdgeInsets.only(
+        right: 4,
+        bottom: 4,
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 6,
+        vertical: 2,
+      ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
@@ -261,7 +402,11 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 10, color: color),
+            Icon(
+              icon,
+              size: 10,
+              color: color,
+            ),
             const SizedBox(width: 2),
           ],
           Text(
@@ -278,16 +423,17 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
   }
 
   Widget buildSmartBadges(
+      AppLocalizations l10n,
       Map item,
-      int ponude,
-      int pregledi,
-      String rok,
-      String trajanjeLicitacije,
+      int offers,
+      int views,
+      String loadingDeadline,
+      String auctionDuration,
       bool isNew,
-      bool licitacijaZavrsena,
+      bool auctionFinished,
       bool accepted,
       ) {
-    final nacinUtovara = formatNacinUtovara(item);
+    final loadingMethod = loadingMethodCode(item);
 
     return Wrap(
       spacing: 4,
@@ -295,62 +441,86 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
       children: [
         if (isNew)
           smartBadge(
-            text: 'NOVO',
+            text: l10n.newUppercase,
             color: Colors.red,
             icon: Icons.fiber_new,
           ),
         smartBadge(
           text: accepted
-              ? 'PRIHVAĆENO'
-              : licitacijaZavrsena
-              ? 'ZAVRŠENA'
-              : 'AKTIVAN',
+              ? l10n.acceptedUppercase
+              : auctionFinished
+              ? l10n.finishedUppercase
+              : l10n.activeUppercase,
           color: accepted
               ? Colors.orange
-              : licitacijaZavrsena
+              : auctionFinished
               ? Colors.red
               : Colors.green,
         ),
-        if (trajanjeLicitacije != '-')
+        if (auctionDuration != '-')
           smartBadge(
-            text: 'Licitacija $trajanjeLicitacije',
+            text: l10n.auctionDurationBadge(auctionDuration),
             color: Colors.deepPurple,
             icon: Icons.timer_outlined,
           ),
-        if (rok != '-') smartBadge(text: rok, color: Colors.orange),
-        if (nacinUtovara.isNotEmpty)
+        if (loadingDeadline != '-')
           smartBadge(
-            text: nacinUtovara,
-            color: nacinUtovaraColor(nacinUtovara),
-            icon: nacinUtovara == 'STROJNO'
+            text: loadingDeadline,
+            color: Colors.orange,
+          ),
+        if (loadingMethod.isNotEmpty)
+          smartBadge(
+            text: localizedLoadingMethod(
+              l10n,
+              loadingMethod,
+            ),
+            color: loadingMethodColor(loadingMethod),
+            icon: loadingMethod == 'machine'
                 ? Icons.precision_manufacturing_outlined
                 : Icons.pan_tool_alt_outlined,
           ),
         smartBadge(
-          text: '$ponude ponuda',
+          text: l10n.offersCount(offers),
           color: Colors.teal,
           icon: Icons.gavel,
         ),
-        smartBadge(text: '👁 $pregledi', color: Colors.indigo),
+        smartBadge(
+          text: '👁 $views',
+          color: Colors.indigo,
+        ),
       ],
     );
   }
 
-  Widget buildShipmentCard(Map item) {
+  Widget buildShipmentCard(
+      AppLocalizations l10n,
+      Map item,
+      ) {
     final id = readInt(item, ['id']) ?? 0;
     final isNew = isNewShipment(item);
 
-    final status = readString(item, ['status'], fallback: 'aktivan')
-        .toLowerCase()
-        .trim();
+    final status = readString(
+      item,
+      ['status'],
+      fallback: 'aktivan',
+    ).toLowerCase().trim();
 
     final accepted = status == 'prihvaceno' ||
         status == 'prihvaćeno' ||
         status == 'accepted' ||
         status == 'offer_accepted';
 
-    final naziv = readString(item, ['naziv_tereta', 'title'], fallback: 'Teret');
-    final tezina = readString(
+    final title = readString(
+      item,
+      [
+        'naziv_tereta',
+        'nazivTereta',
+        'title',
+      ],
+      fallback: l10n.cargo,
+    );
+
+    final weight = readString(
       item,
       [
         'tezina_cca_kg',
@@ -364,47 +534,111 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
       ],
       fallback: '',
     );
+
     final createdAtRaw = readString(
       item,
-      ['createdAt', 'created_at'],
+      [
+        'createdAt',
+        'created_at',
+      ],
       fallback: '',
     );
 
-    String datumObjave = '';
+    String publishedDate = '';
 
     if (createdAtRaw.isNotEmpty) {
       try {
-        final createdAt = DateTime.parse(createdAtRaw).toLocal();
+        final createdAt = DateTime.parse(
+          createdAtRaw,
+        ).toLocal();
 
-        datumObjave =
+        publishedDate =
         '${createdAt.day.toString().padLeft(2, '0')}.'
             '${createdAt.month.toString().padLeft(2, '0')}.'
             '${createdAt.year}.';
       } catch (_) {
-        datumObjave = '';
+        publishedDate = '';
       }
     }
 
-    final ponude = readInt(item, ['offersCount', 'broj_ponuda']) ?? 0;
-    final lowestOffer = readInt(item, ['lowestOffer']);
-
-    final pregledi = readInt(item, ['viewsCount', 'broj_pregleda']) ?? 0;
-    final rok = readString(item, ['rok_utovara'], fallback: '-');
-    final trajanjeLicitacije = readString(
+    final offers = readInt(
       item,
-      ['trajanje_licitacije', 'trajanjeLicitacije'],
+      [
+        'offersCount',
+        'broj_ponuda',
+      ],
+    ) ??
+        0;
+
+    final lowestOffer = readNumber(
+      item,
+      [
+        'lowestOffer',
+        'lowest_offer',
+      ],
+    );
+
+    final views = readInt(
+      item,
+      [
+        'viewsCount',
+        'broj_pregleda',
+      ],
+    ) ??
+        0;
+
+    final loadingDeadline = readString(
+      item,
+      [
+        'rok_utovara',
+        'rokUtovara',
+      ],
       fallback: '-',
     );
-    final senderId = readInt(item, ['senderId']);
-    final senderName = readString(item, ['senderName'], fallback: 'Naručitelj');
+
+    final rawAuctionDuration = readString(
+      item,
+      [
+        'trajanje_licitacije',
+        'trajanjeLicitacije',
+      ],
+      fallback: '-',
+    );
+
+    final auctionDuration = localizedAuctionDuration(
+      l10n,
+      rawAuctionDuration,
+    );
+
+    final senderId = readInt(
+      item,
+      ['senderId'],
+    );
+
+    final senderName = readString(
+      item,
+      ['senderName'],
+      fallback: l10n.sender,
+    );
+
     final senderRatingAverage = readString(
       item,
       ['senderRatingAverage'],
       fallback: '',
     );
-    final senderRatingsCount = readInt(item, ['senderRatingsCount']) ?? 0;
-    final timerText = formatLicitacijaTimer(item);
-    final licitacijaZavrsena = timerText == 'Licitacija završena';
+
+    final senderRatingsCount = readInt(
+      item,
+      ['senderRatingsCount'],
+    ) ??
+        0;
+
+    final timerText = formatAuctionTimer(
+      l10n,
+      item,
+    );
+
+    final auctionFinished = timerText == l10n.auctionFinished;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 6),
@@ -418,9 +652,13 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => ShipmentDetailsScreen(shipmentId: id),
+                builder: (_) => ShipmentDetailsScreen(
+                  shipmentId: id,
+                ),
               ),
-            ).then((_) => fetchShipments(silent: true));
+            ).then(
+                  (_) => fetchShipments(silent: true),
+            );
           },
           child: Padding(
             padding: const EdgeInsets.all(10),
@@ -436,13 +674,14 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  naziv,
+                  title,
                   style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                if (senderId != null && senderRatingAverage.isNotEmpty) ...[
+                if (senderId != null &&
+                    senderRatingAverage.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   InkWell(
                     onTap: () {
@@ -464,10 +703,14 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
                       decoration: BoxDecoration(
                         color: Colors.blue.shade50,
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.blue.shade200),
+                        border: Border.all(
+                          color: Colors.blue.shade200,
+                        ),
                       ),
                       child: Text(
-                        '👤 $senderName ⭐ $senderRatingAverage ($senderRatingsCount)',
+                        '👤 $senderName ⭐ '
+                            '$senderRatingAverage '
+                            '($senderRatingsCount)',
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
@@ -476,20 +719,31 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 4),
-                Text(
-                  'cca $tezina kg • Objavljeno $datumObjave',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade700,
+                if (weight.isNotEmpty || publishedDate.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    [
+                      if (weight.isNotEmpty)
+                        l10n.approximateWeight(weight),
+                      if (publishedDate.isNotEmpty)
+                        l10n.publishedDate(publishedDate),
+                    ].join(' • '),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade700,
+                    ),
                   ),
-                ),
+                ],
                 if (lowestOffer != null) ...[
                   const SizedBox(height: 4),
                   Text(
                     accepted
-                        ? 'Prihvaćena ponuda: $lowestOffer €'
-                        : 'Trenutna najniža ponuda: $lowestOffer €',
+                        ? l10n.acceptedOfferPrice(
+                      formatMoney(lowestOffer),
+                    )
+                        : l10n.currentLowestOfferPrice(
+                      formatMoney(lowestOffer),
+                    ),
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
@@ -504,7 +758,7 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: licitacijaZavrsena
+                      color: auctionFinished
                           ? Colors.red
                           : Colors.deepOrange,
                     ),
@@ -512,13 +766,14 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
                 ],
                 const SizedBox(height: 6),
                 buildSmartBadges(
+                  l10n,
                   item,
-                  ponude,
-                  pregledi,
-                  rok,
-                  trajanjeLicitacije,
+                  offers,
+                  views,
+                  loadingDeadline,
+                  auctionDuration,
                   isNew,
-                  licitacijaZavrsena,
+                  auctionFinished,
                   accepted,
                 ),
                 const SizedBox(height: 6),
@@ -529,12 +784,19 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => ShipmentDetailsScreen(shipmentId: id),
+                          builder: (_) => ShipmentDetailsScreen(
+                            shipmentId: id,
+                          ),
                         ),
-                      ).then((_) => fetchShipments(silent: true));
+                      ).then(
+                            (_) => fetchShipments(silent: true),
+                      );
                     },
-                    icon: const Icon(Icons.inventory_2_outlined, size: 18),
-                    label: const Text('Pogledaj detalje'),
+                    icon: const Icon(
+                      Icons.inventory_2_outlined,
+                      size: 18,
+                    ),
+                    label: Text(l10n.viewDetails),
                   ),
                 ),
               ],
@@ -547,12 +809,16 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lista tereta'),
+        title: Text(l10n.shipmentListTitle),
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+        child: CircularProgressIndicator(),
+      )
           : errorMessage.isNotEmpty
           ? Center(
         child: Padding(
@@ -567,32 +833,35 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
           ? RefreshIndicator(
         onRefresh: fetchShipments,
         child: ListView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          children: const [
-            SizedBox(height: 120),
-            Icon(
+          physics:
+          const AlwaysScrollableScrollPhysics(),
+          children: [
+            const SizedBox(height: 120),
+            const Icon(
               Icons.local_shipping_outlined,
               size: 70,
               color: Colors.grey,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Center(
               child: Text(
-                'Trenutno nema dostupnih tereta.',
-                style: TextStyle(
+                l10n.noShipmentsAvailable,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Center(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 30,
+                ),
                 child: Text(
-                  'Novi tereti pojavit će se ovdje čim ih naručitelji objave.',
+                  l10n.newShipmentsWillAppear,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.grey,
                     fontSize: 14,
                   ),
@@ -609,7 +878,14 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
           itemCount: shipments.length,
           itemBuilder: (context, index) {
             final item = shipments[index];
-            if (item is Map) return buildShipmentCard(item);
+
+            if (item is Map) {
+              return buildShipmentCard(
+                l10n,
+                item,
+              );
+            }
+
             return const SizedBox.shrink();
           },
         ),

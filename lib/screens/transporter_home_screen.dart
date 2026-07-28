@@ -1,24 +1,27 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:permission_handler/permission_handler.dart';
 
 import '../config.dart';
+import '../l10n/app_localizations.dart';
 import '../services/token_storage.dart';
+import 'legal_settings_screen.dart';
 import 'login_screen.dart';
-import 'shipment_list_screen.dart';
 import 'my_offers_screen.dart';
 import 'notifications_screen.dart';
-import 'legal_settings_screen.dart';
-import 'package:flutter/foundation.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'shipment_list_screen.dart';
+
 class TransporterHomeScreen extends StatefulWidget {
   const TransporterHomeScreen({super.key});
 
   @override
-  State<TransporterHomeScreen> createState() => _TransporterHomeScreenState();
+  State<TransporterHomeScreen> createState() =>
+      _TransporterHomeScreenState();
 }
 
 class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
@@ -27,6 +30,7 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
 
   Timer? notificationTimer;
   bool notificationsEnabled = true;
+
   final List<Widget> _screens = const [
     ShipmentListScreen(),
     MyOffersScreen(),
@@ -36,8 +40,10 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
   @override
   void initState() {
     super.initState();
+
     loadUnreadNotifications();
     checkNotificationPermission();
+
     notificationTimer = Timer.periodic(
       const Duration(seconds: 10),
           (_) => loadUnreadNotifications(),
@@ -51,21 +57,23 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
   }
 
   Future<bool> _confirmExit() async {
+    final AppLocalizations t = AppLocalizations.of(context)!;
+
     final shouldExit = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Izlaz iz aplikacije'),
-          content: const Text('Jeste li sigurni da želite izaći iz aplikacije?'),
+          title: Text(t.exitAppTitle),
+          content: Text(t.exitAppQuestion),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Odustani'),
+              child: Text(t.cancel),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text('Izađi'),
+              child: Text(t.exit),
             ),
           ],
         );
@@ -74,6 +82,7 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
 
     return shouldExit == true;
   }
+
   Future<void> checkNotificationPermission() async {
     if (kIsWeb) return;
 
@@ -85,6 +94,7 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
       notificationsEnabled = status.isGranted;
     });
   }
+
   Future<void> loadUnreadNotifications() async {
     try {
       final token = await TokenStorage.getToken();
@@ -106,6 +116,7 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
           final unread = data.where((n) => n['isRead'] == false).length;
 
           if (!mounted) return;
+
           setState(() {
             unreadCount = unread;
           });
@@ -148,7 +159,10 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
             right: -6,
             top: -3,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 6,
+                vertical: 2,
+              ),
               decoration: BoxDecoration(
                 color: Colors.red,
                 borderRadius: BorderRadius.circular(10),
@@ -171,7 +185,8 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
       ],
     );
   }
-  Widget buildNotificationsWarning() {
+
+  Widget buildNotificationsWarning(AppLocalizations t) {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
@@ -186,17 +201,17 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.notifications_off,
                 color: Colors.deepOrange,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Obavijesti su isključene',
-                  style: TextStyle(
+                  t.notificationsDisabled,
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -205,8 +220,8 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
             ],
           ),
           const SizedBox(height: 10),
-          const Text(
-            'Uključite obavijesti kako biste na vrijeme primali nove terete, informacije o ponudi i ostale važne obavijesti o licitacijama.',
+          Text(
+            t.notificationsWarningDescription,
           ),
           const SizedBox(height: 12),
           ElevatedButton.icon(
@@ -220,14 +235,17 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
               await checkNotificationPermission();
             },
             icon: const Icon(Icons.settings),
-            label: const Text('Uključi obavijesti'),
+            label: Text(t.enableNotifications),
           ),
         ],
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations t = AppLocalizations.of(context)!;
+
     return PopScope(
       canPop: false,
       onPopInvoked: (didPop) async {
@@ -241,7 +259,7 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Prijevoznik'),
+          title: Text(t.carrier),
           actions: [
             TextButton.icon(
               onPressed: () {
@@ -253,16 +271,16 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
                 );
               },
               icon: const Icon(Icons.menu),
-              label: const Text(
-                'Info',
-                style: TextStyle(
+              label: Text(
+                t.info,
+                style: const TextStyle(
                   fontWeight: FontWeight.w600,
                 ),
               ),
             ),
             IconButton(
               icon: const Icon(Icons.logout),
-              tooltip: 'Odjava',
+              tooltip: t.logout,
               onPressed: logout,
             ),
           ],
@@ -270,7 +288,7 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
         body: Column(
           children: [
             if (!notificationsEnabled)
-              buildNotificationsWarning(),
+              buildNotificationsWarning(t),
             Expanded(
               child: _screens[_selectedIndex],
             ),
@@ -281,17 +299,20 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
           onTap: _onItemTapped,
           type: BottomNavigationBarType.fixed,
           items: [
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.local_shipping),
-              label: 'Lista tereta',
-            ),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.euro),
-              label: 'Moje ponude',
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.local_shipping),
+              label: t.shipmentList,
             ),
             BottomNavigationBarItem(
-              icon: buildBadgeIcon(Icons.notifications_none, unreadCount),
-              label: 'Obavijesti',
+              icon: const Icon(Icons.euro),
+              label: t.myOffers,
+            ),
+            BottomNavigationBarItem(
+              icon: buildBadgeIcon(
+                Icons.notifications_none,
+                unreadCount,
+              ),
+              label: t.notifications,
             ),
           ],
         ),

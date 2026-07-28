@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import '../config.dart';
@@ -28,6 +29,8 @@ class ShipmentDetailsScreen extends StatefulWidget {
 }
 
 class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
+  AppLocalizations get l10n => AppLocalizations.of(context)!;
+
   bool isLoading = true;
   bool isPayingCommission = false;
   bool isConfirmingDelivery = false;
@@ -77,8 +80,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
 
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Plaćanje uspješno. Kontakt je otključan.'),
+            SnackBar(
+              content: Text(l10n.paymentSuccessfulContactUnlocked),
             ),
           );
         }
@@ -142,7 +145,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
               (route) => false,
         );
       } else {
-        String message = 'Greška pri dohvaćanju detalja tereta.';
+        String message = l10n.errorFetchingShipmentDetails;
 
         try {
           final body = jsonDecode(response.body);
@@ -160,7 +163,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        errorMessage = 'Greška konekcije sa serverom.';
+        errorMessage = l10n.serverConnectionError;
         isLoading = false;
       });
     }
@@ -208,8 +211,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
 
         if (!opened && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Nije moguće otvoriti Stripe plaćanje.'),
+            SnackBar(
+              content: Text(l10n.cannotOpenStripePayment),
             ),
           );
         }
@@ -228,7 +231,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
         return;
       }
 
-      String message = 'Provizija je evidentirana.';
+      String message = l10n.commissionRecorded;
 
       try {
         final body = jsonDecode(response.body);
@@ -249,7 +252,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Greška konekcije sa serverom.')),
+        SnackBar(content: Text(l10n.serverConnectionError)),
       );
     } finally {
       if (!mounted) return;
@@ -265,16 +268,16 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Jesi li siguran?'),
-          content: const Text('Potvrdom označavaš da je prijevoz obavljen.'),
+          title: Text(l10n.areYouSure),
+          content: Text(l10n.confirmDeliveryExplanation),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Odustani'),
+              child: Text(l10n.cancel),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text('Prijevoz obavljen'),
+              child: Text(l10n.transportCompleted),
             ),
           ],
         );
@@ -310,7 +313,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
 
       );
 
-      String message = 'Prijevoz je označen kao obavljen.';
+      String message = l10n.transportMarkedCompleted;
 
       try {
         final body = jsonDecode(response.body);
@@ -335,7 +338,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
           MaterialPageRoute(
             builder: (_) => RatingScreen(
               shipmentId: widget.shipmentId,
-              ratedUserLabel: 'prijevoznika',
+              ratedUserLabel: l10n.carrierAccusative,
             ),
           ),
         );
@@ -345,7 +348,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Greška konekcije sa serverom.')),
+        SnackBar(content: Text(l10n.serverConnectionError)),
       );
     } finally {
       if (!mounted) return;
@@ -369,8 +372,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
 
     if (!launched && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Nije moguće otvoriti aplikaciju za poziv.'),
+        SnackBar(
+          content: Text(l10n.cannotOpenPhoneApp),
         ),
       );
     }
@@ -549,29 +552,29 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
   String _formatMoney(num? value) {
     if (value == null) return '-';
 
-    if (value == value.roundToDouble()) {
-      return '${value.toInt()} €';
-    }
+    final formattedValue = value
+        .toStringAsFixed(2)
+        .replaceAll('.', ',');
 
-    return '${value.toStringAsFixed(2)} €';
+    return '$formattedValue €';
   }
 
   String _formatStatus(String raw) {
     final status = raw.toLowerCase();
 
     if (status == 'aktivan' || status == 'active' || status == 'open') {
-      return 'Aktivan';
+      return l10n.active;
     }
 
     if (status == 'prihvaceno' ||
         status == 'prihvaćeno' ||
         status == 'accepted' ||
         status == 'offer_accepted') {
-      return 'Prihvaćena ponuda';
+      return l10n.acceptedOffer;
     }
 
     if (status == 'zavrseno' || status == 'završeno' || status == 'completed') {
-      return 'Završeno';
+      return l10n.completed;
     }
 
     return raw.isEmpty ? '-' : raw;
@@ -621,12 +624,51 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
         status == 'completed';
   }
 
+
+  String _localizeStoredValue(String value) {
+    final normalized = value.toLowerCase().trim();
+
+    if (normalized == 'strojno' ||
+        normalized == 'machine' ||
+        normalized.contains('vili')) {
+      return l10n.machineLoading;
+    }
+    if (normalized == 'ručno' || normalized == 'rucno' || normalized == 'manual') {
+      return l10n.manualLoading;
+    }
+    if (normalized == 'kuća' || normalized == 'kuca' || normalized == 'house') {
+      return l10n.house;
+    }
+    if (normalized == 'zgrada' || normalized == 'building') {
+      return l10n.building;
+    }
+    if (normalized == 'skladište' ||
+        normalized == 'skladiste' ||
+        normalized == 'warehouse') {
+      return l10n.warehouse;
+    }
+    if (normalized == 'proizvodni pogon' ||
+        normalized == 'production facility') {
+      return l10n.productionFacility;
+    }
+    if (normalized == 'gradilište' ||
+        normalized == 'gradiliste' ||
+        normalized == 'construction site') {
+      return l10n.constructionSite;
+    }
+    if (normalized == 'poslovni prostor' ||
+        normalized == 'business premises') {
+      return l10n.businessPremises;
+    }
+    if (normalized == 'po dogovoru' || normalized == 'by agreement') {
+      return l10n.byAgreement;
+    }
+
+    return value;
+  }
+
   Widget _buildInfoRow(String label, String value) {
-    final displayValue =
-    (label.toLowerCase().contains('način utovara') &&
-        value.toLowerCase().contains('vili'))
-        ? 'Strojno'
-        : value;
+    final displayValue = _localizeStoredValue(value);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
@@ -703,6 +745,15 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
+                    l10n.senderUppercase,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
                     senderName,
                     style: const TextStyle(
                       fontWeight: FontWeight.w800,
@@ -712,8 +763,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                   const SizedBox(height: 4),
                   Text(
                     hasRating
-                        ? '⭐ $senderRatingAverage ($senderRatingsCount ocjena)'
-                        : 'Nema ocjena',
+                        ? l10n.ratingSummary(senderRatingAverage, senderRatingsCount.toString())
+                        : l10n.noRatings,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                     ),
@@ -745,8 +796,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 18),
-        const Text(
-          'Slike tereta',
+        Text(
+          l10n.shipmentImages,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -871,7 +922,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
           );
         },
         icon: const Icon(Icons.show_chart),
-        label: const Text('Tijek licitacije'),
+        label: Text(l10n.auctionProgress),
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 14),
         ),
@@ -894,7 +945,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
           border: Border.all(color: Colors.green.shade200),
         ),
         child: Text(
-          'Već ste ocijenili $ratingTargetLabel.',
+          l10n.alreadyRated(ratingTargetLabel),
           style: const TextStyle(
             fontWeight: FontWeight.w700,
             color: Colors.green,
@@ -922,7 +973,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
           await fetchShipmentDetails();
         },
         icon: const Icon(Icons.star_rate_rounded),
-        label: Text('Ocijeni $ratingTargetLabel'),
+        label: Text(l10n.rateUser(ratingTargetLabel)),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.orange,
           foregroundColor: Colors.white,
@@ -948,7 +999,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
         )
             : const Icon(Icons.task_alt),
         label: Text(
-          isConfirmingDelivery ? 'Potvrđujem...' : 'Prijevoz obavljen',
+          isConfirmingDelivery ? l10n.confirming : l10n.transportCompleted,
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.green.shade700,
@@ -988,8 +1039,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
             children: [
               Text(
                 commissionPaid
-                    ? 'Odabrali ste prijevoznika.'
-                    : 'Ponuda je prihvaćena.',
+                    ? l10n.carrierSelected
+                    : l10n.offerAccepted,
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   color: commissionPaid ? Colors.green.shade800 : Colors.orange.shade900,
@@ -998,8 +1049,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
               const SizedBox(height: 8),
               Text(
                 commissionPaid
-                    ? ' Prijevoznik će vas uskoro kontaktirati.'
-                    : 'Čeka se potvrda prijevoznika.',
+                    ? l10n.carrierWillContactSoon
+                    : l10n.waitingForCarrierConfirmation,
               ),
             ],
           ),
@@ -1021,30 +1072,23 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Ponuda prihvaćena.',
+            Text(
+              l10n.offerAcceptedShort,
               style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 16,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Posao je Vaš.\n\n'
-                  'Za otključavanje kontakt podataka potrebno je platiti naknadu platforme putem '
-                  'Stripe Checkouta.\n\n'
-                  'Naknada iznosi 5% od dogovorene cijene prijevoza, '
-                  'a za prijevoze u vrijednosti do 100,00 € '
-                  'minimalna naknada iznosi 5,00 €.',
-            ),
+            Text(l10n.platformFeeExplanation),
             if (acceptedPrice != null) ...[
               const SizedBox(height: 8),
-              Text('Dogovorena cijena prijevoza: ${_formatMoney(acceptedPrice)}'),
+              Text(l10n.agreedTransportPrice(_formatMoney(acceptedPrice))),
             ],
             if (provizijaIznos != null) ...[
               const SizedBox(height: 6),
               Text(
-                'Iznos naknade: ${_formatMoney(provizijaIznos)}',
+                l10n.feeAmount(_formatMoney(provizijaIznos)),
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ],
@@ -1059,7 +1103,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-                    : const Text('Plati naknadu i otključaj kontakt'),
+                    : Text(l10n.continueToStripeCheckout),
               ),
             ),
           ],
@@ -1086,8 +1130,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.grey.shade300),
         ),
-        child: const Text(
-          'Nažalost drugi prijevoznik je dobio ovaj posao. Hvala na sudjelovanju u licitaciji.',
+        child: Text(
+          l10n.otherCarrierWonMessage,
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
       );
@@ -1115,7 +1159,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
     }
 
     if (shipment == null) {
-      return const Center(child: Text('Teret nije pronađen.'));
+      return Center(child: Text(l10n.shipmentNotFound));
     }
 
     final nazivTereta = _textValue([
@@ -1247,7 +1291,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
 
     final senderRatingsCount = shipment!['senderRatingsCount'] ?? 0;
 
-    final senderName = shipment!['senderName']?.toString() ?? 'Naručitelj';
+    final senderName = shipment!['senderName']?.toString() ?? l10n.sender;
     print('IS SENDER VIEW = ${isSenderView}');
     final senderId = shipment!['senderId'];
     final acceptedPrice = _numValue(['acceptedPrice']);
@@ -1280,8 +1324,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
     shipment!['ratingTargetLabel']?.toString().trim().isNotEmpty == true
         ? shipment!['ratingTargetLabel'].toString()
         : isSenderView
-        ? 'prijevoznika'
-        : 'naručitelja';
+        ? l10n.carrierAccusative
+        : l10n.senderAccusative;
 
     String timerText = '';
     bool licitacijaZavrsena = false;
@@ -1293,12 +1337,12 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
 
         if (diff.isNegative || diff.inSeconds <= 0) {
           licitacijaZavrsena = true;
-          timerText = 'Licitacija završena';
+          timerText = l10n.auctionFinished;
         } else {
           final hours = diff.inHours;
           final minutes = diff.inMinutes.remainder(60);
 
-          timerText = 'Još ${hours}h ${minutes}min';
+          timerText = l10n.timeRemaining(hours, minutes);
         }
       } catch (_) {}
     }
@@ -1349,8 +1393,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.orange.shade200),
               ),
-              child: const Text(
-                'Status: Odabran drugi prijevoznik',
+              child: Text(
+                l10n.statusOtherCarrierSelected,
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
                   color: Colors.orange,
@@ -1365,8 +1409,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.grey.shade300),
               ),
-              child: const Text(
-                'Nažalost, drugi prijevoznik je odabran za ovaj prijevoz. Hvala na sudjelovanju u licitaciji.',
+              child: Text(
+                l10n.otherCarrierSelectedMessage,
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
@@ -1424,12 +1468,12 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                       ),
                       child: Text(
                         licitacijaZavrsena
-                            ? 'Status: Licitacija završena'
+                            ? l10n.statusAuctionFinished
                             : (!isSenderView && statusIsAccepted && !isAcceptedCarrier)
-                            ? 'Status: Odabran drugi prijevoznik'
+                            ? l10n.statusOtherCarrierSelected
                             : (isSenderView && statusIsAccepted)
-                            ? 'Status: Prihvatili ste ponudu'
-                            : 'Status: ${_formatStatus(status)}',
+                            ? l10n.statusOfferAcceptedByYou
+                            : l10n.statusLabel(_formatStatus(status)),
                         style: TextStyle(
                           color: licitacijaZavrsena
                               ? Colors.red
@@ -1454,19 +1498,19 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                     senderRatingAverage: senderRatingAverage,
                     senderRatingsCount: senderRatingsCount,
                   ),
-                  _buildInfoRow('Mjesto utovara', mjestoUtovara),
-                  _buildInfoRow('Adresa utovara', adresaUtovara),
-                  _buildInfoRow('Mjesto istovara', mjestoIstovara),
-                  _buildInfoRow('Adresa istovara', adresaIstovara),
+                  _buildInfoRow(l10n.loadingPlace, mjestoUtovara),
+                  _buildInfoRow(l10n.loadingAddress, adresaUtovara),
+                  _buildInfoRow(l10n.unloadingPlace, mjestoIstovara),
+                  _buildInfoRow(l10n.unloadingAddress, adresaIstovara),
                   _buildInfoRow(
-                    'Rok utovara nakon isteka licitacije',
+                    l10n.loadingDeadlineAfterAuction,
                     rokUtovara,
                   ),
                   if (statusIsActive &&
                       !statusIsAccepted &&
                       !kontaktOtkljucan &&
                       trajanjeLicitacije != '-')
-                    _buildInfoRow('Trajanje licitacije', trajanjeLicitacije),
+                    _buildInfoRow(l10n.auctionDuration, trajanjeLicitacije),
                   if (statusIsActive &&
                       !statusIsAccepted &&
                       !kontaktOtkljucan &&
@@ -1484,39 +1528,43 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                         ),
                       ),
                     ),
-                  if (tezina != null) _buildInfoRow('Težina', '$tezina kg'),
-                  if (duzina != null) _buildInfoRow('Dužina', '$duzina cm'),
-                  if (sirina != null) _buildInfoRow('Širina', '$sirina cm'),
-                  if (visina != null) _buildInfoRow('Visina', '$visina cm'),
+                  if (tezina != null) _buildInfoRow(l10n.weight, '$tezina kg'),
+                  if (duzina != null) _buildInfoRow(l10n.length, '$duzina cm'),
+                  if (sirina != null) _buildInfoRow(l10n.width, '$sirina cm'),
+                  if (visina != null) _buildInfoRow(l10n.height, '$visina cm'),
                   if (brojPaleta != null)
-                    _buildInfoRow('Broj paleta', '$brojPaleta'),
-                  _buildInfoRow('Način utovara', nacinUtovara),
-                  _buildInfoRow('Tip lokacije utovara', tipLokacijeUtovara),
-                  _buildInfoRow('Tip lokacije istovara', tipLokacijeIstovara),
-                  _buildInfoRow('Kat utovara', katUtovara),
-                  _buildInfoRow('Kat istovara', katIstovara),
-                  _buildInfoRow('Lift na utovaru', liftUtovar ? 'Da' : 'Ne'),
-                  _buildInfoRow('Lift na istovaru', liftIstovar ? 'Da' : 'Ne'),
+                    _buildInfoRow(l10n.numberOfPallets, '$brojPaleta'),
+                  _buildInfoRow(l10n.loadingMethod, nacinUtovara),
+                  _buildInfoRow(l10n.loadingLocationType, tipLokacijeUtovara),
+                  _buildInfoRow(l10n.unloadingLocationType, tipLokacijeIstovara),
+                  _buildInfoRow(l10n.loadingFloor, katUtovara),
+                  _buildInfoRow(l10n.unloadingFloor, katIstovara),
+                  _buildInfoRow(l10n.loadingLift, liftUtovar ? l10n.yes : l10n.no),
+                  _buildInfoRow(l10n.unloadingLift, liftIstovar ? l10n.yes : l10n.no),
                   _buildInfoRow(
-                    'Treba pomoć vozača',
-                    trebaPomocVozaca ? 'Da' : 'Ne',
+                    l10n.driverHelpNeeded,
+                    trebaPomocVozaca ? l10n.yes : l10n.no,
                   ),
                   _buildInfoRow(
-                    'Prilaz za tegljač',
-                    prilazZaTegljac ? 'Da' : 'Ne',
+                    l10n.truckAccess,
+                    prilazZaTegljac ? l10n.yes : l10n.no,
                   ),
-                  if (acceptedPrice != null)
+                  if (acceptedPrice != null &&
+                      (acceptedTransporterMustPay ||
+                          (isAcceptedCarrier && commissionPaid)))
                     _buildInfoRow(
-                      'Prihvaćena cijena',
+                      l10n.acceptedPrice,
                       _formatMoney(acceptedPrice),
                     ),
                   if (provizijaIznos != null &&
                       (acceptedTransporterMustPay ||
-                          commissionPaid ||
-                          isSenderView))
-                    _buildInfoRow('Provizija', _formatMoney(provizijaIznos)),
-                  _buildInfoRow('Broj ponuda', '$offerCount'),
-                  _buildInfoRow('Pregledi objave', '$views'),
+                          (isAcceptedCarrier && commissionPaid)))
+                    _buildInfoRow(
+                      l10n.commission,
+                      _formatMoney(provizijaIznos),
+                    ),
+                  _buildInfoRow(l10n.numberOfOffers, '$offerCount'),
+                  _buildInfoRow(l10n.listingViews, '$views'),
                   if ((isSenderView || kontaktOtkljucan) &&
                       kontaktTelefon.isNotEmpty)
                     Padding(
@@ -1524,10 +1572,10 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(
+                          SizedBox(
                             width: 145,
                             child: Text(
-                              'Kontakt telefon:',
+                              '${l10n.contactPhone}:',
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 color: Colors.black87,
@@ -1560,7 +1608,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                         child: ElevatedButton.icon(
                           onPressed: () => _callPhoneNumber(kontaktTelefon),
                           icon: const Icon(Icons.phone),
-                          label: const Text('Nazovi naručitelja'),
+                          label: Text(l10n.callSender),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
                             foregroundColor: Colors.white,
@@ -1599,8 +1647,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: const Text(
-                  'Pošalji ponudu',
+                child: Text(
+                  l10n.sendOffer,
                   style: TextStyle(fontSize: 16),
                 ),
               ),
@@ -1641,7 +1689,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'TeReT isporučen',
+                          l10n.teretDelivered,
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
@@ -1649,8 +1697,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          'Hvala na vašoj ocjeni.',
+                        Text(
+                          l10n.thankYouForRating,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -1659,8 +1707,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                         const SizedBox(height: 4),
                         Text(
                           isSenderView
-                              ? ' Ocjena doprinosi pouzdanosti platforme.'
-                              : ' Ocjena doprinosi pouzdanosti platforme.',
+                              ? l10n.ratingBuildsTrust
+                              : l10n.ratingBuildsTrust,
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.grey.shade700,
@@ -1701,8 +1749,8 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                     statusIsAccepted &&
                     !acceptedTransporterMustPay &&
                     !kontaktOtkljucan)
-                    ? 'Odabran je drugi prijevoznik za ovaj teret.'
-                    : 'Na ovaj teret više nije moguće slati ponude.',
+                    ? l10n.otherCarrierSelectedForShipment
+                    : l10n.offersNoLongerAllowed,
                 style: const TextStyle(
                   fontWeight: FontWeight.w600,
                 ),
@@ -1718,12 +1766,12 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detalji tereta'),
+        title: Text(l10n.shipmentDetails),
         actions: [
           IconButton(
             onPressed: fetchShipmentDetails,
             icon: const Icon(Icons.refresh),
-            tooltip: 'Osvježi',
+            tooltip: l10n.refresh,
           ),
         ],
       ),

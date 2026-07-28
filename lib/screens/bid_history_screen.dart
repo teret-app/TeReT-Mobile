@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../config.dart';
+import '../l10n/app_localizations.dart';
 import '../services/token_storage.dart';
 import 'login_screen.dart';
 
@@ -29,11 +30,18 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
   @override
   void initState() {
     super.initState();
-    fetchBidHistory();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        fetchBidHistory();
+      }
+    });
   }
 
   Future<void> fetchBidHistory() async {
     if (!mounted) return;
+
+    final l10n = AppLocalizations.of(context)!;
 
     setState(() {
       isLoading = true;
@@ -43,8 +51,10 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
     try {
       final token = await TokenStorage.getToken();
 
+      if (!mounted) return;
+
       if (token == null || token.isEmpty) {
-        _goToLogin('Niste prijavljeni. Prijavite se ponovno.');
+        _goToLogin(l10n.bidHistoryNotLoggedIn);
         return;
       }
 
@@ -63,7 +73,7 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
 
       if (response.statusCode == 401) {
         await TokenStorage.clearToken();
-        _goToLogin('Sesija je istekla. Prijavite se ponovno.');
+        _goToLogin(l10n.bidHistorySessionExpired);
         return;
       }
 
@@ -74,7 +84,8 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
           errorMessage =
           decoded is Map && decoded['message'] != null
               ? decoded['message'].toString()
-              : 'Došlo je do pogreške pri dohvaćanju tijeka licitacije.';
+              : l10n.bidHistoryFetchError;
+
           isLoading = false;
         });
 
@@ -90,6 +101,7 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
 
       setState(() {
         data = mapData;
+
         bidHistory =
         mapData['bidHistory'] is List
             ? mapData['bidHistory']
@@ -101,8 +113,7 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
       if (!mounted) return;
 
       setState(() {
-        errorMessage =
-        'Došlo je do pogreške. Provjerite vezu s backendom.';
+        errorMessage = l10n.bidHistoryConnectionError;
         isLoading = false;
       });
     }
@@ -114,7 +125,9 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (_) => LoginScreen(errorMessage: message),
+        builder: (_) => LoginScreen(
+          errorMessage: message,
+        ),
       ),
           (route) => false,
     );
@@ -127,18 +140,21 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
 
     if (number == null) return '-';
 
-    if (number == number.roundToDouble()) {
-      return '${number.toInt()} €';
-    }
+    final formattedValue =
+    number.toStringAsFixed(2).replaceAll('.', ',');
 
-    return '${number.toStringAsFixed(2)} €';
+    return '$formattedValue €';
   }
 
   String formatDate(dynamic value) {
-    if (value == null || value.toString().isEmpty) return '';
+    if (value == null || value.toString().isEmpty) {
+      return '';
+    }
 
     try {
-      final date = DateTime.parse(value.toString()).toLocal();
+      final date = DateTime.parse(
+        value.toString(),
+      ).toLocal();
 
       final day = date.day.toString().padLeft(2, '0');
       final month = date.month.toString().padLeft(2, '0');
@@ -154,25 +170,33 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
   }
 
   String _formatStatus(dynamic value) {
-    final status = (value ?? '').toString().toLowerCase().trim();
+    final l10n = AppLocalizations.of(context)!;
+
+    final status =
+    (value ?? '').toString().toLowerCase().trim();
 
     if (status == 'aktivan' ||
         status == 'active' ||
         status == 'open') {
-      return 'Aktivan';
+      return l10n.bidHistoryStatusActive;
+    }
+
+    if (status == 'licitacija_zavrsena' ||
+        status == 'auction_finished') {
+      return l10n.bidHistoryStatusAuctionFinished;
     }
 
     if (status == 'prihvaceno' ||
         status == 'prihvaćeno' ||
         status == 'accepted' ||
         status == 'offer_accepted') {
-      return 'Prihvaćena ponuda';
+      return l10n.bidHistoryStatusAccepted;
     }
 
     if (status == 'zavrseno' ||
         status == 'završeno' ||
         status == 'completed') {
-      return 'Završeno';
+      return l10n.bidHistoryStatusCompleted;
     }
 
     if (status.isEmpty) return '-';
@@ -181,6 +205,8 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
   }
 
   String _carrierTitle(Map<String, dynamic> bid) {
+    final l10n = AppLocalizations.of(context)!;
+
     final isMyOffer = bid['isMyOffer'] == true;
 
     final carrierName =
@@ -190,23 +216,27 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
     (bid['carrierCompany'] ?? '').toString().trim();
 
     if (isMyOffer) {
-      return 'Vaša ponuda';
+      return l10n.bidHistoryYourOffer;
     }
 
     if (carrierCompany.isNotEmpty &&
-        carrierCompany != 'Drugi prijevoznik') {
+        carrierCompany != 'Drugi prijevoznik' &&
+        carrierCompany != 'Other carrier') {
       return carrierCompany;
     }
 
     if (carrierName.isNotEmpty &&
-        carrierName != 'Drugi prijevoznik') {
+        carrierName != 'Drugi prijevoznik' &&
+        carrierName != 'Other carrier') {
       return carrierName;
     }
 
-    return 'Prijevoznik';
+    return l10n.bidHistoryCarrier;
   }
 
   String _carrierRatingText(Map<String, dynamic> bid) {
+    final l10n = AppLocalizations.of(context)!;
+
     final averageRating =
         bid['carrierAverageRating'] ??
             bid['averageRating'];
@@ -221,10 +251,15 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
       return '';
     }
 
-    return '⭐ $averageRating ($ratingsCount ocjena)';
+    return l10n.bidHistoryRatings(
+      averageRating.toString(),
+      ratingsCount.toString(),
+    );
   }
 
   Widget _summaryCard() {
+    final l10n = AppLocalizations.of(context)!;
+
     final lowestOffer = data?['lowestOffer'];
     final myOfferAmount = data?['myOfferAmount'];
 
@@ -243,9 +278,9 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Sažetak licitacije',
-              style: TextStyle(
+            Text(
+              l10n.bidHistorySummary,
+              style: const TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.bold,
               ),
@@ -254,24 +289,24 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
             const SizedBox(height: 10),
 
             _summaryRow(
-              'Trenutna najniža ponuda',
+              l10n.bidHistoryCurrentLowestOffer,
               formatAmount(lowestOffer),
             ),
 
             _summaryRow(
-              'Broj ponuda',
+              l10n.bidHistoryOffersCount,
               offersCount.toString(),
             ),
 
             if (myOfferAmount != null)
               _summaryRow(
-                'Vaša ponuda',
+                l10n.bidHistoryYourOffer,
                 formatAmount(myOfferAmount),
               ),
 
             if (shipmentStatus != null)
               _summaryRow(
-                'Status tereta',
+                l10n.bidHistoryShipmentStatus,
                 _formatStatus(shipmentStatus),
               ),
           ],
@@ -280,7 +315,10 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
     );
   }
 
-  Widget _summaryRow(String label, String value) {
+  Widget _summaryRow(
+      String label,
+      String value,
+      ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 7),
       child: Row(
@@ -307,29 +345,34 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
   }
 
   Widget _bidCard(dynamic item, int index) {
-    final bid = Map<String, dynamic>.from(item as Map);
+    final l10n = AppLocalizations.of(context)!;
+
+    final bid = Map<String, dynamic>.from(
+      item as Map,
+    );
 
     final isLowest = bid['isLowest'] == true;
     final isMyOffer = bid['isMyOffer'] == true;
     final isAccepted = bid['isAccepted'] == true;
     final isRejected = bid['isRejected'] == true;
 
-    final carrierRatingText = _carrierRatingText(bid);
+    final carrierRatingText =
+    _carrierRatingText(bid);
 
     String badgeText = '';
     Color badgeColor = Colors.grey;
 
     if (isAccepted && index == 0) {
-      badgeText = 'PRIHVAĆENO';
+      badgeText = l10n.bidHistoryBadgeAccepted;
       badgeColor = Colors.green;
     } else if (isRejected) {
-      badgeText = 'ODBIJENO';
+      badgeText = l10n.bidHistoryBadgeRejected;
       badgeColor = Colors.red;
     } else if (isLowest) {
-      badgeText = 'NAJNIŽA';
+      badgeText = l10n.bidHistoryBadgeLowest;
       badgeColor = Colors.orange;
     } else if (isMyOffer) {
-      badgeText = 'VAŠA';
+      badgeText = l10n.bidHistoryBadgeYours;
       badgeColor = Colors.blueGrey;
     }
 
@@ -397,12 +440,11 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: badgeColor
-                                .withOpacity(0.12),
-                            borderRadius:
-                            BorderRadius.circular(
-                              20,
+                            color: badgeColor.withValues(
+                              alpha: 0.12,
                             ),
+                            borderRadius:
+                            BorderRadius.circular(20),
                             border: Border.all(
                               color: badgeColor,
                             ),
@@ -464,6 +506,8 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
   }
 
   Widget _body() {
+    final l10n = AppLocalizations.of(context)!;
+
     if (isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
@@ -490,11 +534,11 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
         onRefresh: fetchBidHistory,
         child: ListView(
           padding: const EdgeInsets.all(16),
-          children: const [
-            SizedBox(height: 80),
+          children: [
+            const SizedBox(height: 80),
             Center(
               child: Text(
-                'Još nema ponuda za ovaj teret.',
+                l10n.bidHistoryNoOffers,
               ),
             ),
           ],
@@ -509,9 +553,9 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
         children: [
           _summaryCard(),
 
-          const Text(
-            'Tijek licitacije',
-            style: TextStyle(
+          Text(
+            l10n.bidHistoryAuctionProgress,
+            style: const TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.bold,
             ),
@@ -520,8 +564,10 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
           const SizedBox(height: 10),
 
           ...bidHistory.asMap().entries.map(
-                (entry) =>
-                _bidCard(entry.value, entry.key),
+                (entry) => _bidCard(
+              entry.value,
+              entry.key,
+            ),
           ),
 
           const SizedBox(height: 20),
@@ -532,14 +578,18 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tijek licitacije'),
+        title: Text(
+          l10n.bidHistoryAuctionProgress,
+        ),
         actions: [
           IconButton(
             onPressed: fetchBidHistory,
             icon: const Icon(Icons.refresh),
-            tooltip: 'Osvježi',
+            tooltip: l10n.bidHistoryRefresh,
           ),
         ],
       ),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../config.dart';
+import '../l10n/app_localizations.dart';
 import '../services/token_storage.dart';
 import 'login_screen.dart';
 
@@ -31,7 +32,9 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
 
   double? lowestOffer;
   double? myOffer;
+
   String selectedCurrency = '€';
+
   bool get isMyOfferLowest {
     if (lowestOffer == null || myOffer == null) return false;
     return myOffer! <= lowestOffer!;
@@ -59,13 +62,16 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
     if (value == null) return '-';
 
     final number = double.tryParse(value.toString());
-    if (number == null) return value.toString();
 
-    if (number == number.roundToDouble()) {
-      return '${number.toInt()} €';
+    if (number == null) {
+      return value.toString();
     }
 
-    return '${number.toStringAsFixed(2)} €';
+    if (number == number.roundToDouble()) {
+      return '${number.toInt()} $selectedCurrency';
+    }
+
+    return '${number.toStringAsFixed(2)} $selectedCurrency';
   }
 
   void setQuickOffer(double value) {
@@ -81,12 +87,13 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
   }
 
   void lowerOfferBy(double amount) {
+    final l10n = AppLocalizations.of(context)!;
     final base = lowestOffer ?? myOffer;
 
     if (base == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Nema trenutne ponude za automatsko sniženje.'),
+        SnackBar(
+          content: Text(l10n.noCurrentOfferForAutomaticReduction),
         ),
       );
       return;
@@ -96,8 +103,8 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
 
     if (newAmount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Iznos ponude mora biti veći od 0.'),
+        SnackBar(
+          content: Text(l10n.offerAmountMustBeGreaterThanZero),
         ),
       );
       return;
@@ -107,10 +114,12 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
   }
 
   void setAsLowestOffer() {
+    final l10n = AppLocalizations.of(context)!;
+
     if (lowestOffer == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Još nema najniže ponude za ovaj teret.'),
+        SnackBar(
+          content: Text(l10n.noLowestOfferForShipment),
         ),
       );
       return;
@@ -120,8 +129,8 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
 
     if (newAmount <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Iznos ponude mora biti veći od 0.'),
+        SnackBar(
+          content: Text(l10n.offerAmountMustBeGreaterThanZero),
         ),
       );
       return;
@@ -136,9 +145,11 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
 
       if (token == null || token.isEmpty) {
         if (!mounted) return;
+
         setState(() {
           isLoadingLowestOffer = false;
         });
+
         return;
       }
 
@@ -157,13 +168,16 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
           final shipment = data.firstWhere(
                 (item) {
               if (item is! Map) return false;
+
               return int.tryParse('${item['id']}') == widget.shipmentId;
             },
             orElse: () => null,
           );
 
           if (shipment is Map && shipment['lowestOffer'] != null) {
-            lowestOffer = double.tryParse('${shipment['lowestOffer']}');
+            lowestOffer = double.tryParse(
+              '${shipment['lowestOffer']}',
+            );
           }
         }
       }
@@ -185,7 +199,9 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
               if (item is! Map) return false;
 
               final offerShipmentId = int.tryParse(
-                '${item['shipmentId'] ?? item['shipment_id'] ?? item['shipment_id_fk']}',
+                '${item['shipmentId'] ??
+                    item['shipment_id'] ??
+                    item['shipment_id_fk']}',
               );
 
               return offerShipmentId == widget.shipmentId;
@@ -195,15 +211,18 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
 
           if (offer is Map) {
             myOffer = double.tryParse(
-              '${offer['amount'] ?? offer['price'] ?? offer['cijena']}',
+              '${offer['amount'] ??
+                  offer['price'] ??
+                  offer['cijena']}',
             );
           }
         }
       }
     } catch (_) {
-      // ne prekidamo ekran ako se podaci ne mogu dohvatiti
+      // Ekran se nastavlja prikazivati i ako dohvat ne uspije.
     } finally {
       if (!mounted) return;
+
       setState(() {
         isLoadingLowestOffer = false;
       });
@@ -211,6 +230,8 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
   }
 
   Future<void> sendOffer() async {
+    final l10n = AppLocalizations.of(context)!;
+
     if (!_formKey.currentState!.validate()) return;
 
     FocusScope.of(context).unfocus();
@@ -224,17 +245,21 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
 
       if (token == null || token.isEmpty) {
         if (!mounted) return;
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Niste prijavljeni. Prijavite se ponovno.'),
+          SnackBar(
+            content: Text(l10n.notLoggedInLoginAgain),
           ),
         );
 
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          MaterialPageRoute(
+            builder: (_) => const LoginScreen(),
+          ),
               (route) => false,
         );
+
         return;
       }
 
@@ -242,11 +267,13 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
 
       if (amount == null || amount <= 0) {
         if (!mounted) return;
+
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Unesite ispravan iznos ponude.'),
+          SnackBar(
+            content: Text(l10n.enterValidOfferAmount),
           ),
         );
+
         return;
       }
 
@@ -265,9 +292,12 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
       );
 
       Map<String, dynamic> data = {};
+
       try {
-        final decoded =
-        response.body.isNotEmpty ? jsonDecode(response.body) : {};
+        final decoded = response.body.isNotEmpty
+            ? jsonDecode(response.body)
+            : {};
+
         if (decoded is Map<String, dynamic>) {
           data = decoded;
         } else if (decoded is Map) {
@@ -279,11 +309,13 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
 
       if (!mounted) return;
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode == 200 ||
+          response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              data['message']?.toString() ?? 'Ponuda je uspješno poslana.',
+              data['message']?.toString() ??
+                  l10n.offerSuccessfullySent,
             ),
           ),
         );
@@ -294,34 +326,40 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
 
       if (response.statusCode == 401) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sesija je istekla. Prijavite se ponovno.'),
+          SnackBar(
+            content: Text(l10n.sessionExpiredLoginAgain),
           ),
         );
 
         await TokenStorage.clearToken();
 
+        if (!mounted) return;
+
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          MaterialPageRoute(
+            builder: (_) => const LoginScreen(),
+          ),
               (route) => false,
         );
+
         return;
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            data['message']?.toString() ?? 'Greška pri slanju ponude.',
+            data['message']?.toString() ??
+                l10n.errorSendingOffer,
           ),
         ),
       );
-    } catch (e) {
+    } catch (_) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Greška konekcije sa serverom.'),
+        SnackBar(
+          content: Text(l10n.serverConnectionError),
         ),
       );
     } finally {
@@ -349,11 +387,16 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: BorderSide(color: Colors.grey.shade300),
+        borderSide: BorderSide(
+          color: Colors.grey.shade300,
+        ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: Colors.blue, width: 1.4),
+        borderSide: const BorderSide(
+          color: Colors.blue,
+          width: 1.4,
+        ),
       ),
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 14,
@@ -370,7 +413,10 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
     return Expanded(
       child: OutlinedButton.icon(
         onPressed: onPressed,
-        icon: Icon(icon ?? Icons.remove, size: 18),
+        icon: Icon(
+          icon ?? Icons.remove,
+          size: 18,
+        ),
         label: Text(
           label,
           textAlign: TextAlign.center,
@@ -380,8 +426,13 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: Colors.blueGrey.shade900,
-          side: BorderSide(color: Colors.blueGrey.shade200),
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+          side: BorderSide(
+            color: Colors.blueGrey.shade200,
+          ),
+          padding: const EdgeInsets.symmetric(
+            vertical: 12,
+            horizontal: 8,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -391,19 +442,21 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
   }
 
   Widget buildOfferInfoBox() {
+    final l10n = AppLocalizations.of(context)!;
+
     if (isLoadingLowestOffer) {
-      return const Text(
-        'Učitavam trenutnu najnižu ponudu...',
-        style: TextStyle(
+      return Text(
+        l10n.loadingCurrentLowestOffer,
+        style: const TextStyle(
           fontWeight: FontWeight.w600,
         ),
       );
     }
 
     if (lowestOffer == null && myOffer == null) {
-      return const Text(
-        'Još nema ponuda za ovaj teret.',
-        style: TextStyle(
+      return Text(
+        l10n.noOffersForShipmentYet,
+        style: const TextStyle(
           fontWeight: FontWeight.w700,
         ),
       );
@@ -414,8 +467,10 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
       children: [
         Text(
           lowestOffer == null
-              ? 'Trenutna najniža ponuda: -'
-              : 'Trenutna najniža ponuda: ${formatPrice(lowestOffer)}',
+              ? l10n.currentLowestOfferUnavailable
+              : l10n.currentLowestOffer(
+            formatPrice(lowestOffer),
+          ),
           style: const TextStyle(
             fontWeight: FontWeight.w700,
           ),
@@ -423,17 +478,19 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
         const SizedBox(height: 6),
         Text(
           myOffer == null
-              ? 'Vaša ponuda: još niste poslali ponudu'
-              : 'Vaša ponuda: ${formatPrice(myOffer)}',
+              ? l10n.yourOfferNotSubmitted
+              : l10n.yourOffer(
+            formatPrice(myOffer),
+          ),
           style: const TextStyle(
             fontWeight: FontWeight.w700,
           ),
         ),
         if (isMyOfferLowest) ...[
           const SizedBox(height: 8),
-          const Text(
-            'Vaša ponuda je trenutno najniža.',
-            style: TextStyle(
+          Text(
+            l10n.yourOfferIsCurrentlyLowest,
+            style: const TextStyle(
               fontWeight: FontWeight.w800,
               color: Colors.green,
             ),
@@ -441,9 +498,11 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
         ],
         if (!isMyOfferLowest && lowestOffer != null) ...[
           const SizedBox(height: 8),
-            Text(
-            'Nova ponuda mora biti niža barem 5 $selectedCurrency od trenutne najniže ponude.',
-            style: TextStyle(
+          Text(
+            l10n.newOfferMinimumLower(
+              selectedCurrency,
+            ),
+            style: const TextStyle(
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -454,9 +513,11 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pošalji ponudu'),
+        title: Text(l10n.sendOffer),
         centerTitle: true,
       ),
       backgroundColor: const Color(0xFFF5F7FB),
@@ -484,16 +545,16 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Nova ponuda',
-                        style: TextStyle(
+                      Text(
+                        l10n.newOffer,
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Unesite cijenu koji tražite za prijevoz.',
+                        l10n.enterRequestedTransportPrice,
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey.shade700,
@@ -523,80 +584,100 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                         decoration: BoxDecoration(
                           color: Colors.orange.shade50,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.orange.shade200),
+                          border: Border.all(
+                            color: Colors.orange.shade200,
+                          ),
                         ),
-                        child: const Text(
-                          'Napomena: slanjem ponude obvezujete se na izvršenje prijevoza ako naručitelj prihvati vašu ponudu.',
-                          style: TextStyle(
+                        child: Text(
+                          l10n.offerBindingNotice,
+                          style: const TextStyle(
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                       const SizedBox(height: 20),
-
                       DropdownButtonFormField<String>(
                         value: selectedCurrency,
                         decoration: buildInputDecoration(
-                          label: 'Valuta',
+                          label: l10n.currency,
                         ),
-                        items: const [
-                          DropdownMenuItem(value: '€', child: Text('Euro (€)')),
-                          DropdownMenuItem(value: '\$', child: Text('Američki dolar (\$)')),
-                          DropdownMenuItem(value: '£', child: Text('Britanska funta (£)')),
-                          DropdownMenuItem(value: 'C\$', child: Text('Kanadski dolar (C\$)')),
-                          DropdownMenuItem(value: 'A\$', child: Text('Australski dolar (A\$)')),
+                        items: [
+                          DropdownMenuItem(
+                            value: '€',
+                            child: Text(l10n.euroCurrency),
+                          ),
+                          DropdownMenuItem(
+                            value: '\$',
+                            child: Text(l10n.usDollarCurrency),
+                          ),
+                          DropdownMenuItem(
+                            value: '£',
+                            child: Text(l10n.britishPoundCurrency),
+                          ),
+                          DropdownMenuItem(
+                            value: 'C\$',
+                            child: Text(l10n.canadianDollarCurrency),
+                          ),
+                          DropdownMenuItem(
+                            value: 'A\$',
+                            child: Text(l10n.australianDollarCurrency),
+                          ),
                         ],
                         onChanged: (value) {
-                          if (value != null) {
-                            setState(() {
-                              selectedCurrency = value;
-                            });
-                          }
+                          if (value == null) return;
+
+                          setState(() {
+                            selectedCurrency = value;
+                          });
                         },
                       ),
-
                       const SizedBox(height: 12),
-
                       TextFormField(
                         controller: amountController,
-                        keyboardType: const TextInputType.numberWithOptions(
+                        keyboardType:
+                        const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
                         decoration: buildInputDecoration(
-                          label: 'Iznos ponude ($selectedCurrency)',
-                          hint: 'Unesite iznos',
-
+                          label: l10n.offerAmount(
+                            selectedCurrency,
+                          ),
+                          hint: l10n.enterAmount,
                         ),
                         validator: (value) {
                           final text = value?.trim() ?? '';
 
                           if (text.isEmpty) {
-                            return 'Unesite iznos ponude';
+                            return l10n.enterOfferAmount;
                           }
 
-                          final parsed =
-                          double.tryParse(text.replaceAll(',', '.'));
+                          final parsed = double.tryParse(
+                            text.replaceAll(',', '.'),
+                          );
 
                           if (parsed == null) {
-                            return 'Unesite ispravan broj';
+                            return l10n.enterValidNumber;
                           }
 
                           if (parsed <= 0) {
-                            return 'Iznos mora biti veći od 0';
+                            return l10n.amountMustBeGreaterThanZero;
                           }
 
-                          if (lowestOffer != null && parsed > lowestOffer!) {
-                            return 'Ponuda mora biti niža od trenutne najniže ponude';
+                          if (lowestOffer != null &&
+                              parsed > lowestOffer!) {
+                            return l10n
+                                .offerMustBeLowerThanCurrentLowest;
                           }
 
                           if (lowestOffer != null &&
                               lowestOffer! - parsed < 5) {
-                            return 'Minimalno sniženje ponude je 5 $selectedCurrency';
+                            return l10n.minimumOfferReduction(
+                              selectedCurrency,
+                            );
                           }
 
                           return null;
                         },
-                        onFieldSubmitted: (_) {},
                       ),
                       const SizedBox(height: 12),
                       Row(
@@ -617,15 +698,23 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                         width: double.infinity,
                         child: OutlinedButton.icon(
                           onPressed: setAsLowestOffer,
-                          icon: const Icon(Icons.trending_down),
-                          label: const Text(
-                            'Postavi kao najnižu',
-                            style: TextStyle(fontWeight: FontWeight.w800),
+                          icon: const Icon(
+                            Icons.trending_down,
+                          ),
+                          label: Text(
+                            l10n.setAsLowestOffer,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.green.shade800,
-                            side: BorderSide(color: Colors.green.shade300),
-                            padding: const EdgeInsets.symmetric(vertical: 13),
+                            side: BorderSide(
+                              color: Colors.green.shade300,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 13,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -637,8 +726,8 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                         controller: messageController,
                         maxLines: 4,
                         decoration: buildInputDecoration(
-                          label: 'Poruka naručitelju (nije obavezno)',
-                          hint: 'Upišite kratku poruku...',
+                          label: l10n.messageToCustomerOptional,
+                          hint: l10n.enterShortMessage,
                           icon: Icons.message_outlined,
                         ),
                         textInputAction: TextInputAction.done,
@@ -651,25 +740,31 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                       const SizedBox(height: 24),
                       Container(
                         width: double.infinity,
-                        margin: const EdgeInsets.only(bottom: 16),
+                        margin: const EdgeInsets.only(
+                          bottom: 16,
+                        ),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Colors.orange.shade50,
-                          border: Border.all(color: Colors.orange.shade300),
+                          border: Border.all(
+                            color: Colors.orange.shade300,
+                          ),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Row(
+                        child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               '⚡',
-                              style: TextStyle(fontSize: 22),
+                              style: TextStyle(
+                                fontSize: 22,
+                              ),
                             ),
-                            SizedBox(width: 10),
+                            const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                'Ako ste blizu mjesta utovara i teret možete preuzeti odmah, navedite to u poruci uz ponudu. Brz dolazak može biti presudan pri odabiru prijevoznika.',
-                                style: TextStyle(
+                                l10n.nearLoadingLocationNotice,
+                                style: const TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                   height: 1.4,
@@ -683,7 +778,8 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                         width: double.infinity,
                         height: 52,
                         child: ElevatedButton(
-                          onPressed: isLoading ? null : sendOffer,
+                          onPressed:
+                          isLoading ? null : sendOffer,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blue,
                             foregroundColor: Colors.white,
@@ -701,9 +797,9 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
                               color: Colors.white,
                             ),
                           )
-                              : const Text(
-                            'Pošalji ponudu',
-                            style: TextStyle(
+                              : Text(
+                            l10n.sendOffer,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                             ),

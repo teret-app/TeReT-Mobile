@@ -6,14 +6,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
 import '../config.dart';
 import '../utils/country_helper.dart';
+import '../utils/phone_country_helper.dart';
 import '../services/token_storage.dart';
 import 'login_screen.dart';
 import 'my_shipments_screen.dart';
 import 'notifications_screen.dart';
 import 'legal_settings_screen.dart';
+import '../l10n/app_localizations.dart';
 class SenderHomeScreen extends StatefulWidget {
   const SenderHomeScreen({super.key});
 
@@ -50,9 +51,35 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
   final TextEditingController duzinaController = TextEditingController();
   final TextEditingController sirinaController = TextEditingController();
   final TextEditingController visinaController = TextEditingController();
-
   final TextEditingController katUtovaraController = TextEditingController();
+  final TextEditingController katIstovaraController = TextEditingController();
   final TextEditingController brojTelefonaController = TextEditingController();
+  PhoneCountryOption selectedPhoneCountry = phoneCountryOptions.first;
+
+  void capitalizeFirstLetter(
+      String value,
+      TextEditingController controller,
+      ) {
+    if (value.isEmpty) return;
+
+    final firstNonSpace = value.indexOf(RegExp(r'\S'));
+
+    if (firstNonSpace == -1) return;
+
+    final newText =
+        value.substring(0, firstNonSpace) +
+            value[firstNonSpace].toUpperCase() +
+            value.substring(firstNonSpace + 1);
+
+    if (newText != value) {
+      controller.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection.collapsed(
+          offset: newText.length,
+        ),
+      );
+    }
+  }
 
   String? odabranoTrajanjeLicitacije;
   String? odabraniRokPreuzimanja;
@@ -64,7 +91,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
   bool prilazZaTegljac = false;
   bool trebaPomocVozaca = false;
   bool liftNaUtovaru = false;
-
+  bool liftNaIstovaru = false;
   bool isLoading = false;
 
   List<XFile> odabraneSlike = [];
@@ -160,6 +187,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
     sirinaController.dispose();
     visinaController.dispose();
     katUtovaraController.dispose();
+    katIstovaraController.dispose();
     brojTelefonaController.dispose();
     super.dispose();
   }
@@ -279,13 +307,18 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
       items: countryOptions.map((country) {
         return DropdownMenuItem<String>(
           value: country.name,
-          child: Text('${country.flag} ${country.name}'),
+          child: Text(
+            '${country.flag} ${country.localizedName(
+              Localizations.localeOf(context).languageCode,
+            )}',
+          ),
         );
       }).toList(),
       onChanged: onChanged,
     );
   }
   Widget buildImagePreview() {
+    final l10n = AppLocalizations.of(context)!;
     if (odabraneSlike.isEmpty) {
       return Container(
         width: double.infinity,
@@ -295,9 +328,9 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: Colors.grey.shade300),
         ),
-        child: const Text(
-          'Nema odabranih slika.',
-          style: TextStyle(fontSize: 14),
+        child: Text(
+          l10n.noImagesSelected,
+          style: const TextStyle(fontSize: 14),
         ),
       );
     }
@@ -404,6 +437,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
         'tip_lokacije_istovara': odabraniTipLokacijeIstovara,
         'kat_utovara': katUtovaraController.text.trim(),
         'lift_na_utovaru': liftNaUtovaru,
+        'lift_na_istovaru': liftNaIstovaru,
         'prilaz_za_tegljac': prilazZaTegljac,
         'treba_pomoc_vozaca': trebaPomocVozaca,
         'broj_telefona': brojTelefonaController.text.trim(),
@@ -424,10 +458,10 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (!mounted) return;
 
+        final l10n = AppLocalizations.of(context)!;
+
         prikaziPoruku(
-          '✅ Teret je uspješno objavljen.\n\n'
-              'Ne morate čekati završetak licitacije. '
-              'Ponudu možete prihvatiti u bilo kojem trenutku čim pronađete prijevoznika koji vam odgovara.',
+          l10n.shipmentPublishedSuccessMessage,
         );
 
         setState(() {
@@ -443,6 +477,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
           sirinaController.clear();
           visinaController.clear();
           katUtovaraController.clear();
+          katIstovaraController.clear();
           brojTelefonaController.clear();
 
           odabranoTrajanjeLicitacije = null;
@@ -457,7 +492,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
           prilazZaTegljac = false;
           trebaPomocVozaca = false;
           liftNaUtovaru = false;
-
+          liftNaIstovaru = false;
           odabraneSlike = [];
         });
       } else if (response.statusCode == 401) {
@@ -490,17 +525,29 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
     required String label,
     required VoidCallback onTap,
   }) {
-    return Expanded(
+    return Flexible(
+      flex: 1,
       child: SizedBox(
         height: 52,
         child: ElevatedButton.icon(
           onPressed: onTap,
-          icon: Icon(icon, size: 18),
-          label: Text(
-            label,
-            textAlign: TextAlign.center,
+          icon: Icon(icon, size: 17),
+          label: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              maxLines: 1,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13,
+              ),
+            ),
           ),
           style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+              vertical: 10,
+            ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
@@ -511,6 +558,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
   }
 
   Widget buildNotificationsButton() {
+    final l10n = AppLocalizations.of(context)!;
     return Expanded(
       child: SizedBox(
         height: 52,
@@ -527,16 +575,31 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                   );
                   await loadUnreadCount();
                 },
-                icon: const Icon(Icons.notifications_none, size: 18),
-                label: const Text(
-                  'Pristigle ponude',
-                  textAlign: TextAlign.center,
+                icon: const Icon(
+                  Icons.notifications_none,
+                  size: 17,
+                ),
+                label: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    l10n.notifications,
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 13,
+                    ),
+                  ),
                 ),
                 style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 10,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
+
               ),
             ),
             if (unreadCount > 0)
@@ -569,12 +632,82 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
       ),
     );
   }
-
+  String localizedAuctionDuration(
+      AppLocalizations l10n,
+      String value,
+      ) {
+    switch (value) {
+      case '1 sat':
+        return l10n.oneHour;
+      case '2 sata':
+        return l10n.twoHours;
+      case '6 sati':
+        return l10n.sixHours;
+      case '12 sati':
+        return l10n.twelveHours;
+      case '24 sata':
+        return l10n.twentyFourHours;
+      default:
+        return value;
+    }
+  }
+  String localizedLoadingDeadline(
+      AppLocalizations l10n,
+      String value,
+      ) {
+    switch (value) {
+      case '24 sata':
+        return l10n.twentyFourHours;
+      case '48 sati':
+        return l10n.fortyEightHours;
+      case '72 sata':
+        return l10n.seventyTwoHours;
+      case 'Po dogovoru':
+        return l10n.byAgreement;
+      default:
+        return value;
+    }
+  }
+  String localizedLocationType(
+      AppLocalizations l10n,
+      String value,
+      ) {
+    switch (value) {
+      case 'Zgrada':
+        return l10n.building;
+      case 'Proizvodni pogon':
+        return l10n.productionFacility;
+      case 'Skladište':
+        return l10n.warehouse;
+      case 'Kuća':
+        return l10n.house;
+      case 'Gradilište':
+        return l10n.constructionSite;
+      case 'Poslovni prostor':
+        return l10n.businessPremises;
+      default:
+        return value;
+    }
+  }
+  String localizedLoadingMethod(
+      AppLocalizations l10n,
+      String value,
+      ) {
+    switch (value) {
+      case 'Ručno':
+        return l10n.manualLoading;
+      case 'Strojno':
+        return l10n.machineLoading;
+      default:
+        return value;
+    }
+  }
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Naručitelj prijevoza'),
+        title: Text(l10n.sender),
         actions: [
           TextButton.icon(
             onPressed: () {
@@ -586,7 +719,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
               );
             },
             icon: const Icon(Icons.menu),
-            label: const Text('Info'),
+            label: Text(l10n.info),
           ),
           IconButton(
             onPressed: logout,
@@ -604,7 +737,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                 children: [
                   buildTopActionButton(
                     icon: Icons.list_alt_outlined,
-                    label: 'Moje objave',
+                    label: l10n.myShipments,
                     onTap: () {
                       Navigator.push(
                         context,
@@ -629,8 +762,8 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        ' Objava tereta',
+                      Text(
+                        l10n.publishShipment,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
@@ -638,7 +771,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Ispunite podatke o teretu kako bi prijevoznici mogli slati ponude.',
+                        l10n.shipmentPublishDescription,
                         style: TextStyle(
                           fontSize: 13,
                           color: Colors.grey.shade700,
@@ -646,10 +779,12 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      buildSectionTitle('Osnovno'),
+                      buildSectionTitle(l10n.basicInformation),
                       TextFormField(
                         controller: nazivTeretaController,
-                        decoration: poljeDekoracija('Naziv tereta'),
+                        onChanged: (value) =>
+                            capitalizeFirstLetter(value, nazivTeretaController),
+                        decoration: poljeDekoracija(l10n.shipmentName),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return 'Unesite naziv tereta.';
@@ -663,22 +798,24 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: opisTeretaController,
+                        onChanged: (value) =>
+                            capitalizeFirstLetter(value, opisTeretaController),
                         maxLines: 3,
-                        decoration: poljeDekoracija('Kratki opis tereta'),
+                        decoration: poljeDekoracija(l10n.shortShipmentDescription),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return 'Unesite opis tereta.';
+                            return l10n.enterShipmentDescription;
                           }
                           if (containsForbiddenContactInfo(value)) {
-                            return 'Opis ne smije sadržavati kontakt podatke.';
+                            return l10n.shipmentDescriptionNoContactInfo;
                           }
                           return null;
                         },
                       ),
                       const SizedBox(height: 18),
-                      buildSectionTitle('Ruta'),
+                      buildSectionTitle(l10n.route),
                       buildCountryDropdown(
-                        label: 'Država utovara',
+                        label: l10n.loadingCountry,
                         value: odabranaDrzavaUtovara,
                         onChanged: (value) {
                           if (value == null) return;
@@ -690,7 +827,9 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: mjestoUtovaraController,
-                        decoration: poljeDekoracija('Mjesto utovara'),
+                        onChanged: (value) =>
+                            capitalizeFirstLetter(value, mjestoUtovaraController),
+                        decoration: poljeDekoracija(l10n.loadingCity),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return 'Unesite mjesto utovara.';
@@ -701,7 +840,9 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: adresaUtovaraController,
-                        decoration: poljeDekoracija('Ulica i kućni broj utovara'),
+                        onChanged: (value) =>
+                            capitalizeFirstLetter(value, adresaUtovaraController),
+                        decoration: poljeDekoracija(l10n.loadingAddress),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return 'Unesite adresu utovara.';
@@ -711,7 +852,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                       ),
                       const SizedBox(height: 12),
                       buildCountryDropdown(
-                        label: 'Država istovara',
+                        label: l10n.unloadingCountry,
                         value: odabranaDrzavaIstovara,
                         onChanged: (value) {
                           if (value == null) return;
@@ -723,7 +864,9 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: mjestoIstovaraController,
-                        decoration: poljeDekoracija('Mjesto istovara'),
+                        onChanged: (value) =>
+                            capitalizeFirstLetter(value, mjestoIstovaraController),
+                        decoration: poljeDekoracija(l10n.unloadingCity),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return 'Unesite mjesto istovara.';
@@ -734,7 +877,9 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: adresaIstovaraController,
-                        decoration: poljeDekoracija('Ulica i kućni broj istovara'),
+                        onChanged: (value) =>
+                            capitalizeFirstLetter(value, adresaIstovaraController),
+                        decoration: poljeDekoracija(l10n.unloadingAddress),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return 'Unesite adresu istovara.';
@@ -743,15 +888,17 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                         },
                       ),
                       const SizedBox(height: 18),
-                      buildSectionTitle('Vrijeme i količina'),
+                      buildSectionTitle(l10n.timeAndQuantity),
                       DropdownButtonFormField<String>(
                         value: odabranoTrajanjeLicitacije,
-                        decoration: poljeDekoracija('Trajanje licitacije'),
+                        decoration: poljeDekoracija(l10n.auctionDuration),
                         items: trajanjeLicitacijeOpcije
                             .map(
-                              (e) => DropdownMenuItem(
+                              (e) => DropdownMenuItem<String>(
                             value: e,
-                            child: Text(e),
+                            child: Text(
+                              localizedAuctionDuration(l10n, e),
+                            ),
                           ),
                         )
                             .toList(),
@@ -771,13 +918,15 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                       DropdownButtonFormField<String>(
                         value: odabraniRokPreuzimanja,
                         decoration: poljeDekoracija(
-                          'Rok utovara nakon kraja licitacije',
+                          l10n.loadingDeadlineAfterAuction,
                         ),
                         items: rokPreuzimanjaOpcije
                             .map(
-                              (e) => DropdownMenuItem(
+                              (e) => DropdownMenuItem<String>(
                             value: e,
-                            child: Text(e),
+                            child: Text(
+                              localizedLoadingDeadline(l10n, e),
+                            ),
                           ),
                         )
                             .toList(),
@@ -797,29 +946,93 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                       TextFormField(
                         controller: tezinaController,
                         keyboardType: TextInputType.number,
-                        decoration: poljeDekoracija('Težina cca (kg/lb)'),
+                        decoration: poljeDekoracija(l10n.approxWeight),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: brojPaletaController,
                         keyboardType: TextInputType.number,
-                        decoration: poljeDekoracija('Broj paleta'),
+                        decoration:poljeDekoracija(l10n.palletCount),
                       ),
                       const SizedBox(height: 18),
-                      buildSectionTitle('Kontakt'),
-                      IntlPhoneField(
-                        decoration: poljeDekoracija('Broj telefona'),
-                        initialCountryCode: 'HR',
-                        disableLengthCheck: true,
-                        onChanged: (phone) {
-                          brojTelefonaController.text = phone.completeNumber;
-                        },
-                        validator: (phone) {
-                          if (phone == null || phone.number.trim().isEmpty) {
-                            return 'Unesite broj telefona.';
-                          }
-                          return null;
-                        },
+                      buildSectionTitle(l10n.contact),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          DropdownButton<PhoneCountryOption>(
+                            value: selectedPhoneCountry,
+                            underline: const SizedBox.shrink(),
+                            menuWidth: 300,
+                            selectedItemBuilder: (context) {
+                              return phoneCountryOptions.map((country) {
+                                return Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    '${country.flag} ${country.dialCode}',
+                                  ),
+                                );
+                              }).toList();
+                            },
+
+                            items: phoneCountryOptions.map((country) {
+                              final languageCode =
+                                  Localizations.localeOf(context).languageCode;
+
+                              return DropdownMenuItem<PhoneCountryOption>(
+                                value: country,
+                                child: SizedBox(
+                                  width: 260,
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        country.flag,
+                                        style: const TextStyle(fontSize: 20),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          country.localizedName(languageCode),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        country.dialCode,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+
+                            onChanged: (country) {
+                              if (country == null) return;
+
+                              setState(() {
+                                selectedPhoneCountry = country;
+                              });
+                            },
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: TextFormField(
+                              controller: brojTelefonaController,
+                              keyboardType: TextInputType.phone,
+                              decoration: poljeDekoracija(l10n.phoneNumber),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Unesite broj telefona.';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 10),
                       Container(
@@ -831,7 +1044,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                           border: Border.all(color: Colors.blue.shade200),
                         ),
                         child: Text(
-                          'Broj telefona prijevozniku neće biti vidljiv dok ne prihvatite ponudu.',
+                            l10n.contactHiddenUntilAccepted,
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.blue.shade800,
@@ -843,8 +1056,8 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                       ExpansionTile(
                         tilePadding: EdgeInsets.zero,
                         childrenPadding: EdgeInsets.zero,
-                        title: const Text(
-                          'Dodatni detalji (opcionalno)',
+                        title: Text(
+                          l10n.additionalDetails,
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w800,
@@ -854,48 +1067,66 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                           const SizedBox(height: 8),
                           DropdownButtonFormField<String>(
                             value: odabraniTipLokacijeUtovara,
-                            decoration: poljeDekoracija('Tip lokacije utovara'),
+                            decoration: poljeDekoracija(l10n.loadingLocationType),
                             items: tipLokacijeOpcije
                                 .map(
-                                  (e) => DropdownMenuItem(
+                                  (e) => DropdownMenuItem<String>(
                                 value: e,
-                                child: Text(e),
+                                child: Text(
+                                  localizedLocationType(l10n, e),
+                                ),
                               ),
                             )
                                 .toList(),
                             onChanged: (value) {
                               setState(() {
                                 odabraniTipLokacijeUtovara = value;
+
+                                if (value != 'Zgrada' &&
+                                    value != 'Poslovni prostor') {
+                                  katUtovaraController.clear();
+                                  liftNaUtovaru = false;
+                                }
                               });
                             },
                           ),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<String>(
                             value: odabraniTipLokacijeIstovara,
-                            decoration: poljeDekoracija('Tip lokacije istovara'),
+                            decoration: poljeDekoracija(l10n.unloadingLocationType),
                             items: tipLokacijeOpcije
                                 .map(
-                                  (e) => DropdownMenuItem(
+                                  (e) => DropdownMenuItem<String>(
                                 value: e,
-                                child: Text(e),
+                                child: Text(
+                                  localizedLocationType(l10n, e),
+                                ),
                               ),
                             )
                                 .toList(),
                             onChanged: (value) {
                               setState(() {
                                 odabraniTipLokacijeIstovara = value;
+
+                                if (value != 'Zgrada' &&
+                                    value != 'Poslovni prostor') {
+                                  katIstovaraController.clear();
+                                  liftNaIstovaru = false;
+                                }
                               });
                             },
                           ),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<String>(
                             value: odabraniNacinUtovara,
-                            decoration: poljeDekoracija('Način utovara'),
+                            decoration: poljeDekoracija(l10n.loadingMethod),
                             items: nacinUtovaraOpcije
                                 .map(
-                                  (e) => DropdownMenuItem(
+                                  (e) => DropdownMenuItem<String>(
                                 value: e,
-                                child: Text(e),
+                                child: Text(
+                                  localizedLoadingMethod(l10n, e),
+                                ),
                               ),
                             )
                                 .toList(),
@@ -906,51 +1137,71 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                             },
                           ),
                           const SizedBox(height: 12),
+                          if (odabraniTipLokacijeUtovara == 'Zgrada' ||
+                              odabraniTipLokacijeUtovara == 'Poslovni prostor') ...[
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: katUtovaraController,
+                              keyboardType: TextInputType.number,
+                              decoration: poljeDekoracija('Kat utovara'),
+                            ),
+                            const SizedBox(height: 8),
+                            SwitchListTile(
+                              value: liftNaUtovaru,
+                              contentPadding: EdgeInsets.zero,
+                              title: const Text('Postoji lift na utovaru'),
+                              onChanged: (value) {
+                                setState(() {
+                                  liftNaUtovaru = value;
+                                });
+                              },
+                            ),
+                          ],
+                          if (odabraniTipLokacijeIstovara == 'Zgrada' ||
+                              odabraniTipLokacijeIstovara == 'Poslovni prostor') ...[
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: katIstovaraController,
+                              keyboardType: TextInputType.number,
+                              decoration: poljeDekoracija('Kat istovara'),
+                            ),
+                            const SizedBox(height: 8),
+                            SwitchListTile(
+                              value: liftNaIstovaru,
+                              contentPadding: EdgeInsets.zero,
+                              title: const Text('Postoji lift na istovaru'),
+                              onChanged: (value) {
+                                setState(() {
+                                  liftNaIstovaru = value;
+                                });
+                              },
+                            ),
+                          ],
                           TextFormField(
-                            controller: katUtovaraController,
-                            decoration: poljeDekoracija('Kat utovara'),
+                            controller: duzinaController,
+                            keyboardType: TextInputType.number,
+                            decoration: poljeDekoracija(l10n.length),
                           ),
                           const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextFormField(
-                                  controller: duzinaController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: poljeDekoracija('Dužina (cm/in)'),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: sirinaController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: poljeDekoracija('Širina (cm/in)'),
-                                ),
-                              ),
-                            ],
+                          TextFormField(
+                            controller: sirinaController,
+                            keyboardType: TextInputType.number,
+                            decoration: poljeDekoracija(l10n.width),
                           ),
                           const SizedBox(height: 12),
+
                           TextFormField(
                             controller: visinaController,
                             keyboardType: TextInputType.number,
-                            decoration: poljeDekoracija('Visina (cm/in)'),
+                            decoration: poljeDekoracija(l10n.height),
                           ),
                           const SizedBox(height: 8),
+
                           SwitchListTile(
-                            value: liftNaUtovaru,
-                            contentPadding: EdgeInsets.zero,
-                            title: const Text('Postoji lift na utovaru'),
-                            onChanged: (value) {
-                              setState(() {
-                                liftNaUtovaru = value;
-                              });
-                            },
-                          ),
-                          SwitchListTile(
+                            title: Text(l10n.truckAccess),
                             value: prilazZaTegljac,
                             contentPadding: EdgeInsets.zero,
-                            title: const Text('Prilaz za tegljač'),
+
                             onChanged: (value) {
                               setState(() {
                                 prilazZaTegljac = value;
@@ -960,7 +1211,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                           SwitchListTile(
                             value: trebaPomocVozaca,
                             contentPadding: EdgeInsets.zero,
-                            title: const Text('Treba pomoć vozača'),
+                            title: Text(l10n.driverHelp),
                             onChanged: (value) {
                               setState(() {
                                 trebaPomocVozaca = value;
@@ -968,14 +1219,14 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                             },
                           ),
                           const SizedBox(height: 12),
-                          buildSectionTitle('Slike tereta'),
+                          buildSectionTitle(l10n.shipmentImages),
                           Row(
                             children: [
                               Expanded(
                                 child: OutlinedButton.icon(
                                   onPressed: otvoriGaleriju,
                                   icon: const Icon(Icons.photo_library_outlined),
-                                  label: const Text('Galerija'),
+                                  label: Text(l10n.gallery),
                                   style: OutlinedButton.styleFrom(
                                     minimumSize: const Size.fromHeight(48),
                                     shape: RoundedRectangleBorder(
@@ -989,7 +1240,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                                 child: OutlinedButton.icon(
                                   onPressed: otvoriKameru,
                                   icon: const Icon(Icons.photo_camera_outlined),
-                                  label: const Text('Kamera'),
+                                  label: Text(l10n.camera),
                                   style: OutlinedButton.styleFrom(
                                     minimumSize: const Size.fromHeight(48),
                                     shape: RoundedRectangleBorder(
@@ -1002,7 +1253,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            'Odabrano slika: ${odabraneSlike.length}/5',
+                            l10n.selectedImages(odabraneSlike.length, 5),
                             style: TextStyle(
                               fontSize: 13,
                               color: Colors.grey.shade700,
@@ -1023,14 +1274,15 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                             final potvrda = await showDialog<bool>(
                               context: context,
                               builder: (context) => AlertDialog(
-                                title: const Text(
-                                  'Provjera podataka',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                title: Text(
+                                  l10n.checkShipmentData,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                                content: const Text(
-                                  'Molimo da prije objave tereta još jednom provjerite sve unesene podatke.\n\n'
-                                      'Nakon objave teret će biti vidljiv prijevoznicima i neće ga biti moguće uređivati.',
-                                  style: TextStyle(
+                                content: Text(
+                                  l10n.checkShipmentDataMessage,
+                                  style: const TextStyle(
                                     color: Colors.red,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -1038,9 +1290,9 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.pop(context, false),
-                                    child: const Text(
-                                      'Odustani',
-                                      style: TextStyle(
+                                    child: Text(
+                                      l10n.cancel,
+                                      style: const TextStyle(
                                         color: Colors.red,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -1052,9 +1304,9 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                                       foregroundColor: Colors.white,
                                     ),
                                     onPressed: () => Navigator.pop(context, true),
-                                    child: const Text(
-                                      'Objavi teret',
-                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                    child: Text(
+                                      l10n.publishShipment,
+                                      style: const TextStyle(fontWeight: FontWeight.bold),
                                     ),
                                   ),
                                 ],
@@ -1077,9 +1329,9 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                             height: 22,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                              : const Text(
-                            'Objavi teret',
-                            style: TextStyle(
+                              : Text(
+                            l10n.publishShipment,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
                             ),

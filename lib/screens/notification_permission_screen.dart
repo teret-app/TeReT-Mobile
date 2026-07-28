@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../l10n/app_localizations.dart';
+
 class NotificationPermissionScreen extends StatefulWidget {
   final Widget nextScreen;
 
@@ -21,7 +23,8 @@ class _NotificationPermissionScreenState
   bool isChecking = true;
   bool isOpeningSettings = false;
   bool hasContinued = false;
-  String? errorMessage;
+
+  String? errorMessageKey;
 
   @override
   void initState() {
@@ -44,8 +47,6 @@ class _NotificationPermissionScreenState
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
 
-    // Kada se korisnik vrati iz postavki mobitela,
-    // ponovno provjeravamo jesu li obavijesti uključene.
     if (state == AppLifecycleState.resumed) {
       _checkNotificationPermission();
     }
@@ -62,7 +63,7 @@ class _NotificationPermissionScreenState
     if (mounted) {
       setState(() {
         isChecking = true;
-        errorMessage = null;
+        errorMessageKey = null;
       });
     }
 
@@ -86,7 +87,7 @@ class _NotificationPermissionScreenState
 
     setState(() {
       isChecking = true;
-      errorMessage = null;
+      errorMessageKey = null;
     });
 
     final currentStatus = await Permission.notification.status;
@@ -98,15 +99,15 @@ class _NotificationPermissionScreenState
       return;
     }
 
-    // Ako Android još dopušta prikaz službenog dijaloga,
-    // zatražit ćemo dozvolu izravno.
     if (!currentStatus.isPermanentlyDenied &&
         !currentStatus.isRestricted) {
-      final requestedStatus = await Permission.notification.request();
+      final requestedStatus =
+      await Permission.notification.request();
 
       if (!mounted) return;
 
-      if (requestedStatus.isGranted || requestedStatus.isLimited) {
+      if (requestedStatus.isGranted ||
+          requestedStatus.isLimited) {
         _continueToApp();
         return;
       }
@@ -115,8 +116,8 @@ class _NotificationPermissionScreenState
           !requestedStatus.isRestricted) {
         setState(() {
           isChecking = false;
-          errorMessage =
-          'Obavijesti još nisu omogućene. Pritisnite gumb ponovno kako biste otvorili postavke.';
+          errorMessageKey =
+          'notificationPermissionStillDisabled';
         });
         return;
       }
@@ -131,7 +132,7 @@ class _NotificationPermissionScreenState
     setState(() {
       isChecking = false;
       isOpeningSettings = true;
-      errorMessage = null;
+      errorMessageKey = null;
     });
 
     final opened = await openAppSettings();
@@ -141,8 +142,8 @@ class _NotificationPermissionScreenState
     if (!opened) {
       setState(() {
         isOpeningSettings = false;
-        errorMessage =
-        'Postavke nije bilo moguće otvoriti. Otvorite postavke mobitela i omogućite obavijesti za TeReT.';
+        errorMessageKey =
+        'notificationSettingsCouldNotOpen';
       });
     }
   }
@@ -159,8 +160,26 @@ class _NotificationPermissionScreenState
     );
   }
 
+  String? _localizedErrorMessage(
+      AppLocalizations l10n,
+      ) {
+    switch (errorMessageKey) {
+      case 'notificationPermissionStillDisabled':
+        return l10n.notificationPermissionStillDisabled;
+
+      case 'notificationSettingsCouldNotOpen':
+        return l10n.notificationSettingsCouldNotOpen;
+
+      default:
+        return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final errorMessage = _localizedErrorMessage(l10n);
+
     return PopScope(
       canPop: false,
       child: Scaffold(
@@ -188,19 +207,27 @@ class _NotificationPermissionScreenState
                 ),
                 child: Container(
                   width: double.infinity,
-                  constraints: const BoxConstraints(maxWidth: 440),
+                  constraints: const BoxConstraints(
+                    maxWidth: 440,
+                  ),
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.08),
+                    color: Colors.white.withValues(
+                      alpha: 0.08,
+                    ),
                     borderRadius: BorderRadius.circular(24),
                     border: Border.all(
                       color: const Color(0xFF1FCBFF)
-                          .withValues(alpha: 0.35),
+                          .withValues(
+                        alpha: 0.35,
+                      ),
                     ),
                     boxShadow: [
                       BoxShadow(
                         color: const Color(0xFF1FCBFF)
-                            .withValues(alpha: 0.18),
+                            .withValues(
+                          alpha: 0.18,
+                        ),
                         blurRadius: 35,
                         spreadRadius: 3,
                       ),
@@ -215,10 +242,14 @@ class _NotificationPermissionScreenState
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: const Color(0xFF1FCBFF)
-                              .withValues(alpha: 0.14),
+                              .withValues(
+                            alpha: 0.14,
+                          ),
                           border: Border.all(
                             color: const Color(0xFF1FCBFF)
-                                .withValues(alpha: 0.55),
+                                .withValues(
+                              alpha: 0.55,
+                            ),
                             width: 2,
                           ),
                         ),
@@ -229,22 +260,20 @@ class _NotificationPermissionScreenState
                         ),
                       ),
                       const SizedBox(height: 24),
-                      const Text(
-                        'Omogućite obavijesti',
+                      Text(
+                        l10n.enableNotifications,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 24,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
                       const SizedBox(height: 14),
-                      const Text(
-                        '🔔 Kako bi TeReT ispravno funkcionirao, '
-                            'obavezno omogućite obavijesti u postavkama '
-                            'svog mobitela.',
+                      Text(
+                        l10n.notificationPermissionMainMessage,
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Color(0xFFD8F5FF),
                           fontSize: 16,
                           height: 1.5,
@@ -253,11 +282,12 @@ class _NotificationPermissionScreenState
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Tako ćete na vrijeme primati nove ponude, '
-                            'obavijesti o licitacijama i druge važne informacije.',
+                        l10n.notificationPermissionDetails,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.72),
+                          color: Colors.white.withValues(
+                            alpha: 0.72,
+                          ),
                           fontSize: 14,
                           height: 1.45,
                         ),
@@ -268,15 +298,20 @@ class _NotificationPermissionScreenState
                           width: double.infinity,
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Colors.red.withValues(alpha: 0.13),
-                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.red.withValues(
+                              alpha: 0.13,
+                            ),
+                            borderRadius:
+                            BorderRadius.circular(12),
                             border: Border.all(
                               color: Colors.redAccent
-                                  .withValues(alpha: 0.5),
+                                  .withValues(
+                                alpha: 0.5,
+                              ),
                             ),
                           ),
                           child: Text(
-                            errorMessage!,
+                            errorMessage,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               color: Colors.white,
@@ -300,7 +335,8 @@ class _NotificationPermissionScreenState
                               ? const SizedBox(
                             width: 21,
                             height: 21,
-                            child: CircularProgressIndicator(
+                            child:
+                            CircularProgressIndicator(
                               strokeWidth: 2.2,
                               color: Colors.white,
                             ),
@@ -310,10 +346,13 @@ class _NotificationPermissionScreenState
                           ),
                           label: Text(
                             isOpeningSettings
-                                ? 'Uključite obavijesti u postavkama'
+                                ? l10n
+                                .enableNotificationsInSettings
                                 : isChecking
-                                ? 'Provjera obavijesti...'
-                                : 'Omogući obavijesti',
+                                ? l10n
+                                .checkingNotifications
+                                : l10n
+                                .enableNotificationsButton,
                             textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontSize: 15,
@@ -321,25 +360,29 @@ class _NotificationPermissionScreenState
                             ),
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1595D3),
+                            backgroundColor:
+                            const Color(0xFF1595D3),
                             foregroundColor: Colors.white,
                             disabledBackgroundColor:
                             const Color(0xFF1595D3)
-                                .withValues(alpha: 0.65),
-                            disabledForegroundColor: Colors.white,
+                                .withValues(
+                              alpha: 0.65,
+                            ),
+                            disabledForegroundColor:
+                            Colors.white,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius:
+                              BorderRadius.circular(14),
                             ),
                           ),
                         ),
                       ),
                       if (isOpeningSettings) ...[
                         const SizedBox(height: 14),
-                        const Text(
-                          'Nakon uključivanja obavijesti vratite se u TeReT. '
-                              'Aplikacija će automatski nastaviti.',
+                        Text(
+                          l10n.returnAfterEnablingNotifications,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Color(0xFF8FEAFF),
                             fontSize: 13,
                             height: 1.4,

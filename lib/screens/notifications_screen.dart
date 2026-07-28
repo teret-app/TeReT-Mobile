@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../config.dart';
+import '../l10n/app_localizations.dart';
 import '../services/token_storage.dart';
 import 'login_screen.dart';
 import 'shipment_details_screen.dart';
@@ -19,7 +20,7 @@ class NotificationsScreen extends StatefulWidget {
 class _NotificationsScreenState extends State<NotificationsScreen> {
   List<dynamic> notifications = [];
   bool isLoading = true;
-  String errorMessage = '';
+  String errorCode = '';
 
   @override
   void initState() {
@@ -50,7 +51,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     setState(() {
       isLoading = true;
-      errorMessage = '';
+      errorCode = '';
     });
 
     final token = await _getTokenOrLogout();
@@ -110,14 +111,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       setState(() {
         notifications = [];
         isLoading = false;
-        errorMessage = 'Greška pri dohvaćanju obavijesti.';
+        errorCode = 'fetch';
       });
     } catch (_) {
       if (!mounted) return;
 
       setState(() {
         isLoading = false;
-        errorMessage = 'Greška konekcije sa serverom.';
+        errorCode = 'connection';
       });
     }
   }
@@ -157,9 +158,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Future<void> deleteReadNotifications() async {
+    final l10n = AppLocalizations.of(context)!;
+
     final confirm = await _confirmDialog(
-      title: 'Obrisati pročitane obavijesti?',
-      message: 'Sve pročitane obavijesti bit će uklonjene iz prikaza.',
+      title: l10n.deleteReadNotificationsTitle,
+      message: l10n.deleteReadNotificationsMessage,
     );
 
     if (confirm != true) return;
@@ -180,20 +183,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
       if (response.statusCode == 200) {
         await loadNotifications();
-        _showSnack('Pročitane obavijesti su obrisane.');
+        _showSnack(l10n.readNotificationsDeleted);
       } else {
-        _showSnack('Brisanje nije uspjelo.');
+        _showSnack(l10n.deletionFailed);
       }
     } catch (_) {
       if (!mounted) return;
-      _showSnack('Greška konekcije sa serverom.');
+      _showSnack(l10n.serverConnectionError);
     }
   }
 
   Future<void> deleteAllNotifications() async {
+    final l10n = AppLocalizations.of(context)!;
+
     final confirm = await _confirmDialog(
-      title: 'Obrisati sve obavijesti?',
-      message: 'Sve obavijesti bit će uklonjene iz prikaza.',
+      title: l10n.deleteAllNotificationsTitle,
+      message: l10n.deleteAllNotificationsMessage,
     );
 
     if (confirm != true) return;
@@ -214,13 +219,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
       if (response.statusCode == 200) {
         await loadNotifications();
-        _showSnack('Sve obavijesti su obrisane.');
+        _showSnack(l10n.allNotificationsDeleted);
       } else {
-        _showSnack('Brisanje nije uspjelo.');
+        _showSnack(l10n.deletionFailed);
       }
     } catch (_) {
       if (!mounted) return;
-      _showSnack('Greška konekcije sa serverom.');
+      _showSnack(l10n.serverConnectionError);
     }
   }
 
@@ -236,11 +241,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Odustani'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Obriši'),
+            child: Text(AppLocalizations.of(context)!.delete),
           ),
         ],
       ),
@@ -331,32 +336,81 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
-  String _titleFromType(Map<String, dynamic> n) {
+  String _titleFromType(AppLocalizations l10n, Map<String, dynamic> n) {
     switch (n['type']) {
       case 'new_shipment':
-        return 'Novi teret';
+        return l10n.notificationNewShipment;
       case 'offer_created':
-        return 'Nova ponuda';
+        return l10n.notificationNewOffer;
       case 'offer_updated':
-        return 'Ažurirana ponuda';
+        return l10n.notificationUpdatedOffer;
       case 'offer_outbid':
-        return 'Ponuda više nije najniža';
+        return l10n.notificationOfferOutbid;
       case 'offer_accepted':
-        return '🏆 Dobili ste posao';
+        return l10n.notificationJobWon;
       case 'offer_rejected':
-        return 'Licitacija je završena';
+        return l10n.notificationAuctionFinished;
       case 'contact_unlocked':
-        return '🎉 Dobili ste posao';
+        return l10n.notificationJobWonCelebration;
       case 'carrier_contact_unlocked':
-        return '🤝 TeReT vas je povezao';
+        return l10n.notificationConnected;
       case 'delivery_confirmed':
-        return '✅ Prijevoz potvrđen';
+        return l10n.notificationDeliveryConfirmed;
       default:
-        return _text(n['title'], 'Obavijest');
+        return _text(n['title'], l10n.notification);
     }
   }
 
-  String _formatDate(dynamic raw) {
+  String _localizedMessage(
+      AppLocalizations l10n,
+      Map<String, dynamic> notification,
+      ) {
+    final type = _text(notification['type']);
+    final originalMessage = _text(notification['message']);
+
+    switch (type) {
+      case 'new_shipment':
+        var route = '';
+
+        final colonIndex = originalMessage.indexOf(':');
+        if (colonIndex >= 0 && colonIndex < originalMessage.length - 1) {
+          route = originalMessage.substring(colonIndex + 1).trim();
+        }
+
+        return route.isNotEmpty
+            ? l10n.notificationNewShipmentMessage(route)
+            : l10n.notificationNewShipmentMessageWithoutRoute;
+
+      case 'offer_created':
+        return l10n.notificationNewOfferMessage;
+
+      case 'offer_updated':
+        return l10n.notificationUpdatedOfferMessage;
+
+      case 'offer_outbid':
+        return l10n.notificationOfferOutbidMessage;
+
+      case 'offer_accepted':
+        return l10n.notificationOfferAcceptedMessage;
+
+      case 'offer_rejected':
+        return l10n.notificationOfferRejectedMessage;
+
+      case 'contact_unlocked':
+        return l10n.notificationContactUnlockedMessage;
+
+      case 'carrier_contact_unlocked':
+        return l10n.notificationCarrierConnectedMessage;
+
+      case 'delivery_confirmed':
+        return l10n.notificationDeliveryConfirmedMessage;
+
+      default:
+        return originalMessage;
+    }
+  }
+
+  String _formatDate(AppLocalizations l10n, dynamic raw) {
     final value = _text(raw);
     if (value.isEmpty) return '';
 
@@ -365,9 +419,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       final now = DateTime.now();
       final diff = now.difference(date);
 
-      if (diff.inMinutes < 1) return 'Upravo sada';
-      if (diff.inMinutes < 60) return 'Prije ${diff.inMinutes} min';
-      if (diff.inHours < 24) return 'Prije ${diff.inHours} h';
+      if (diff.inMinutes < 1) return l10n.justNow;
+      if (diff.inMinutes < 60) return l10n.minutesAgo(diff.inMinutes);
+      if (diff.inHours < 24) return l10n.hoursAgo(diff.inHours);
 
       final day = date.day.toString().padLeft(2, '0');
       final month = date.month.toString().padLeft(2, '0');
@@ -432,12 +486,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     loadNotifications();
   }
 
-  Widget _card(Map<String, dynamic> n) {
+  Widget _card(AppLocalizations l10n, Map<String, dynamic> n) {
     final unread = n['isRead'] != true;
     final type = _text(n['type']);
     final color = _colorForType(type, unread);
-    final message = _text(n['message']);
-    final createdAt = _formatDate(n['createdAt']);
+    final message = _localizedMessage(l10n, n);
+    final createdAt = _formatDate(l10n, n['createdAt']);
 
     return InkWell(
       onTap: () => _handleTap(n),
@@ -445,10 +499,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         margin: const EdgeInsets.fromLTRB(12, 6, 12, 6),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: unread ? color.withOpacity(0.08) : Colors.white,
+          color: unread ? color.withValues(alpha: 0.08) : Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: unread ? color.withOpacity(0.45) : Colors.grey.shade300,
+            color: unread ? color.withValues(alpha: 0.45) : Colors.grey.shade300,
           ),
         ),
         child: Row(
@@ -460,7 +514,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   width: 38,
                   height: 38,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.12),
+                    color: color.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -490,7 +544,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    _titleFromType(n),
+                    _titleFromType(l10n, n),
                     style: TextStyle(
                       fontWeight: unread ? FontWeight.w800 : FontWeight.w600,
                       fontSize: 15,
@@ -538,12 +592,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  Widget _dismissibleCard(Map<String, dynamic> n) {
+  Widget _dismissibleCard(AppLocalizations l10n, Map<String, dynamic> n) {
     final idRaw = n['id'];
     final id = idRaw is int ? idRaw : int.tryParse('$idRaw');
 
     if (id == null) {
-      return _card(n);
+      return _card(l10n, n);
     }
 
     return Dismissible(
@@ -566,7 +620,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         final success = await deleteNotification(id);
 
         if (!success) {
-          _showSnack('Brisanje obavijesti nije uspjelo.');
+          _showSnack(l10n.notificationDeletionFailed);
           return false;
         }
 
@@ -582,18 +636,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           });
         });
 
-        _showSnack('Obavijest je obrisana.');
+        _showSnack(l10n.notificationDeleted);
       },
-      child: _card(n),
+      child: _card(l10n, n),
     );
   }
 
-  Widget _body() {
+  Widget _body(AppLocalizations l10n) {
     if (isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (errorMessage.isNotEmpty) {
+    if (errorCode.isNotEmpty) {
       return RefreshIndicator(
         onRefresh: loadNotifications,
         child: ListView(
@@ -608,7 +662,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
             const SizedBox(height: 14),
             Text(
-              errorMessage,
+              errorCode == 'fetch'
+                  ? l10n.notificationsFetchError
+                  : l10n.serverConnectionError,
               textAlign: TextAlign.center,
               style: const TextStyle(
                 fontSize: 16,
@@ -626,27 +682,27 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(24),
-          children: const [
-            SizedBox(height: 120),
-            Icon(
+          children: [
+            const SizedBox(height: 120),
+            const Icon(
               Icons.notifications_none,
               size: 64,
               color: Colors.blueGrey,
             ),
-            SizedBox(height: 14),
+            const SizedBox(height: 14),
             Text(
-              'Nema obavijesti',
+              l10n.noNotifications,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
-              'Nove ponude, prihvati i promjene prikazat će se ovdje.',
+              l10n.notificationsEmptyDescription,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 14,
                 color: Colors.black54,
               ),
@@ -665,11 +721,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           final item = notifications[i];
 
           if (item is Map<String, dynamic>) {
-            return _dismissibleCard(item);
+            return _dismissibleCard(l10n, item);
           }
 
           if (item is Map) {
-            return _dismissibleCard(Map<String, dynamic>.from(item));
+            return _dismissibleCard(l10n, Map<String, dynamic>.from(item));
           }
 
           return const SizedBox.shrink();
@@ -678,7 +734,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  void _openNotificationMenu() {
+  void _openNotificationMenu(AppLocalizations l10n) {
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
@@ -686,7 +742,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.mark_email_read_outlined),
-              title: const Text('Obriši pročitane'),
+              title: Text(l10n.deleteReadNotifications),
               onTap: () {
                 Navigator.pop(context);
                 deleteReadNotifications();
@@ -694,7 +750,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.delete_sweep_outlined),
-              title: const Text('Obriši sve obavijesti'),
+              title: Text(l10n.deleteAllNotifications),
               onTap: () {
                 Navigator.pop(context);
                 deleteAllNotifications();
@@ -708,14 +764,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final hasNotifications = notifications.isNotEmpty;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
       appBar: AppBar(
-        title: const Text(
-          'Obavijesti',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.notificationsTitle,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -723,19 +780,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            tooltip: 'Osvježi',
+            tooltip: l10n.refresh,
             onPressed: loadNotifications,
             icon: const Icon(Icons.refresh),
           ),
           if (hasNotifications)
             IconButton(
-              tooltip: 'Upravljanje obavijestima',
-              onPressed: _openNotificationMenu,
+              tooltip: l10n.manageNotifications,
+              onPressed: () => _openNotificationMenu(l10n),
               icon: const Icon(Icons.more_vert),
             ),
         ],
       ),
-      body: _body(),
+      body: _body(l10n),
     );
   }
 }

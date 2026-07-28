@@ -1,0 +1,887 @@
+{
+  "@@locale": "en",
+
+  "appName": "TeReT",
+
+  "welcomeToTeret": "Welcome to TeReT",
+  "loginPlatformDescription": "A platform that easily connects shippers and carriers.",
+
+  "login": "Login",
+  "email": "Email",
+  "password": "Password",
+  "signIn": "Log in",
+  "noAccountRegister": "Don't have an account? Register",
+
+  "enterEmail": "Enter your email",
+  "enterValidEmail": "Enter a valid email address",
+  "enterPassword": "Enter your password",
+  "enterValidEmailFirst": "Please enter a valid email address first.",
+
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+
+  "forgotPasswordQuestion": "Forgot your password?",
+  "forgotPasswordTitle": "Forgotten password",
+  "forgotPasswordDescription": "Enter the email address associated with your account. We will send you a link to set a new password.",
+  "sendResetLink": "Send link",
+  "passwordResetLinkSent": "If an account with that email exists, a password reset link has been sent.",
+  "passwordResetLinkSendError": "The reset link could not be sent.",
+
+  "accountNotVerified": "Your account has not been verified. Please verify your email address before logging in.",
+  "resendVerificationEmail": "Resend verification email",
+  "verificationEmailResent": "The verification email has been sent again.",
+  "verificationEmailSendError": "An error occurred while sending the verification email.",
+
+  "loginError": "Login failed.",
+  "invalidUserRole": "Invalid user role.",
+  "emailAndPasswordRequired": "Email and password are required.",
+  "invalidEmailOrPassword": "Incorrect email or password.",
+  "serverError": "A server error occurred. Please try again.",
+  "serverConnectionError": "Could not connect to the server.",
+
+  "close": "Close",
+  "cancel": "Cancel",
+  "confirm": "Confirm",
+
+  "carrier": "Carrier",
+  "sender": "Shipper",
+  "register": "Registration",
+  "logout": "Log out",
+  "roleSelection": "Select role",
+  "howDoYouWantToUseApp": "How would you like to use the app?",
+  "transportCustomer": "Transport customer",
+  "termsAcceptanceRequired": "You must accept the Terms of Use to register.",
+  "registrationSuccessfulVerifyEmail": "Registration successful. Verify your email address before logging in.",
+  "registrationError": "Registration failed.",
+  "registrationConnectionError": "Could not connect to the server. Check your internet connection and try again.",
+  "enterFullName": "Enter your full name",
+  "enterPhoneNumber": "Enter your mobile phone number",
+  "enterValidPhoneNumber": "Enter a valid mobile phone number",
+  "passwordMinimumFourCharacters": "The password must contain at least 4 characters",
+  "r1InvoiceNotice": "If you require an R1 invoice, enter the correct billing information during Stripe Checkout so that we can issue and deliver the invoice.",
+  "fullName": "Full name",
+  "companyNameOptional": "Company / business name (optional)",
+  "cityOrHeadquarters": "City / headquarters",
+  "country": "Country",
+  "mobilePhoneNumber": "Phone number",
+  "selectCountry": "Select country",
+  "searchCountryOrDialCode": "Search country or dial code",
+  "noCountriesFound": "No countries found.",
+  "iAccept": "I accept the ",
+  "termsOfUse": "Terms of Use",
+  "teretPlatformSuffix": " of the TeReT platform.",
+  "registrationSuccessful": "Registration successful.",
+  "copyVerificationLinkForTesting": "For testing, copy this link and open it in your browser.",
+  "afterEmailVerificationLogin": "You can log in after verifying your email address.",
+  "goToLogin": "Go to login",
+  "registerButton": "Register",
+  "alreadyHaveAccountLogin": "Already have an account? Log in",
+"exitAppTitle": "Exit application",
+"exitAppQuestion": "Are you sure you want to exit the application?",
+"exit": "Exit",
+"info": "Info",
+"shipmentList": "Shipment list",
+"myOffers": "My offers",
+"notifications": "Notifications",
+"notificationsDisabled": "Notifications are disabled",
+"notificationsWarningDescription": "Enable notifications to receive new shipments, offer updates, and other important auction notifications on time.",
+"enableNotifications": "Enable notifications",
+"splashTagline": "Load Radar",
+"senderRoleDescription": "Publish a shipment and receive offers from carriers",
+"carrierRoleDescription": "Browse shipments and submit your offer",
+"selectRoleInfo": "Choose a role and continue to login or registration.",
+"newBadge": "NEW",
+"myShipments": "My shipments",
+"publishShipment": "Publish shipment",
+"shipmentPublishDescription": "Enter shipment details so carriers can submit offers.",
+"basicInformation": "Basic information",
+"route": "Route",
+"timeAndQuantity": "Time and quantity",
+"contact": "Contact",
+"shipmentImages": "Shipment images",
+"additionalDetails": "Additional details (optional)",
+"shipmentName": "Shipment name",
+"shortShipmentDescription": "Short shipment description",
+"enterShipmentDescription": "Enter the shipment description.",
+"shipmentDescriptionNoContactInfo": "The shipment description must not contain contact information.",
+"loadingCountry": "Loading country",
+"loadingCity": "Loading place",
+"loadingAddress": "Loading address",
+"unloadingCountry": "Unloading country",
+"unloadingCity": "Unloading place",
+"unloadingAddress": "Unloading address",
+"auctionDuration": "Auction duration",
+"contactHiddenUntilAccepted": "Contact details will not be visible to the carrier until you accept the offer.",
+"loadingDeadlineAfterAuction": "Loading deadline after the auction ends",
+"approxWeight": "Approx. weight (kg/lb)",
+"palletCount": "Number of pallets",
+"phoneNumber": "Phone number",
+"oneHour": "1 hour",
+"twoHours": "2 hours",
+"sixHours": "6 hours",
+"twelveHours": "12 hours",
+"twentyFourHours": "24 hours",
+"twentyFourHours": "24 hours",
+"fortyEightHours": "48 hours",
+"seventyTwoHours": "72 hours",
+"byAgreement": "By agreement",
+"loadingLocationType": "Loading location type",
+"building": "Building",
+"productionFacility": "Production facility",
+"warehouse": "Warehouse",
+"house": "House",
+"constructionSite": "Construction site",
+"businessPremises": "Business premises",
+"unloadingLocationType": "Unloading location type",
+"loadingMethod": "Loading method",
+"manualLoading": "Manual",
+"machineLoading": "Machine",
+"length": "Length (cm/in)",
+"width": "Width (cm/in)",
+"height": "Height (cm/in)",
+"truckAccess": "Truck access",
+"driverHelp": "Driver assistance",
+"gallery": "Gallery",
+"camera": "Camera",
+"selectedImages": "Selected images: {count}/{max}",
+"@selectedImages": {
+  "placeholders": {
+    "count": {
+      "type": "int"
+    },
+    "max": {
+      "type": "int"
+    }
+  }
+},
+"noImagesSelected": "No images selected.",
+"publishShipment": "Publish shipment",
+"noShipmentsYet": "You currently have no shipments.",
+"active": "Active",
+"transportAgreed": "Transport agreed",
+"completed": "Completed",
+"auctionFinished": "Auction finished",
+"unknown": "Unknown",
+"auction": "Auction",
+"offers": "Offers",
+"views": "Views",
+"lowestOffer": "Lowest offer",
+"details": "Details",
+"auctionProgress": "Auction progress",
+"removeFromHistory": "Remove from history",
+"repost": "Repost",
+  "paymentSuccessfulContactUnlocked": "Payment successful. Contact details are now unlocked.",
+  "errorFetchingShipmentDetails": "Error loading shipment details.",
+  "serverConnectionError": "Could not connect to the server.",
+  "cannotOpenStripePayment": "Unable to open Stripe Checkout.",
+  "commissionRecorded": "The commission has been recorded.",
+  "areYouSure": "Are you sure?",
+  "confirmDeliveryExplanation": "By confirming, you mark the transport as completed.",
+  "cancel": "Cancel",
+  "transportCompleted": "Transport completed",
+  "transportMarkedCompleted": "The transport has been marked as completed.",
+  "carrierAccusative": "carrier",
+  "cannotOpenPhoneApp": "Unable to open the phone app.",
+  "active": "Active",
+  "acceptedOffer": "Accepted offer",
+  "completed": "Completed",
+  "machineLoading": "Machine loading",
+  "manualLoading": "Manual loading",
+  "senderUppercase": "SENDER",
+  "noRatings": "No ratings",
+  "shipmentImages": "Shipment images",
+  "auctionProgress": "Auction progress",
+  "confirming": "Confirming...",
+  "carrierSelected": "You selected a carrier.",
+  "offerAccepted": "The offer has been accepted.",
+  "carrierWillContactSoon": "The carrier will contact you soon.",
+  "waitingForCarrierConfirmation": "Waiting for the carrier's confirmation.",
+  "offerAcceptedShort": "Offer accepted.",
+  "platformFeeExplanation": "The job is yours.\n\nTo unlock the contact details, you need to pay the platform fee through Stripe Checkout.\n\nThe fee is 5% of the agreed transport price. For transports worth up to €100.00, the minimum fee is €5.00.",
+  "continueToStripeCheckout": "Continue to Stripe Checkout",
+  "otherCarrierWonMessage": "Unfortunately, another carrier got this job. Thank you for taking part in the auction.",
+  "shipmentNotFound": "Shipment not found.",
+  "sender": "Sender",
+  "senderAccusative": "sender",
+  "auctionFinished": "Auction finished",
+  "statusOtherCarrierSelected": "Status: Another carrier selected",
+  "otherCarrierSelectedMessage": "Unfortunately, another carrier was selected for this transport. Thank you for taking part in the auction.",
+  "statusAuctionFinished": "Status: Auction finished",
+  "statusOfferAcceptedByYou": "Status: You accepted an offer",
+  "loadingPlace": "Loading place",
+  "loadingAddress": "Loading address",
+  "unloadingPlace": "Unloading place",
+  "unloadingAddress": "Unloading address",
+  "loadingDeadlineAfterAuction": "Loading deadline after the auction ends",
+  "auctionDuration": "Auction duration",
+  "weight": "Weight",
+  "length": "Length",
+  "width": "Width",
+  "height": "Height",
+  "numberOfPallets": "Number of pallets",
+  "loadingMethod": "Loading method",
+  "loadingLocationType": "Loading location type",
+  "unloadingLocationType": "Unloading location type",
+  "loadingFloor": "Loading floor",
+  "unloadingFloor": "Unloading floor",
+  "loadingLift": "Lift at loading",
+  "unloadingLift": "Lift at unloading",
+  "yes": "Yes",
+  "no": "No",
+  "driverHelpNeeded": "Driver assistance needed",
+  "truckAccess": "Truck access",
+  "acceptedPrice": "Accepted price",
+  "commission": "Commission",
+  "numberOfOffers": "Number of offers",
+  "listingViews": "Listing views",
+  "contactPhone": "Contact phone",
+  "callSender": "Call sender",
+  "sendOffer": "Send offer",
+  "teretDelivered": "TeReT delivered",
+  "thankYouForRating": "Thank you for your rating.",
+  "ratingBuildsTrust": "Your rating helps build trust on the platform.",
+  "otherCarrierSelectedForShipment": "Another carrier was selected for this shipment.",
+  "offersNoLongerAllowed": "Offers can no longer be submitted for this shipment.",
+  "shipmentDetails": "Shipment details",
+  "refresh": "Refresh",
+  "house": "House",
+  "building": "Building",
+  "warehouse": "Warehouse",
+  "productionFacility": "Production facility",
+  "constructionSite": "Construction site",
+  "businessPremises": "Business premises",
+  "byAgreement": "By agreement",
+  "ratingSummary": "⭐ {rating} ({count} ratings)",
+  "@ratingSummary": {
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "alreadyRated": "You have already rated the {user}.",
+  "@alreadyRated": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "rateUser": "Rate {user}",
+  "@rateUser": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "agreedTransportPrice": "Agreed transport price: {amount}",
+  "@agreedTransportPrice": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "feeAmount": "Fee amount: {amount}",
+  "@feeAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "timeRemaining": "{hours}h {minutes}min remaining",
+  "@timeRemaining": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "statusLabel": "Status: {status}",
+  "@statusLabel": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+      }
+      },
+
+        "sessionExpiredLoginAgain": "Your session has expired. Please log in again.",
+        "errorLoadingOffers": "Error loading offers.",
+        "acceptOfferConfirmationText": "By accepting this offer, you finalize the agreement and select this carrier.",
+        "acceptOffer": "Accept offer",
+        "invalidOfferId": "Invalid offer ID.",
+        "offerAcceptedSuccessfully": "The offer was accepted successfully.",
+        "acceptOfferFailed": "The offer could not be accepted.",
+        "accepted": "Accepted",
+        "outbid": "Outbid",
+        "rejected": "Rejected",
+        "pending": "Pending",
+        "activeFeminine": "Active",
+        "carrier": "Carrier",
+        "carrierUppercase": "CARRIER",
+        "carrierIdNotFound": "The carrier ID for this offer could not be found.",
+        "offerWithPrice": "Offer: {price}",
+        "@offerWithPrice": {
+          "placeholders": {
+            "price": {
+              "type": "String"
+            }
+          }
+        },
+        "thisOfferAccepted": "This offer has been accepted",
+        "thisOfferOutbid": "This offer was outbid",
+        "shipmentOffers": "Shipment offers",
+        "logout": "Log out",
+        "noOffersForShipment": "There are no offers for this shipment yet.",
+        "offerAlreadyAcceptedShipmentClosed": "An offer has already been accepted and the shipment is closed.",
+        "bidHistoryNotLoggedIn": "You are not signed in. Please sign in again.",
+        "bidHistorySessionExpired": "Your session has expired. Please sign in again.",
+        "bidHistoryFetchError": "An error occurred while loading the auction progress.",
+        "bidHistoryConnectionError": "An error occurred. Check the connection to the backend.",
+        "bidHistoryStatusActive": "Active",
+        "bidHistoryStatusAccepted": "Accepted offer",
+        "bidHistoryStatusCompleted": "Completed",
+        "bidHistoryYourOffer": "Your offer",
+        "bidHistoryCarrier": "Carrier",
+        "bidHistoryRatings": "⭐ {averageRating} ({ratingsCount} ratings)",
+        "@bidHistoryRatings": {
+          "placeholders": {
+            "averageRating": {
+              "type": "String"
+            },
+            "ratingsCount": {
+              "type": "String"
+            }
+          }
+        },
+        "bidHistorySummary": "Auction summary",
+        "bidHistoryCurrentLowestOffer": "Current lowest offer",
+        "bidHistoryOffersCount": "Number of offers",
+        "bidHistoryShipmentStatus": "Shipment status",
+        "bidHistoryBadgeAccepted": "ACCEPTED",
+        "bidHistoryBadgeRejected": "REJECTED",
+        "bidHistoryBadgeLowest": "LOWEST",
+        "bidHistoryBadgeYours": "YOURS",
+        "bidHistoryNoOffers": "There are no offers for this shipment yet.",
+        "bidHistoryAuctionProgress": "Auction progress",
+        "bidHistoryRefresh": "Refresh",
+        "bidHistoryStatusAuctionFinished": "Auction finished",
+        "acceptOffer": "Accept offer",
+        "acceptOfferConfirmation": "Are you sure you want to accept this offer?",
+        "acceptOfferButton": "ACCEPT OFFER",
+        "acceptOfferWarning": "After accepting the offer, the shipment will be assigned to this carrier and all other offers will be closed.",
+        "offer": "Offer",
+        "carrier": "Carrier",
+        "offerTime": "Offer time",
+        "note": "Note",
+        "notSpecified": "Not specified",
+        "offerAcceptError": "Error accepting the offer",
+        "generalError": "Error: {error}",
+        "@generalError": {
+          "placeholders": {
+            "error": {
+              "type": "String"
+            }
+          }
+        },
+        "offerDateTime": "{day}.{month}.{year} at {hour}:{minute}",
+        "@offerDateTime": {
+          "placeholders": {
+            "day": {
+              "type": "String"
+            },
+            "month": {
+              "type": "String"
+            },
+            "year": {
+              "type": "String"
+            },
+            "hour": {
+              "type": "String"
+            },
+            "minute": {
+              "type": "String"
+            }
+          }
+        },
+        "yes": "Yes",
+        "no": "No",
+        "hoursShort": "hours",
+         "assignedShipmentTitle": "Assigned shipment",
+          "assignedSessionExpired": "Your session has expired. Please sign in again.",
+          "assignedShipmentLoadError": "Error loading the shipment.",
+          "assignedErrorPrefix": "Error",
+          "assignedAreYouSure": "Are you sure?",
+          "assignedDeliveryConfirmationText": "By confirming, you mark the transport as completed.",
+          "assignedCancel": "Cancel",
+          "assignedTransportCompleted": "Transport completed",
+          "assignedMarkedAsCompleted": "The transport has been marked as completed.",
+          "assignedServerConnectionError": "Server connection error.",
+          "assignedNotSpecified": "Not specified",
+          "assignedYes": "Yes",
+          "assignedNo": "No",
+          "assignedCarrier": "Carrier",
+          "assignedManual": "Manual",
+          "assignedMachine": "Machine",
+          "assignedHouse": "House",
+          "assignedBuilding": "Building",
+          "assignedWarehouse": "Warehouse",
+          "assignedProductionFacility": "Production facility",
+          "assignedConstructionSite": "Construction site",
+          "assignedBusinessPremises": "Business premises",
+          "assignedConfirming": "Confirming...",
+          "assignedTryAgain": "Try again",
+          "assignedGoToLogin": "Go to login",
+          "assignedShipmentNotFound": "Shipment not found.",
+          "assignedShipmentAssigned": "Shipment assigned",
+          "assignedCarrierDetails": "Carrier details",
+          "assignedEmail": "Email",
+          "assignedPhone": "Phone",
+          "assignedAcceptedPrice": "Accepted price",
+          "assignedStatus": "Status",
+          "assignedPhoneNotAvailable": "Phone number is not available yet",
+          "assignedCarrierDetailsUnavailable": "The offer has been accepted, but the carrier details are currently unavailable.",
+          "assignedBasicShipmentDetails": "Basic shipment details",
+          "assignedShipmentName": "Shipment name",
+          "assignedDescription": "Description",
+          "assignedLoadingDate": "Loading date",
+          "assignedLoadingPlace": "Loading place",
+          "assignedLoadingAddress": "Loading address",
+          "assignedUnloadingPlace": "Unloading place",
+          "assignedUnloadingAddress": "Unloading address",
+          "assignedDimensionsAndLogistics": "Dimensions and logistics",
+          "assignedWeight": "Weight (kg/lb)",
+          "assignedLength": "Length (cm/in)",
+          "assignedWidth": "Width (cm/in)",
+          "assignedHeight": "Height (cm/in)",
+          "assignedLoadingMethod": "Loading method",
+          "assignedTruckAccess": "Truck access",
+          "assignedLoadingLocationType": "Loading location type",
+          "assignedLoadingFloor": "Loading floor",
+          "assignedLoadingElevator": "Elevator at loading",
+          "assignedDriverHelp": "Driver assistance required",
+          "assignedCustoms": "Customs",
+          "assignedShipmentImages": "Shipment images",
+            "availableNotLoggedIn": "You are not signed in. Please sign in again.",
+            "availableFetchError": "Error fetching shipments.",
+            "availableServerConnectionError": "Server connection error",
+            "availableShipmentFallback": "Shipment",
+            "availableNew": "New",
+            "availableClosed": "Closed",
+            "availableWeight": "Weight",
+            "availablePallets": "Pallets",
+            "availableLoadingDeadline": "Loading deadline",
+            "availableOpenDetails": "Open details",
+            "availableNoShipments": "There are currently no available shipments.",
+            "availableNewShipmentsAppearHere": "New shipments will appear here when they are posted.",
+            "availableShipmentsTitle": "Available shipments",
+            "availableActiveListings": "{count} active listings",
+            "@availableActiveListings": {
+            "placeholders": {
+              "count": {
+                "type": "int"
+              }
+            }
+          },
+            "availableOpenAndSendOffer": "Open a shipment and submit your offer.",
+            "availableMyOffers": "My offers",
+            "availableLogout": "Log out",
+            "shipmentListTitle": "Shipment list",
+            "shipmentFetchError": "Failed to load shipments.",
+            "serverConnectionError": "Server connection error.",
+            "auctionFinished": "Auction finished",
+            "auctionEndsInHours": "{hours}h {minutes}min remaining until the auction ends",
+            "@auctionEndsInHours": {
+              "placeholders": {
+                "hours": {
+                  "type": "int"
+                },
+                "minutes": {
+                  "type": "int"
+                }
+              }
+            },
+            "auctionEndsInMinutes": "{minutes}min remaining until the auction ends",
+            "@auctionEndsInMinutes": {
+              "placeholders": {
+                "minutes": {
+                  "type": "int"
+                }
+              }
+            },
+            "auctionDurationHours": "{hours, plural, =1{1 hour} other{{hours} hours}}",
+            "@auctionDurationHours": {
+              "placeholders": {
+                "hours": {
+                  "type": "int"
+                }
+              }
+            },
+            "machineLoadingUppercase": "MACHINE",
+            "manualLoadingUppercase": "MANUAL",
+            "newUppercase": "NEW",
+            "acceptedUppercase": "ACCEPTED",
+            "finishedUppercase": "FINISHED",
+            "activeUppercase": "ACTIVE",
+            "auctionDurationBadge": "Auction {duration}",
+            "@auctionDurationBadge": {
+              "placeholders": {
+                "duration": {
+                  "type": "String"
+                }
+              }
+            },
+            "offersCount": "{count, plural, =0{0 offers} =1{1 offer} other{{count} offers}}",
+            "@offersCount": {
+              "placeholders": {
+                "count": {
+                  "type": "int"
+                }
+              }
+            },
+            "cargo": "Cargo",
+            "sender": "Sender",
+            "approximateWeight": "approx. {weight} kg",
+            "@approximateWeight": {
+              "placeholders": {
+                "weight": {
+                  "type": "String"
+                }
+              }
+            },
+            "publishedDate": "Published {date}",
+            "@publishedDate": {
+              "placeholders": {
+                "date": {
+                  "type": "String"
+                }
+              }
+            },
+            "acceptedOfferPrice": "Accepted offer: {price}",
+            "@acceptedOfferPrice": {
+              "placeholders": {
+                "price": {
+                  "type": "String"
+                }
+              }
+            },
+            "currentLowestOfferPrice": "Current lowest offer: {price}",
+            "@currentLowestOfferPrice": {
+              "placeholders": {
+                "price": {
+                  "type": "String"
+                }
+              }
+            },
+            "viewDetails": "View details",
+            "noShipmentsAvailable": "There are currently no available shipments.",
+            "newShipmentsWillAppear": "New shipments will appear here as soon as senders publish them.",
+            "notificationsTitle": "Notifications",
+            "refresh": "Refresh",
+            "manageNotifications": "Manage notifications",
+            "notificationsFetchError": "Failed to load notifications.",
+            "deleteReadNotificationsTitle": "Delete read notifications?",
+            "deleteReadNotificationsMessage": "All read notifications will be removed from the list.",
+            "deleteAllNotificationsTitle": "Delete all notifications?",
+            "deleteAllNotificationsMessage": "All notifications will be removed from the list.",
+            "readNotificationsDeleted": "Read notifications have been deleted.",
+            "allNotificationsDeleted": "All notifications have been deleted.",
+            "deletionFailed": "Deletion failed.",
+            "delete": "Delete",
+            "notificationNewShipment": "New shipment",
+            "notificationNewOffer": "New offer",
+            "notificationUpdatedOffer": "Updated offer",
+            "notificationOfferOutbid": "Your offer is no longer the lowest",
+            "notificationJobWon": "🏆 You got the job",
+            "notificationAuctionFinished": "The auction has ended",
+            "notificationJobWonCelebration": "🎉 You got the job",
+            "notificationConnected": "🤝 TeReT connected you",
+            "notificationDeliveryConfirmed": "✅ Transport confirmed",
+            "notification": "Notification",
+            "justNow": "Just now",
+            "minutesAgo": "{minutes} min ago",
+            "@minutesAgo": {
+              "placeholders": {
+                "minutes": {
+                  "type": "int"
+                }
+              }
+            },
+            "hoursAgo": "{hours} h ago",
+            "@hoursAgo": {
+              "placeholders": {
+                "hours": {
+                  "type": "int"
+                }
+              }
+            },
+            "notificationDeletionFailed": "Failed to delete the notification.",
+            "notificationDeleted": "Notification deleted.",
+            "noNotifications": "No notifications",
+            "notificationsEmptyDescription": "New offers, accepted offers and changes will appear here.",
+            "deleteReadNotifications": "Delete read notifications",
+            "deleteAllNotifications": "Delete all notifications",
+            "notificationNewShipmentMessage": "A new shipment has been published: {route}",
+            "@notificationNewShipmentMessage": {
+              "placeholders": {
+                "route": {
+                  "type": "String"
+                }
+              }
+            },
+            "notificationNewShipmentMessageWithoutRoute": "A new shipment has been published.",
+            "notificationNewOfferMessage": "You received a new offer for your shipment.",
+            "notificationUpdatedOfferMessage": "The carrier updated their offer.",
+            "notificationOfferOutbidMessage": "Your offer is no longer the lowest. Submit a new offer to remain competitive.",
+            "notificationOfferAcceptedMessage": "Your offer has been accepted. Open the shipment details to continue.",
+            "notificationOfferRejectedMessage": "Another carrier was selected for this transport.",
+            "notificationContactUnlockedMessage": "The contact details have been unlocked. Open the shipment details.",
+            "notificationCarrierConnectedMessage": "TeReT connected you with the selected carrier.",
+            "notificationDeliveryConfirmedMessage": "The sender confirmed that the transport was completed.",
+            "deliveryConfirmationTitle": "Delivery confirmation",
+            "sessionExpiredLoginAgain": "Your session has expired. Please log in again.",
+            "shipmentLoadingError": "Failed to load shipment.",
+            "notSpecified": "Not specified",
+            "carrier": "Carrier",
+            "deliveryConfirmedSuccessfully": "Delivery has been confirmed successfully.",
+            "deliveryConfirmationError": "Failed to confirm delivery.",
+            "confirmDeliveryDialogTitle": "Delivery confirmation",
+            "confirmDeliveryDialogMessage": "Are you sure the shipment has been successfully delivered to its destination?",
+            "yes": "Yes",
+            "no": "No",
+            "shipmentData": "Shipment information",
+            "shipmentName": "Shipment name",
+            "loadingDate": "Loading date",
+            "loadingPlace": "Loading place",
+            "unloadingPlace": "Unloading place",
+            "assignedCarrier": "Assigned carrier",
+            "email": "Email",
+            "phone": "Phone",
+            "phoneNotAvailable": "Phone number not available",
+            "agreedPrice": "Agreed price",
+            "transportStatus": "Transport status",
+            "deliveryConfirmed": "Delivery confirmed",
+            "shipmentInTransit": "Shipment in transit",
+            "waitingDeliveryConfirmation": "Waiting for delivery confirmation from the sender",
+            "transportCompletedMessage": "The transport has been completed and confirmed. The next step may be rating the carrier.",
+            "confirmDeliveryInfo": "If the shipment has arrived at its destination, confirm the delivery. This will mark the transport as completed.",
+            "confirmDeliveryButton": "CONFIRM DELIVERY",
+            "confirming": "Confirming...",
+            "goToMyShipments": "GO TO MY SHIPMENTS",
+            "tryAgain": "Try again",
+            "goToLogin": "Go to login",
+            "shipmentNotFound": "Shipment not found.",
+            "myOffersTitle": "My offers",
+            "myOffersRefresh": "Refresh",
+            "myOffersNotLoggedIn": "You are not logged in. Please sign in again.",
+            "myOffersSessionExpired": "Your session has expired. Please sign in again.",
+            "myOffersFetchError": "Failed to load your offers.",
+            "myOffersConnectionError": "Connection to the server failed.",
+            "myOffersRemoveFromHistoryTitle": "Remove from history?",
+            "myOffersRemoveFromHistoryMessage": "The offer will disappear from your list but will not be permanently deleted from the system.",
+            "myOffersCancel": "Cancel",
+            "myOffersRemove": "Remove",
+            "myOffersRemovedFromHistory": "The offer has been removed from history.",
+            "myOffersRemoveFailed": "Failed to remove the offer.",
+            "myOffersStatusFinished": "Finished",
+            "myOffersStatusAccepted": "Accepted",
+            "myOffersStatusLowest": "Lowest",
+            "myOffersStatusOutbid": "Outbid",
+            "myOffersShipmentPrefix": "Shipment",
+            "myOffersShipmentActive": "Active",
+            "myOffersShipmentOfferAccepted": "Offer accepted",
+            "myOffersShipmentUsersConnected": "Users connected",
+            "myOffersShipmentAuctionEnded": "Auction ended",
+            "myOffersDefaultShipmentName": "Shipment",
+            "myOffersMyOffer": "My offer",
+            "myOffersOffersCount": "Number of offers",
+            "myOffersLoading": "Loading",
+            "myOffersByAgreement": "By agreement",
+            "myOffersWeight": "Weight",
+            "myOffersMyMessage": "My message",
+            "myOffersAcceptedUnlockContact": "🔒 Your offer has been accepted. Open the shipment details and unlock the contact.",
+            "myOffersContactUnlocked": "Contact unlocked — you can now start arranging the transport.",
+            "myOffersSendNewOffer": "Send new offer",
+            "myOffersOtherCarrierSelected": "Another carrier has been selected for this transport.",
+            "myOffersRemoveFromHistory": "Remove from history",
+            "myOffersTryAgain": "Try again",
+            "myOffersEmptyTitle": "You haven't submitted any offers yet.",
+            "myOffersEmptyDescription": "Once you submit an offer for a shipment, all your offers will appear here.",
+            "ratingScreenTitle": "Rate transport",
+            "ratingSelectBetweenOneAndFive": "Please select a rating from 1 to 5.",
+            "ratingSubmittedSuccessfully": "The rating was submitted successfully.",
+            "ratingSubmissionError": "An error occurred while submitting the rating.",
+            "ratingServerConnectionError": "Could not connect to the server.",
+            "ratingVeryPoor": "Very poor",
+            "ratingPoor": "Poor",
+            "ratingGood": "Good",
+            "ratingVeryGood": "Very good",
+            "ratingExcellent": "Excellent",
+            "ratingSelectRating": "Select a rating",
+            "ratingDefaultUserLabel": "user",
+            "ratingRateUserPrefix": "Rate",
+            "ratingFeedbackHelpsOthers": "Your feedback helps other users.",
+            "ratingCommentOptional": "Comment (optional)",
+            "ratingCommentHint": "For example, everything was correct and on time...",
+            "ratingSubmitButton": "Submit rating",
+            "aboutAppTitle": "Info",
+            "aboutAppDescription": "A digital platform for publishing shipments, submitting offers and arranging transport more easily.",
+            "aboutAppPurposeTitle": "Purpose of the app",
+            "aboutAppPurposeText": "TeReT connects transport customers and carriers in one place. The customer publishes a shipment, and carriers submit their offers.",
+            "aboutAppAuctionTitle": "Transport auction",
+            "aboutAppAuctionText": "Carriers can submit an offer for a published shipment, and the customer selects the offer that suits them best.",
+            "aboutAppContactProtectionTitle": "Contact protection",
+            "aboutAppContactProtectionText": "Contact details are not publicly available. The phone number and full details are displayed only after an offer is accepted and the contact is unlocked.",
+            "aboutAppPrivacyTitle": "Security and privacy",
+            "aboutAppPrivacyText": "The app is designed to protect user data and display only the information required to arrange transport.",
+            "aboutAppSupportTitle": "Customer support",
+            "aboutAppSupportText": "For help, problem reports or questions, contact support at: teretmegs@gmail.com",
+            "aboutAppVersionTitle": "App version",
+            "aboutAppVersionText": "MVP version 1.0.0",
+            "legalSettingsTitle": "Settings and information",
+            "legalSettingsTermsTitle": "Terms of use",
+            "legalSettingsTermsSubtitle": "Rules for using the TeReT platform",
+            "legalSettingsPrivacyTitle": "Privacy policy",
+            "legalSettingsPrivacySubtitle": "Protection and processing of user data",
+            "legalSettingsContactTitle": "Contact",
+            "legalSettingsContactSubtitle": "Contact information and support",
+            "legalSettingsAboutTitle": "About the app",
+            "legalSettingsAboutSubtitle": "Information about the TeReT app",
+            "termsTitle": "Terms of use",
+            "termsGeneralTitle": "1. General provisions",
+            "termsGeneralText": "TeReT is a digital platform that connects transport customers and carriers. TeReT does not participate in the organisation or execution of transport, but enables users to connect and make arrangements.",
+            "termsPlatformRoleTitle": "2. Role of the platform",
+            "termsPlatformRoleText": "TeReT is neither a carrier nor a freight forwarder. TeReT does not act as a contractual party in transport and accepts no responsibility for the execution of transport, delays, cancellations, damage to goods, inaccurate user information or disputes between users. All transport arrangements are made exclusively between the customer and the carrier.",
+            "termsFeeTitle": "3. Platform usage fee",
+            "termsFeeText": "The TeReT platform is completely free to use and has no membership or registration fees. A fee is charged only when a transport deal is concluded, meaning when the customer accepts a carrier's offer. The fee is 5% of the agreed transport price, with a minimum fee of €5.00 for agreed transports valued up to €100.00.",
+            "termsUnlockContactTitle": "4. Unlocking contact details",
+            "termsUnlockContactText": "The contact details of the customer and carrier become available only after the fee has been successfully paid through Stripe. Once the contact details are unlocked, the platform service is considered completed.",
+            "termsRefundTitle": "5. Fee refunds",
+            "termsRefundText": "Once the contact details have been unlocked, the paid fee is non-refundable. The fee applies to the service of connecting users through the TeReT platform, regardless of whether the transport is later completed.",
+            "termsCancellationTitle": "6. Transport cancellation",
+            "termsCancellationText": "If the transport is cancelled by the customer or the carrier, TeReT accepts no responsibility for the consequences of the cancellation. Users are solely responsible for their mutual arrangements, costs, damages, delays or other consequences that may arise from cancellation. If the platform fee has already been paid and the contact details have been unlocked, the fee is non-refundable because the connection service through the platform is considered completed.",
+            "termsTransportResponsibilityTitle": "7. Responsibility for transport",
+            "termsTransportResponsibilityText": "The customer and carrier are solely responsible for the execution of transport, the condition of the goods, delivery time and all other details. TeReT does not participate in transport and accepts no responsibility for any resulting damage.",
+            "privacyTitle": "Privacy policy",
+            "privacySection1Title": "1. Data collection",
+            "privacySection1Text": "TeReT collects the basic user information required to use the platform, including full name, phone number, email address, transport information and published shipments.",
+            "privacySection2Title": "2. Use of data",
+            "privacySection2Text": "The collected data is used solely to enable communication between transport customers and carriers and to ensure the proper functioning of the platform.",
+            "privacySection3Title": "3. Data sharing",
+            "privacySection3Text": "User contact details are not publicly available. They are unlocked only after an offer has been accepted and the platform fee has been successfully paid.",
+            "privacySection4Title": "4. Data security",
+            "privacySection4Text": "TeReT takes reasonable technical and organisational measures to protect user data against unauthorised access, loss or misuse.",
+            "privacySection5Title": "5. Email verification",
+            "privacySection5Text": "For the security and protection of users, TeReT uses email verification during account registration.",
+            "privacySection6Title": "6. Cookies and technical data",
+            "privacySection6Text": "The app may collect technical data necessary for system operation, security and improving the user experience.",
+            "privacySection7Title": "7. User rights",
+            "privacySection7Text": "Users have the right to request correction or deletion of their personal data in accordance with applicable laws and privacy regulations.",
+            "privacySection8Title": "8. Contact",
+            "privacySection8Text": "For any questions regarding privacy and data protection, users can contact us through the contact option within the app.",
+            "contactSupportTitle": "Customer support",
+            "contactSupportHeading": "Contact and support",
+            "contactSupportDescription": "For questions, account issues or problems using the app, you can contact our support team.",
+            "contactSupportEmailTitle": "Email support",
+            "contactSupportResponseTimeTitle": "Response time",
+            "contactSupportResponseTimeText": "We respond to enquiries as quickly as possible.",
+            "contactSupportMessageInfoTitle": "What to include in your message",
+            "contactSupportMessageInfoText": "When reporting a problem, include the account email address, a description of the issue and, if possible, a screenshot of the error.",
+            "contactSupportEmailSubject": "Support - TeReT",
+            "sendOffer": "Send offer",
+            "newOffer": "New offer",
+            "enterRequestedTransportPrice": "Enter the price you require for the transport.",
+            "noCurrentOfferForAutomaticReduction": "There is no current offer available for automatic reduction.",
+            "offerAmountMustBeGreaterThanZero": "The offer amount must be greater than 0.",
+            "noLowestOfferForShipment": "There is no lowest offer for this shipment yet.",
+            "notLoggedInLoginAgain": "You are not logged in. Please log in again.",
+            "enterValidOfferAmount": "Enter a valid offer amount.",
+            "offerSuccessfullySent": "The offer was sent successfully.",
+            "sessionExpiredLoginAgain": "Your session has expired. Please log in again.",
+            "errorSendingOffer": "An error occurred while sending the offer.",
+            "serverConnectionError": "Server connection error.",
+            "loadingCurrentLowestOffer": "Loading the current lowest offer...",
+            "noOffersForShipmentYet": "There are no offers for this shipment yet.",
+            "currentLowestOfferUnavailable": "Current lowest offer: -",
+            "currentLowestOffer": "Current lowest offer: {amount}",
+            "@currentLowestOffer": {
+              "placeholders": {
+                "amount": {
+                  "type": "String"
+                }
+              }
+            },
+            "yourOfferNotSubmitted": "Your offer: you have not submitted an offer yet",
+            "yourOffer": "Your offer: {amount}",
+            "@yourOffer": {
+              "placeholders": {
+                "amount": {
+                  "type": "String"
+                }
+              }
+            },
+            "yourOfferIsCurrentlyLowest": "Your offer is currently the lowest.",
+            "newOfferMinimumLower": "The new offer must be at least 5 {currency} lower than the current lowest offer.",
+            "@newOfferMinimumLower": {
+              "placeholders": {
+                "currency": {
+                  "type": "String"
+                }
+              }
+            },
+            "offerBindingNotice": "Note: by submitting an offer, you agree to complete the transport if the customer accepts your offer.",
+            "currency": "Currency",
+            "euroCurrency": "Euro (€)",
+            "usDollarCurrency": "US dollar ($)",
+            "britishPoundCurrency": "British pound (£)",
+            "canadianDollarCurrency": "Canadian dollar (C$)",
+            "australianDollarCurrency": "Australian dollar (A$)",
+            "offerAmount": "Offer amount ({currency})",
+            "@offerAmount": {
+              "placeholders": {
+                "currency": {
+                  "type": "String"
+                }
+              }
+            },
+            "enterAmount": "Enter amount",
+            "enterOfferAmount": "Enter the offer amount",
+            "enterValidNumber": "Enter a valid number",
+            "amountMustBeGreaterThanZero": "The amount must be greater than 0",
+            "offerMustBeLowerThanCurrentLowest": "The offer must be lower than the current lowest offer",
+            "minimumOfferReduction": "The minimum offer reduction is 5 {currency}",
+            "@minimumOfferReduction": {
+              "placeholders": {
+                "currency": {
+                  "type": "String"
+                }
+              }
+            },
+            "setAsLowestOffer": "Set as the lowest offer",
+            "messageToCustomerOptional": "Message to the customer (optional)",
+            "enterShortMessage": "Enter a short message...",
+            "nearLoadingLocationNotice": "If you are near the loading location and can collect the shipment immediately, mention this in your offer message. A quick arrival may be decisive when the customer selects a carrier.",
+            "checkShipmentData": "Check shipment data",
+            "checkShipmentDataMessage": "Please review all entered shipment data before publishing.\n\nAfter publishing, the shipment will become visible to carriers and can no longer be edited.",
+            "shipmentPublishedSuccessMessage": "✅ Shipment published successfully.\n\nYou do not need to wait for the auction to end. You can accept an offer at any time as soon as you find a carrier that suits you.",
+            "enableNotifications": "Enable notifications",
+            "notificationPermissionMainMessage": "🔔 To ensure that TeReT works properly, you must enable notifications in your phone settings.",
+            "notificationPermissionDetails": "This will allow you to receive new offers, auction updates and other important information on time.",
+            "notificationPermissionStillDisabled": "Notifications are still disabled. Press the button again to open the settings.",
+            "notificationSettingsCouldNotOpen": "The settings could not be opened. Open your phone settings and enable notifications for TeReT.",
+            "enableNotificationsInSettings": "Enable notifications in settings",
+            "checkingNotifications": "Checking notifications...",
+            "enableNotificationsButton": "Enable notifications",
+            "returnAfterEnablingNotifications": "After enabling notifications, return to TeReT. The app will continue automatically."
+      }
+
+

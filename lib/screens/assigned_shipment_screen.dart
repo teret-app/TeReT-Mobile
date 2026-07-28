@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../config.dart';
+import '../l10n/app_localizations.dart';
 import '../services/token_storage.dart';
 import 'login_screen.dart';
 import 'rating_screen.dart';
@@ -62,12 +63,13 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
       } else if (response.statusCode == 401) {
         setState(() {
           isLoading = false;
-          errorMessage = 'Sesija je istekla. Prijavite se ponovno.';
+          errorMessage = AppLocalizations.of(context)!.assignedSessionExpired;
         });
       } else {
         setState(() {
           isLoading = false;
-          errorMessage = data['message']?.toString() ?? 'Greška kod učitavanja tereta.';
+          errorMessage = data['message']?.toString() ??
+              AppLocalizations.of(context)!.assignedShipmentLoadError;
         });
       }
     } catch (e) {
@@ -75,7 +77,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
 
       setState(() {
         isLoading = false;
-        errorMessage = 'Greška: $e';
+        errorMessage = '${AppLocalizations.of(context)!.assignedErrorPrefix}: $e';
       });
     }
   }
@@ -86,18 +88,18 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
       barrierDismissible: false,
       builder: (dialogContext) {
         return AlertDialog(
-          title: const Text('Jesi li siguran?'),
-          content: const Text(
-            'Potvrdom označavaš da je prijevoz obavljen.',
+          title: Text(AppLocalizations.of(dialogContext)!.assignedAreYouSure),
+          content: Text(
+            AppLocalizations.of(dialogContext)!.assignedDeliveryConfirmationText,
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Odustani'),
+              child: Text(AppLocalizations.of(dialogContext)!.assignedCancel),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text('Prijevoz obavljen'),
+              child: Text(AppLocalizations.of(dialogContext)!.assignedTransportCompleted),
             ),
           ],
         );
@@ -133,7 +135,8 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
         },
       );
 
-      String message = 'Prijevoz je označen kao obavljen.';
+      String message =
+          AppLocalizations.of(context)!.assignedMarkedAsCompleted;
 
       try {
         final body = jsonDecode(response.body);
@@ -169,7 +172,11 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Greška konekcije sa serverom.')),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.assignedServerConnectionError,
+          ),
+        ),
       );
     } finally {
       if (!mounted) return;
@@ -180,18 +187,23 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
     }
   }
 
-  String formatValue(dynamic value, {String fallback = 'Nije navedeno'}) {
-    if (value == null) return fallback;
+  String formatValue(dynamic value, {String? fallback}) {
+    final resolvedFallback =
+        fallback ?? AppLocalizations.of(context)!.assignedNotSpecified;
+
+    if (value == null) return resolvedFallback;
 
     final text = value.toString().trim();
 
-    if (text.isEmpty || text == 'null') return fallback;
+    if (text.isEmpty || text == 'null') return resolvedFallback;
 
     return text;
   }
 
   String formatPrice(dynamic value) {
-    if (value == null) return 'Nije navedeno';
+    if (value == null) {
+      return AppLocalizations.of(context)!.assignedNotSpecified;
+    }
 
     final number = double.tryParse(value.toString());
 
@@ -206,7 +218,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
 
   String formatDate(dynamic value) {
     if (value == null || value.toString().trim().isEmpty) {
-      return 'Nije navedeno';
+      return AppLocalizations.of(context)!.assignedNotSpecified;
     }
 
     try {
@@ -215,22 +227,27 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
       final month = dt.month.toString().padLeft(2, '0');
       final year = dt.year.toString();
 
-      return '$day.$month.$year';
+      final languageCode = Localizations.localeOf(context).languageCode;
+      return languageCode == 'en'
+          ? '$month/$day/$year'
+          : '$day.$month.$year';
     } catch (_) {
       return value.toString();
     }
   }
 
   String yesNo(dynamic value) {
-    if (value == true) return 'Da';
-    if (value == false) return 'Ne';
+    final l10n = AppLocalizations.of(context)!;
+
+    if (value == true) return l10n.assignedYes;
+    if (value == false) return l10n.assignedNo;
 
     final text = value?.toString().toLowerCase().trim() ?? '';
 
-    if (text == 'true') return 'Da';
-    if (text == 'false') return 'Ne';
+    if (text == 'true') return l10n.assignedYes;
+    if (text == 'false') return l10n.assignedNo;
 
-    return 'Nije navedeno';
+    return l10n.assignedNotSpecified;
   }
 
   String buildCarrierName(Map<String, dynamic> acceptedOffer) {
@@ -249,7 +266,47 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
 
     if (email.isNotEmpty) return email;
 
-    return 'Prijevoznik';
+    return AppLocalizations.of(context)!.assignedCarrier;
+  }
+
+  String localizedShipmentValue(dynamic value) {
+    final l10n = AppLocalizations.of(context)!;
+    final raw = formatValue(value);
+    final normalized = raw.toLowerCase().trim();
+
+    switch (normalized) {
+      case 'ručno':
+      case 'rucno':
+      case 'manual':
+        return l10n.assignedManual;
+      case 'strojno':
+      case 'machine':
+      case 'mechanical':
+        return l10n.assignedMachine;
+      case 'kuća':
+      case 'kuca':
+      case 'house':
+        return l10n.assignedHouse;
+      case 'zgrada':
+      case 'building':
+        return l10n.assignedBuilding;
+      case 'skladište':
+      case 'skladiste':
+      case 'warehouse':
+        return l10n.assignedWarehouse;
+      case 'proizvodni pogon':
+      case 'production facility':
+        return l10n.assignedProductionFacility;
+      case 'gradilište':
+      case 'gradiliste':
+      case 'construction site':
+        return l10n.assignedConstructionSite;
+      case 'poslovni prostor':
+      case 'business premises':
+        return l10n.assignedBusinessPremises;
+      default:
+        return raw;
+    }
   }
 
   bool isCompletedStatus() {
@@ -445,13 +502,13 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.green.shade200),
         ),
-        child: const Row(
+        child: Row(
           children: [
             Icon(Icons.check_circle_outline, color: Colors.green),
             SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Prijevoz je označen kao obavljen.',
+                AppLocalizations.of(context)!.assignedMarkedAsCompleted,
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   color: Colors.green,
@@ -475,7 +532,9 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
         )
             : const Icon(Icons.task_alt),
         label: Text(
-          isConfirmingDelivery ? 'Potvrđujem...' : 'Prijevoz obavljen',
+          isConfirmingDelivery
+              ? AppLocalizations.of(context)!.assignedConfirming
+              : AppLocalizations.of(context)!.assignedTransportCompleted,
         ),
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.green.shade700,
@@ -584,7 +643,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F7FB),
       appBar: AppBar(
-        title: const Text('Dodijeljeni teret'),
+        title: Text(AppLocalizations.of(context)!.assignedShipmentTitle),
         centerTitle: true,
         elevation: 0,
       ),
@@ -614,7 +673,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
               const SizedBox(height: 18),
               ElevatedButton(
                 onPressed: fetchShipment,
-                child: const Text('Pokušaj ponovno'),
+                child: Text(AppLocalizations.of(context)!.assignedTryAgain),
               ),
               const SizedBox(height: 10),
               TextButton(
@@ -627,16 +686,16 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                         (route) => false,
                   );
                 },
-                child: const Text('Idi na prijavu'),
+                child: Text(AppLocalizations.of(context)!.assignedGoToLogin),
               ),
             ],
           ),
         ),
       )
           : shipment == null
-          ? const Center(
+          ? Center(
         child: Text(
-          'Teret nije pronađen.',
+          AppLocalizations.of(context)!.assignedShipmentNotFound,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -683,8 +742,8 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                         const SizedBox(width: 8),
                         Text(
                           isCompletedStatus()
-                              ? 'Prijevoz obavljen'
-                              : 'Teret je dodijeljen',
+                              ? AppLocalizations.of(context)!.assignedTransportCompleted
+                              : AppLocalizations.of(context)!.assignedShipmentAssigned,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 18,
@@ -719,32 +778,32 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 ),
               ),
               const SizedBox(height: 18),
-              sectionTitle('Podaci o prijevozniku'),
+              sectionTitle(AppLocalizations.of(context)!.assignedCarrierDetails),
               if (acceptedOffer != null) ...[
                 infoTile(
-                  label: 'Prijevoznik',
+                  label: AppLocalizations.of(context)!.assignedCarrier,
                   value: buildCarrierName(acceptedOffer),
                   icon: Icons.person_outline,
                 ),
                 infoTile(
-                  label: 'Email',
+                  label: AppLocalizations.of(context)!.assignedEmail,
                   value: formatValue(
                     acceptedOffer['carrierEmail'] ?? acceptedOffer['email'],
                   ),
                   icon: Icons.email_outlined,
                 ),
                 infoTile(
-                  label: 'Telefon',
+                  label: AppLocalizations.of(context)!.assignedPhone,
                   value: formatValue(
                     acceptedOffer['carrierPhone'] ??
                         acceptedOffer['phone'] ??
                         acceptedOffer['brojTelefona'],
-                    fallback: 'Telefon još nije dostupan',
+                    fallback: AppLocalizations.of(context)!.assignedPhoneNotAvailable,
                   ),
                   icon: Icons.phone_outlined,
                 ),
                 infoTile(
-                  label: 'Prihvaćena cijena',
+                  label: AppLocalizations.of(context)!.assignedAcceptedPrice,
                   value: formatPrice(
                     acceptedOffer['amount'] ?? acceptedOffer['price'],
                   ),
@@ -752,8 +811,8 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 ),
               ] else ...[
                 infoTile(
-                  label: 'Status',
-                  value: 'Ponuda je prihvaćena, ali detalji prijevoznika trenutno nisu dostupni.',
+                  label: AppLocalizations.of(context)!.assignedStatus,
+                  value: AppLocalizations.of(context)!.assignedCarrierDetailsUnavailable,
                   icon: Icons.info_outline,
                 ),
               ],
@@ -762,9 +821,9 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
               confirmDeliveryButton(),
               const SizedBox(height: 18),
 
-              sectionTitle('Osnovni podaci o teretu'),
+              sectionTitle(AppLocalizations.of(context)!.assignedBasicShipmentDetails),
               infoTile(
-                label: 'Naziv tereta',
+                label: AppLocalizations.of(context)!.assignedShipmentName,
                 value: formatValue(
                   shipment!['naziv_tereta'] ??
                       shipment!['nazivTereta'] ??
@@ -773,7 +832,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 icon: Icons.inventory_2_outlined,
               ),
               infoTile(
-                label: 'Opis',
+                label: AppLocalizations.of(context)!.assignedDescription,
                 value: formatValue(
                   shipment!['opis_tereta'] ??
                       shipment!['opis'] ??
@@ -782,7 +841,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 icon: Icons.description_outlined,
               ),
               infoTile(
-                label: 'Datum utovara',
+                label: AppLocalizations.of(context)!.assignedLoadingDate,
                 value: formatDate(
                   shipment!['datum_utovara'] ??
                       shipment!['datumUtovara'] ??
@@ -792,7 +851,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 icon: Icons.calendar_today_outlined,
               ),
               infoTile(
-                label: 'Mjesto utovara',
+                label: AppLocalizations.of(context)!.assignedLoadingPlace,
                 value: formatValue(
                   shipment!['mjesto_utovara'] ??
                       shipment!['mjestoUtovara'] ??
@@ -801,7 +860,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 icon: Icons.upload_outlined,
               ),
               infoTile(
-                label: 'Adresa utovara',
+                label: AppLocalizations.of(context)!.assignedLoadingAddress,
                 value: formatValue(
                   shipment!['adresa_utovara'] ??
                       shipment!['adresaUtovara'] ??
@@ -810,7 +869,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 icon: Icons.location_on_outlined,
               ),
               infoTile(
-                label: 'Mjesto istovara',
+                label: AppLocalizations.of(context)!.assignedUnloadingPlace,
                 value: formatValue(
                   shipment!['mjesto_istovara'] ??
                       shipment!['mjestoIstovara'] ??
@@ -819,7 +878,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 icon: Icons.download_outlined,
               ),
               infoTile(
-                label: 'Adresa istovara',
+                label: AppLocalizations.of(context)!.assignedUnloadingAddress,
                 value: formatValue(
                   shipment!['adresa_istovara'] ??
                       shipment!['adresaIstovara'] ??
@@ -829,9 +888,9 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
               ),
               const SizedBox(height: 8),
 
-              sectionTitle('Dimenzije i logistika'),
+              sectionTitle(AppLocalizations.of(context)!.assignedDimensionsAndLogistics),
               infoTile(
-                label: 'Težina (kg/lb)',
+                label: AppLocalizations.of(context)!.assignedWeight,
                 value: formatValue(
                   shipment!['tezina_kg/lb'] ??
                       shipment!['tezina'] ??
@@ -840,7 +899,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 icon: Icons.scale_outlined,
               ),
               infoTile(
-                label: 'Dužina (cm/in)',
+                label: AppLocalizations.of(context)!.assignedLength,
                 value: formatValue(
                   shipment!['duzina_cm/in'] ??
                       shipment!['duzina'] ??
@@ -849,7 +908,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 icon: Icons.straighten_outlined,
               ),
               infoTile(
-                label: 'Širina (cm/in)',
+                label: AppLocalizations.of(context)!.assignedWidth,
                 value: formatValue(
                   shipment!['sirina_cm/in'] ??
                       shipment!['sirina'] ??
@@ -858,7 +917,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 icon: Icons.straighten_outlined,
               ),
               infoTile(
-                label: 'Visina (cm/in)',
+                label: AppLocalizations.of(context)!.assignedHeight,
                 value: formatValue(
                   shipment!['visina_cm/in'] ??
                       shipment!['visina'] ??
@@ -867,8 +926,8 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 icon: Icons.height_outlined,
               ),
               infoTile(
-                label: 'Način utovara',
-                value: formatValue(
+                label: AppLocalizations.of(context)!.assignedLoadingMethod,
+                value: localizedShipmentValue(
                   shipment!['nacin_utovara'] ??
                       shipment!['nacinUtovara'] ??
                       shipment!['loadingType'],
@@ -876,7 +935,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 icon: Icons.precision_manufacturing_outlined,
               ),
               infoTile(
-                label: 'Prilaz za tegljač',
+                label: AppLocalizations.of(context)!.assignedTruckAccess,
                 value: yesNo(
                   shipment!['prilaz_za_tegljac'] ??
                       shipment!['prilazZaTegljac'] ??
@@ -886,8 +945,8 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 icon: Icons.local_shipping_outlined,
               ),
               infoTile(
-                label: 'Tip lokacije utovara',
-                value: formatValue(
+                label: AppLocalizations.of(context)!.assignedLoadingLocationType,
+                value: localizedShipmentValue(
                   shipment!['tip_lokacije_utovara'] ??
                       shipment!['tipLokacijeUtovara'] ??
                       shipment!['pickupLocationType'],
@@ -895,7 +954,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 icon: Icons.apartment_outlined,
               ),
               infoTile(
-                label: 'Kat utovara',
+                label: AppLocalizations.of(context)!.assignedLoadingFloor,
                 value: formatValue(
                   shipment!['kat_utovara'] ??
                       shipment!['katUtovara'] ??
@@ -904,7 +963,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 icon: Icons.layers_outlined,
               ),
               infoTile(
-                label: 'Lift na utovaru',
+                label: AppLocalizations.of(context)!.assignedLoadingElevator,
                 value: yesNo(
                   shipment!['lift_na_utovaru'] ??
                       shipment!['liftUtovar'] ??
@@ -913,7 +972,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 icon: Icons.elevator_outlined,
               ),
               infoTile(
-                label: 'Treba li pomoć vozača',
+                label: AppLocalizations.of(context)!.assignedDriverHelp,
                 value: yesNo(
                   shipment!['treba_pomoc_vozaca'] ??
                       shipment!['pomocVozaca'] ??
@@ -922,7 +981,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
                 icon: Icons.handshake_outlined,
               ),
               infoTile(
-                label: 'Carina',
+                label: AppLocalizations.of(context)!.assignedCustoms,
                 value: yesNo(
                   shipment!['carina'] ?? shipment!['customs'],
                 ),
@@ -931,7 +990,7 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
               const SizedBox(height: 8),
 
               if (!isCompletedStatus() && images.isNotEmpty) ...[
-                sectionTitle('Slike tereta'),
+                sectionTitle(AppLocalizations.of(context)!.assignedShipmentImages),
                 buildImageGallery(images),
                 const SizedBox(height: 16),
               ],

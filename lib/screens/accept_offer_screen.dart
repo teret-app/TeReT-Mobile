@@ -1,8 +1,10 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../config.dart';
+import '../l10n/app_localizations.dart';
 import '../services/token_storage.dart';
 import 'assigned_shipment_screen.dart';
 
@@ -23,49 +25,83 @@ class AcceptOfferScreen extends StatefulWidget {
 class _AcceptOfferScreenState extends State<AcceptOfferScreen> {
   bool isSubmitting = false;
 
-  String formatPrice(dynamic value) {
-    if (value == null) return 'Nije navedeno';
+  String formatPrice(
+      dynamic value,
+      AppLocalizations l10n,
+      ) {
+    if (value == null) return l10n.notSpecified;
 
     final number = double.tryParse(value.toString());
-    if (number == null) return '$value €';
 
-    if (number == number.roundToDouble()) {
-      return '${number.toInt()} €';
+    if (number == null) {
+      return '$value €';
     }
 
     return '${number.toStringAsFixed(2)} €';
   }
 
-  String formatDate(dynamic value) {
-    if (value == null) return 'Nije navedeno';
+  String formatDate(
+      dynamic value,
+      AppLocalizations l10n,
+      ) {
+    if (value == null) return l10n.notSpecified;
 
     try {
       final dt = DateTime.parse(value.toString()).toLocal();
-      final d = dt.day.toString().padLeft(2, '0');
-      final m = dt.month.toString().padLeft(2, '0');
-      final y = dt.year.toString();
-      final h = dt.hour.toString().padLeft(2, '0');
-      final min = dt.minute.toString().padLeft(2, '0');
 
-      return '$d.$m.$y u $h:$min';
+      final day = dt.day.toString().padLeft(2, '0');
+      final month = dt.month.toString().padLeft(2, '0');
+      final year = dt.year.toString();
+      final hour = dt.hour.toString().padLeft(2, '0');
+      final minute = dt.minute.toString().padLeft(2, '0');
+
+      return l10n.offerDateTime(
+        day,
+        month,
+        year,
+        hour,
+        minute,
+      );
     } catch (_) {
       return value.toString();
     }
   }
 
-  String carrierName() {
-    final first = widget.offer['firstName'] ?? '';
-    final last = widget.offer['lastName'] ?? '';
-    final full = '$first $last'.trim();
+  String carrierName(AppLocalizations l10n) {
+    final firstName = widget.offer['firstName']?.toString() ?? '';
+    final lastName = widget.offer['lastName']?.toString() ?? '';
 
-    if (full.isNotEmpty) return full;
+    final fullName = '$firstName $lastName'.trim();
 
-    return widget.offer['email'] ??
-        widget.offer['carrierEmail'] ??
-        'Prijevoznik';
+    if (fullName.isNotEmpty) {
+      return fullName;
+    }
+
+    return widget.offer['email']?.toString() ??
+        widget.offer['carrierEmail']?.toString() ??
+        l10n.carrier;
+  }
+
+  String responseErrorMessage(
+      http.Response response,
+      AppLocalizations l10n,
+      ) {
+    try {
+      final data = jsonDecode(response.body);
+
+      if (data is Map<String, dynamic> && data['message'] != null) {
+        return data['message'].toString();
+      }
+    } catch (_) {
+      // Ako odgovor nije JSON, prikazuje se lokalizirana poruka.
+    }
+
+    return l10n.offerAcceptError;
   }
 
   Future<void> acceptOffer() async {
+    final l10n = AppLocalizations.of(context)!;
+
     setState(() {
       isSubmitting = true;
     });
@@ -74,7 +110,9 @@ class _AcceptOfferScreenState extends State<AcceptOfferScreen> {
       final token = await TokenStorage.getToken();
 
       final response = await http.post(
-        Uri.parse('${AppConfig.baseUrl}/offers/${widget.offer['id']}/accept'),
+        Uri.parse(
+          '${AppConfig.baseUrl}/offers/${widget.offer['id']}/accept',
+        ),
         headers: {
           'Content-Type': 'application/json',
           if (token != null) 'Authorization': 'Bearer $token',
@@ -82,8 +120,6 @@ class _AcceptOfferScreenState extends State<AcceptOfferScreen> {
       );
 
       if (!mounted) return;
-
-      final data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
         Navigator.pushReplacement(
@@ -97,69 +133,86 @@ class _AcceptOfferScreenState extends State<AcceptOfferScreen> {
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(data['message'] ?? 'Greška kod prihvaćanja'),
+            content: Text(
+              responseErrorMessage(response, l10n),
+            ),
             backgroundColor: Colors.red,
           ),
         );
       }
-    } catch (e) {
+    } catch (error) {
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Greška: $e'),
+          content: Text(
+            l10n.generalError(error.toString()),
+          ),
           backgroundColor: Colors.red,
         ),
       );
-    }
-
-    if (mounted) {
-      setState(() {
-        isSubmitting = false;
-      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          isSubmitting = false;
+        });
+      }
     }
   }
 
   Future<void> confirmAccept() async {
-    final confirm = await showDialog(
+    final l10n = AppLocalizations.of(context)!;
+
+    final confirm = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Prihvati ponudu'),
-        content: const Text(
-          'Jeste li sigurni da želite prihvatiti ovu ponudu?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Ne'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Da'),
-          ),
-        ],
-      ),
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(l10n.acceptOffer),
+          content: Text(l10n.acceptOfferConfirmation),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: Text(l10n.no),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              child: Text(l10n.yes),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirm == true) {
-      acceptOffer();
+      await acceptOffer();
     }
   }
 
   Widget infoCard(
-    IconData icon,
-    String title,
-    String value,
-  ) {
+      IconData icon,
+      String title,
+      String value,
+      ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(
+          color: Colors.grey.shade200,
+        ),
       ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.blue),
+          Icon(
+            icon,
+            color: Colors.blue,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -182,7 +235,7 @@ class _AcceptOfferScreenState extends State<AcceptOfferScreen> {
                 ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
@@ -190,16 +243,25 @@ class _AcceptOfferScreenState extends State<AcceptOfferScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final price =
-        formatPrice(widget.offer['amount'] ?? widget.offer['price']);
+    final l10n = AppLocalizations.of(context)!;
 
-    final date = formatDate(widget.offer['createdAt']);
+    final price = formatPrice(
+      widget.offer['amount'] ?? widget.offer['price'],
+      l10n,
+    );
 
-    final name = carrierName();
+    final date = formatDate(
+      widget.offer['createdAt'],
+      l10n,
+    );
+
+    final name = carrierName(l10n);
+
+    final message = widget.offer['message']?.toString().trim();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Prihvati ponudu'),
+        title: Text(l10n.acceptOffer),
         centerTitle: true,
       ),
       backgroundColor: const Color(0xFFF5F7FB),
@@ -224,9 +286,9 @@ class _AcceptOfferScreenState extends State<AcceptOfferScreen> {
                     ),
                     child: Column(
                       children: [
-                        const Text(
-                          'Ponuda',
-                          style: TextStyle(
+                        Text(
+                          l10n.offer,
+                          style: const TextStyle(
                             color: Colors.white70,
                           ),
                         ),
@@ -238,65 +300,79 @@ class _AcceptOfferScreenState extends State<AcceptOfferScreen> {
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 16),
                   infoCard(
                     Icons.person,
-                    'Prijevoznik',
+                    l10n.carrier,
                     name,
                   ),
                   infoCard(
                     Icons.schedule,
-                    'Vrijeme ponude',
+                    l10n.offerTime,
                     date,
                   ),
-                  if (widget.offer['message'] != null)
+                  if (message != null && message.isNotEmpty)
                     infoCard(
                       Icons.message,
-                      'Napomena',
-                      widget.offer['message'],
+                      l10n.note,
+                      message,
                     ),
                   const SizedBox(height: 12),
                   Container(
+                    width: double.infinity,
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: Colors.orange.shade50,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
-                      'Nakon prihvaćanja ponude teret će biti dodijeljen ovom prijevozniku i ostale ponude će biti zatvorene.',
-                      style: TextStyle(fontWeight: FontWeight.w500),
+                    child: Text(
+                      l10n.acceptOfferWarning,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: isSubmitting ? null : confirmAccept,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+          SafeArea(
+            top: false,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              child: SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: isSubmitting ? null : confirmAccept,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: isSubmitting
+                      ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2.5,
+                    ),
+                  )
+                      : Text(
+                    l10n.acceptOfferButton,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
-                child: isSubmitting
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        'PRIHVATI PONUDU',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );

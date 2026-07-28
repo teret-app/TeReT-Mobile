@@ -1,8 +1,10 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../config.dart';
+import '../l10n/app_localizations.dart';
 import '../services/token_storage.dart';
 
 class RatingScreen extends StatefulWidget {
@@ -12,7 +14,7 @@ class RatingScreen extends StatefulWidget {
   const RatingScreen({
     super.key,
     required this.shipmentId,
-    this.ratedUserLabel = 'korisnika',
+    this.ratedUserLabel = '',
   });
 
   @override
@@ -27,9 +29,11 @@ class _RatingScreenState extends State<RatingScreen> {
   String errorMessage = '';
 
   Future<void> submitRating() async {
+    final l10n = AppLocalizations.of(context)!;
+
     if (selectedRating < 1 || selectedRating > 5) {
       setState(() {
-        errorMessage = 'Molimo odaberite ocjenu od 1 do 5.';
+        errorMessage = l10n.ratingSelectBetweenOneAndFive;
       });
       return;
     }
@@ -46,7 +50,8 @@ class _RatingScreenState extends State<RatingScreen> {
         Uri.parse('${AppConfig.baseUrl}/ratings'),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
+          if (token != null && token.isNotEmpty)
+            'Authorization': 'Bearer $token',
         },
         body: jsonEncode({
           'shipmentId': widget.shipmentId,
@@ -59,27 +64,32 @@ class _RatingScreenState extends State<RatingScreen> {
 
       if (!mounted) return;
 
+      final currentL10n = AppLocalizations.of(context)!;
+
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Ocjena je uspješno poslana.'),
+          SnackBar(
+            content: Text(currentL10n.ratingSubmittedSuccessfully),
           ),
         );
 
         Navigator.pop(context, true);
       } else {
         setState(() {
-          errorMessage =
-              data['message'] ?? 'Došlo je do greške kod slanja ocjene.';
+          errorMessage = data['message']?.toString() ??
+              currentL10n.ratingSubmissionError;
         });
       }
-    } catch (e) {
+    } catch (_) {
       if (!mounted) return;
+
       setState(() {
-        errorMessage = 'Greška spajanja na server.';
+        errorMessage =
+            AppLocalizations.of(context)!.ratingServerConnectionError;
       });
     } finally {
       if (!mounted) return;
+
       setState(() {
         isSubmitting = false;
       });
@@ -101,26 +111,32 @@ class _RatingScreenState extends State<RatingScreen> {
       iconSize: 42,
       splashRadius: 26,
       icon: Icon(
-        isSelected ? Icons.star_rounded : Icons.star_border_rounded,
-        color: isSelected ? Colors.amber : Colors.grey.shade500,
+        isSelected
+            ? Icons.star_rounded
+            : Icons.star_border_rounded,
+        color: isSelected
+            ? Colors.amber
+            : Colors.grey.shade500,
       ),
     );
   }
 
   String getRatingText() {
+    final l10n = AppLocalizations.of(context)!;
+
     switch (selectedRating) {
       case 1:
-        return 'Vrlo loše';
+        return l10n.ratingVeryPoor;
       case 2:
-        return 'Loše';
+        return l10n.ratingPoor;
       case 3:
-        return 'Dobro';
+        return l10n.ratingGood;
       case 4:
-        return 'Vrlo dobro';
+        return l10n.ratingVeryGood;
       case 5:
-        return 'Odlično';
+        return l10n.ratingExcellent;
       default:
-        return 'Odaberite ocjenu';
+        return l10n.ratingSelectRating;
     }
   }
 
@@ -132,12 +148,19 @@ class _RatingScreenState extends State<RatingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     const mainColor = Color(0xFF0D47A1);
     const accentColor = Color(0xFFFF9800);
 
+    final ratedUserLabel =
+    widget.ratedUserLabel.trim().isNotEmpty
+        ? widget.ratedUserLabel.trim()
+        : l10n.ratingDefaultUserLabel;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ocijeni prijevoz'),
+        title: Text(l10n.ratingScreenTitle),
         centerTitle: true,
         backgroundColor: mainColor,
         foregroundColor: Colors.white,
@@ -180,7 +203,7 @@ class _RatingScreenState extends State<RatingScreen> {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Ocijenite ${widget.ratedUserLabel}',
+                      '${l10n.ratingRateUserPrefix} $ratedUserLabel',
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         fontSize: 22,
@@ -190,7 +213,7 @@ class _RatingScreenState extends State<RatingScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Vaša povratna informacija pomaže drugim korisnicima.',
+                      l10n.ratingFeedbackHelpsOthers,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 14,
@@ -226,18 +249,22 @@ class _RatingScreenState extends State<RatingScreen> {
                       maxLines: 5,
                       textInputAction: TextInputAction.newline,
                       decoration: InputDecoration(
-                        labelText: 'Komentar (opcionalno)',
+                        labelText: l10n.ratingCommentOptional,
                         alignLabelWithHint: true,
-                        hintText: 'Npr. sve uredno i na vrijeme...',
+                        hintText: l10n.ratingCommentHint,
                         filled: true,
                         fillColor: const Color(0xFFF8FAFC),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
+                          borderSide: BorderSide(
+                            color: Colors.grey.shade300,
+                          ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: BorderSide(color: Colors.grey.shade300),
+                          borderSide: BorderSide(
+                            color: Colors.grey.shade300,
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
@@ -259,7 +286,9 @@ class _RatingScreenState extends State<RatingScreen> {
                         decoration: BoxDecoration(
                           color: Colors.red.shade50,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.red.shade200),
+                          border: Border.all(
+                            color: Colors.red.shade200,
+                          ),
                         ),
                         child: Text(
                           errorMessage,
@@ -275,30 +304,36 @@ class _RatingScreenState extends State<RatingScreen> {
                       width: double.infinity,
                       height: 54,
                       child: ElevatedButton(
-                        onPressed: isSubmitting ? null : submitRating,
+                        onPressed:
+                        isSubmitting ? null : submitRating,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: accentColor,
                           foregroundColor: Colors.white,
-                          disabledBackgroundColor: Colors.orange.shade200,
+                          disabledBackgroundColor:
+                          Colors.orange.shade200,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius:
+                            BorderRadius.circular(14),
                           ),
                         ),
                         child: isSubmitting
                             ? const SizedBox(
                           width: 24,
                           height: 24,
-                          child: CircularProgressIndicator(
+                          child:
+                          CircularProgressIndicator(
                             strokeWidth: 2.6,
-                            valueColor: AlwaysStoppedAnimation<Color>(
+                            valueColor:
+                            AlwaysStoppedAnimation<
+                                Color>(
                               Colors.white,
                             ),
                           ),
                         )
-                            : const Text(
-                          'Pošalji ocjenu',
-                          style: TextStyle(
+                            : Text(
+                          l10n.ratingSubmitButton,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
                           ),

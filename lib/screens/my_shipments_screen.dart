@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 
 import '../config.dart';
 import '../services/token_storage.dart';
+import '../l10n/app_localizations.dart';
 import 'login_screen.dart';
 import 'shipment_details_screen.dart';
 import 'shipment_offers_screen.dart';
@@ -273,12 +274,22 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
   String _statusLabel(String status) {
     final s = status.toLowerCase().trim();
 
-    if (_isActiveStatus(status)) return 'Aktivno';
-    if (_isAcceptedStatus(status)) return 'Prijevoz dogovoren';
-    if (_isCompletedStatus(status)) return 'Završeno';
-    if (_isExpiredStatus(status)) return 'Licitacija završena';
+    if (_isActiveStatus(status)) {
+      return AppLocalizations.of(context)!.active;
+    }
+    if (_isAcceptedStatus(status)) {
+      return AppLocalizations.of(context)!.transportAgreed;
+    }
+    if (_isCompletedStatus(status)) {
+      return AppLocalizations.of(context)!.completed;
+    }
+    if (_isExpiredStatus(status)) {
+      return AppLocalizations.of(context)!.auctionFinished;
+    }
 
-    return s.isEmpty ? 'Nepoznato' : status;
+    return s.isEmpty
+        ? AppLocalizations.of(context)!.unknown
+        : status;
   }
 
   Color _statusColor(String status) {
@@ -303,7 +314,24 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
 
     return '${number.toStringAsFixed(2)} €';
   }
+  String _localizedAuctionDuration(String value) {
+    final l10n = AppLocalizations.of(context)!;
 
+    switch (value) {
+      case '1 sat':
+        return l10n.oneHour;
+      case '2 sata':
+        return l10n.twoHours;
+      case '6 sati':
+        return l10n.sixHours;
+      case '12 sati':
+        return l10n.twelveHours;
+      case '24 sata':
+        return l10n.twentyFourHours;
+      default:
+        return value;
+    }
+  }
   String _formatLicitacijaTimer(Map<String, dynamic> shipment) {
     final raw = _text(shipment['licitacija_zavrsava_at'], '');
 
@@ -314,7 +342,7 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
       final diff = end.difference(DateTime.now());
 
       if (diff.isNegative || diff.inSeconds <= 0) {
-        return 'Licitacija završena';
+        return AppLocalizations.of(context)!.auctionFinished;
       }
 
       final hours = diff.inHours;
@@ -410,20 +438,24 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
     final bool isAccepted = _isAcceptedStatus(status);
     final bool isCompleted = _isCompletedStatus(status);
     final bool isExpiredStatus = _isExpiredStatus(status);
-
     final String timerText = _formatLicitacijaTimer(shipment);
-    final bool timerExpired = timerText == 'Licitacija završena';
+
+    final bool timerExpired =
+        timerText == AppLocalizations.of(context)!.auctionFinished;
+
 
     final String trajanjeLicitacije = _text(shipment['trajanje_licitacije'], '');
 
     final bool licitacijaZavrsena =
         timerExpired || isAccepted || isCompleted || isExpiredStatus;
 
+    final l10n = AppLocalizations.of(context)!;
+
     final String trajanjePrikaz = licitacijaZavrsena
-        ? 'Licitacija završena'
+        ? l10n.auctionFinished
         : (trajanjeLicitacije.isNotEmpty
-        ? 'Licitacija: $trajanjeLicitacije'
-        : 'Licitacija');
+        ? '${l10n.auction}: ${_localizedAuctionDuration(trajanjeLicitacije)}'
+        : l10n.auction);
 
     final int offerCount = shipment['offersCount'] is int
         ? shipment['offersCount']
@@ -496,11 +528,11 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
                   color: licitacijaZavrsena ? Colors.red : Colors.blueGrey,
                 ),
                 _buildBadge(
-                  text: 'Ponude: $offerCount',
+                  text: '${AppLocalizations.of(context)!.offers}: $offerCount',
                   color: Colors.deepPurple,
                 ),
                 _buildBadge(
-                  text: 'Pregledi: $views',
+                  text: '${AppLocalizations.of(context)!.views}: $views',
                   color: Colors.blueGrey,
                 ),
               ],
@@ -519,7 +551,7 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
             if (lowestOffer != null) ...[
               const SizedBox(height: 8),
               Text(
-                'Najniža ponuda: ${_formatMoney(lowestOffer)}',
+                '${AppLocalizations.of(context)!.lowestOffer}: ${_formatMoney(lowestOffer)}',
                 style: const TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
@@ -534,7 +566,9 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
                     onPressed: shipmentId > 0
                         ? () => _openShipmentDetails(shipmentId)
                         : null,
-                    child: const Text('Detalji'),
+                    child: Text(
+                      AppLocalizations.of(context)!.details,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -543,7 +577,9 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
                     onPressed: canOpenOffers
                         ? () => _openShipmentOffers(shipmentId)
                         : null,
-                    child: const Text('Ponude'),
+                    child: Text(
+                      AppLocalizations.of(context)!.offers,
+                    ),
                   ),
                 ),
               ],
@@ -555,7 +591,9 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
                 onPressed: canOpenBidHistory
                     ? () => _openBidHistory(shipmentId)
                     : null,
-                child: const Text('Tijek licitacije'),
+                child: Text(
+                  AppLocalizations.of(context)!.auctionProgress,
+                ),
               ),
             ),
             if (showRepostButton) ...[
@@ -567,7 +605,9 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
                       ? () => _repostShipment(shipmentId)
                       : null,
                   icon: const Icon(Icons.refresh),
-                  label: const Text('Ponovno objavi'),
+                  label: Text(
+                    AppLocalizations.of(context)!.repost,
+                  ),
                 ),
               ),
             ],
@@ -578,7 +618,9 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () => _hideShipmentFromHistory(shipmentId),
                   icon: const Icon(Icons.delete_outline),
-                  label: const Text('Ukloni iz povijesti'),
+                  label: Text(
+                    AppLocalizations.of(context)!.removeFromHistory,
+                  ),
                 ),
               ),
             ],
@@ -625,13 +667,13 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(24),
-          children: const [
-            SizedBox(height: 120),
+          children: [
+            const SizedBox(height: 120),
             Center(
               child: Text(
-                'Trenutno nemaš nijednu objavu.',
+                AppLocalizations.of(context)!.noShipmentsYet,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
             ),
           ],
@@ -666,12 +708,14 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
       appBar: AppBar(
-        title: const Text(
-          'Moje objave',
-          style: TextStyle(fontWeight: FontWeight.w800),
+        title: Text(
+          l10n.myShipments,
+          style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,

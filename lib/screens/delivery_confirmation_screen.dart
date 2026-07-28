@@ -1,8 +1,10 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../config.dart';
+import '../l10n/app_localizations.dart';
 import '../services/token_storage.dart';
 import 'login_screen.dart';
 import 'my_shipments_screen.dart';
@@ -57,6 +59,8 @@ class _DeliveryConfirmationScreenState
 
       if (!mounted) return;
 
+      final l10n = AppLocalizations.of(context)!;
+
       if (response.statusCode == 200) {
         setState(() {
           shipment = Map<String, dynamic>.from(data);
@@ -65,33 +69,49 @@ class _DeliveryConfirmationScreenState
       } else if (response.statusCode == 401) {
         setState(() {
           isLoading = false;
-          errorMessage = 'Sesija je istekla. Prijavite se ponovno.';
+          errorMessage = l10n.sessionExpiredLoginAgain;
         });
       } else {
         setState(() {
           isLoading = false;
           errorMessage =
-              data['message']?.toString() ?? 'Greška kod učitavanja tereta.';
+              data['message']?.toString() ?? l10n.shipmentLoadingError;
         });
       }
     } catch (e) {
+      if (!mounted) return;
+
       setState(() {
         isLoading = false;
+        errorMessage = 'Greška: $e';
         errorMessage = 'Greška: $e';
       });
     }
   }
 
-  String formatValue(dynamic value, {String fallback = 'Nije navedeno'}) {
-    if (value == null) return fallback;
+  String formatValue(
+      dynamic value, {
+        String? fallback,
+      }) {
+    final l10n = AppLocalizations.of(context)!;
+    final fallbackText = fallback ?? l10n.notSpecified;
+
+    if (value == null) return fallbackText;
+
     final text = value.toString().trim();
-    if (text.isEmpty || text == 'null') return fallback;
+
+    if (text.isEmpty || text == 'null') {
+      return fallbackText;
+    }
+
     return text;
   }
 
   String formatDate(dynamic value) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (value == null || value.toString().trim().isEmpty) {
-      return 'Nije navedeno';
+      return l10n.notSpecified;
     }
 
     try {
@@ -99,6 +119,7 @@ class _DeliveryConfirmationScreenState
       final day = dt.day.toString().padLeft(2, '0');
       final month = dt.month.toString().padLeft(2, '0');
       final year = dt.year.toString();
+
       return '$day.$month.$year';
     } catch (_) {
       return value.toString();
@@ -106,10 +127,15 @@ class _DeliveryConfirmationScreenState
   }
 
   String formatPrice(dynamic value) {
-    if (value == null) return 'Nije navedeno';
+    final l10n = AppLocalizations.of(context)!;
+
+    if (value == null) return l10n.notSpecified;
 
     final number = double.tryParse(value.toString());
-    if (number == null) return '${value.toString()} €';
+
+    if (number == null) {
+      return '${value.toString()} €';
+    }
 
     if (number == number.roundToDouble()) {
       return '${number.toInt()} €';
@@ -129,6 +155,7 @@ class _DeliveryConfirmationScreenState
     if (value == true) return true;
 
     final text = value?.toString().toLowerCase().trim() ?? '';
+
     return text == 'delivered' ||
         text == 'completed' ||
         text == 'zavrseno' ||
@@ -136,45 +163,67 @@ class _DeliveryConfirmationScreenState
         text == 'confirmed';
   }
 
-  Map<String, dynamic>? resolveAcceptedOffer(Map<String, dynamic> data) {
+  Map<String, dynamic>? resolveAcceptedOffer(
+      Map<String, dynamic> data,
+      ) {
     if (data['acceptedOffer'] is Map<String, dynamic>) {
-      return data['acceptedOffer'] as Map<String, dynamic>;
+      return Map<String, dynamic>.from(data['acceptedOffer']);
     }
+
     if (data['accepted_offer'] is Map<String, dynamic>) {
       return Map<String, dynamic>.from(data['accepted_offer']);
     }
+
     if (data['selectedOffer'] is Map<String, dynamic>) {
       return Map<String, dynamic>.from(data['selectedOffer']);
     }
+
     if (data['selected_offer'] is Map<String, dynamic>) {
       return Map<String, dynamic>.from(data['selected_offer']);
     }
+
     if (data['winningOffer'] is Map<String, dynamic>) {
       return Map<String, dynamic>.from(data['winningOffer']);
     }
+
     if (data['winning_offer'] is Map<String, dynamic>) {
       return Map<String, dynamic>.from(data['winning_offer']);
     }
+
     return null;
   }
 
   String buildCarrierName(Map<String, dynamic> acceptedOffer) {
-    final firstName = acceptedOffer['firstName']?.toString().trim() ?? '';
-    final lastName = acceptedOffer['lastName']?.toString().trim() ?? '';
+    final l10n = AppLocalizations.of(context)!;
+
+    final firstName =
+        acceptedOffer['firstName']?.toString().trim() ?? '';
+
+    final lastName =
+        acceptedOffer['lastName']?.toString().trim() ?? '';
+
     final fullName = '$firstName $lastName'.trim();
 
-    if (fullName.isNotEmpty) return fullName;
+    if (fullName.isNotEmpty) {
+      return fullName;
+    }
 
     final name = acceptedOffer['name']?.toString().trim() ?? '';
-    if (name.isNotEmpty) return name;
 
-    final email = acceptedOffer['carrierEmail']?.toString().trim() ??
-        acceptedOffer['email']?.toString().trim() ??
-        '';
+    if (name.isNotEmpty) {
+      return name;
+    }
 
-    if (email.isNotEmpty) return email;
+    final email =
+        acceptedOffer['carrierEmail']?.toString().trim() ??
+            acceptedOffer['email']?.toString().trim() ??
+            '';
 
-    return 'Prijevoznik';
+    if (email.isNotEmpty) {
+      return email;
+    }
+
+    return l10n.carrier;
   }
 
   Future<void> confirmDelivery() async {
@@ -200,12 +249,14 @@ class _DeliveryConfirmationScreenState
 
       if (!mounted) return;
 
+      final l10n = AppLocalizations.of(context)!;
+
       if (response.statusCode == 200) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               data['message']?.toString() ??
-                  'Dostava je uspješno potvrđena.',
+                  l10n.deliveryConfirmedSuccessfully,
             ),
             backgroundColor: Colors.green,
           ),
@@ -217,7 +268,7 @@ class _DeliveryConfirmationScreenState
           SnackBar(
             content: Text(
               data['message']?.toString() ??
-                  'Greška kod potvrde dostave.',
+                  l10n.deliveryConfirmationError,
             ),
             backgroundColor: Colors.red,
           ),
@@ -225,6 +276,8 @@ class _DeliveryConfirmationScreenState
       }
     } catch (e) {
       if (!mounted) return;
+
+      final l10n = AppLocalizations.of(context)!;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -242,24 +295,30 @@ class _DeliveryConfirmationScreenState
   }
 
   Future<void> showConfirmDialog() async {
+    final l10n = AppLocalizations.of(context)!;
+
     final result = await showDialog<bool>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Potvrda dostave'),
-        content: const Text(
-          'Jeste li sigurni da je teret uspješno dostavljen na odredište?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Ne'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Da'),
-          ),
-        ],
-      ),
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(l10n.confirmDeliveryDialogTitle),
+          content: Text(l10n.confirmDeliveryDialogMessage),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: Text(l10n.no),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              child: Text(l10n.yes),
+            ),
+          ],
+        );
+      },
     );
 
     if (result == true) {
@@ -269,7 +328,10 @@ class _DeliveryConfirmationScreenState
 
   Widget sectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10, top: 4),
+      padding: const EdgeInsets.only(
+        bottom: 10,
+        top: 4,
+      ),
       child: Row(
         children: [
           Text(
@@ -296,7 +358,9 @@ class _DeliveryConfirmationScreenState
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.blueGrey.shade100),
+        border: Border.all(
+          color: Colors.blueGrey.shade100,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,7 +373,11 @@ class _DeliveryConfirmationScreenState
                 color: Colors.blue.shade50,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(icon, color: Colors.blue.shade700, size: 20),
+              child: Icon(
+                icon,
+                color: Colors.blue.shade700,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 12),
           ],
@@ -354,7 +422,9 @@ class _DeliveryConfirmationScreenState
       height: 54,
       child: ElevatedButton.icon(
         onPressed: onPressed,
-        icon: icon != null ? Icon(icon) : const SizedBox.shrink(),
+        icon: icon != null
+            ? Icon(icon)
+            : const SizedBox.shrink(),
         label: Text(
           text,
           style: const TextStyle(
@@ -375,293 +445,332 @@ class _DeliveryConfirmationScreenState
 
   @override
   Widget build(BuildContext context) {
-    final acceptedOffer = shipment == null ? null : resolveAcceptedOffer(shipment!);
+    final l10n = AppLocalizations.of(context)!;
+
+    final acceptedOffer =
+    shipment == null ? null : resolveAcceptedOffer(shipment!);
+
     final delivered = isDelivered();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F7FB),
       appBar: AppBar(
-        title: const Text('Potvrda dostave'),
+        title: Text(l10n.deliveryConfirmationTitle),
         centerTitle: true,
         elevation: 0,
       ),
       body: isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+        child: CircularProgressIndicator(),
+      )
           : errorMessage.isNotEmpty
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
+          ? Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                color: Colors.red,
+                size: 52,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                errorMessage,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 18),
+              ElevatedButton(
+                onPressed: fetchShipment,
+                child: Text(l10n.tryAgain),
+              ),
+              const SizedBox(height: 10),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const LoginScreen(),
+                    ),
+                        (route) => false,
+                  );
+                },
+                child: Text(l10n.goToLogin),
+              ),
+            ],
+          ),
+        ),
+      )
+          : shipment == null
+          ? Center(
+        child: Text(
+          l10n.shipmentNotFound,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      )
+          : RefreshIndicator(
+        onRefresh: fetchShipment,
+        child: SingleChildScrollView(
+          physics:
+          const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: delivered
+                        ? [
+                      Colors.green.shade600,
+                      Colors.teal.shade600,
+                    ]
+                        : [
+                      Colors.orange.shade600,
+                      Colors.deepOrange.shade500,
+                    ],
+                  ),
+                  borderRadius:
+                  BorderRadius.circular(22),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (
+                          delivered
+                              ? Colors.green
+                              : Colors.orange
+                      ).withValues(alpha: 0.18),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment:
+                  CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        const Icon(
-                          Icons.error_outline,
-                          color: Colors.red,
-                          size: 52,
+                        Icon(
+                          delivered
+                              ? Icons.check_circle
+                              : Icons.local_shipping,
+                          color: Colors.white,
+                          size: 24,
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          errorMessage,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            delivered
+                                ? l10n.deliveryConfirmed
+                                : l10n.shipmentInTransit,
+                            style:
+                            const TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight:
+                              FontWeight.w800,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 18),
-                        ElevatedButton(
-                          onPressed: fetchShipment,
-                          child: const Text('Pokušaj ponovno'),
-                        ),
-                        const SizedBox(height: 10),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const LoginScreen(),
-                              ),
-                              (route) => false,
-                            );
-                          },
-                          child: const Text('Idi na prijavu'),
                         ),
                       ],
                     ),
-                  ),
-                )
-              : shipment == null
-                  ? const Center(
-                      child: Text(
-                        'Teret nije pronađen.',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    const SizedBox(height: 10),
+                    Text(
+                      formatValue(
+                        shipment!['nazivTereta'] ??
+                            shipment!['title'],
                       ),
-                    )
-                  : RefreshIndicator(
-                      onRefresh: fetchShipment,
-                      child: SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(18),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: delivered
-                                      ? [
-                                          Colors.green.shade600,
-                                          Colors.teal.shade600,
-                                        ]
-                                      : [
-                                          Colors.orange.shade600,
-                                          Colors.deepOrange.shade500,
-                                        ],
-                                ),
-                                borderRadius: BorderRadius.circular(22),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: (delivered
-                                            ? Colors.green
-                                            : Colors.orange)
-                                        .withValues(alpha: 0.18),
-                                    blurRadius: 16,
-                                    offset: const Offset(0, 8),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        delivered
-                                            ? Icons.check_circle
-                                            : Icons.local_shipping,
-                                        color: Colors.white,
-                                        size: 24,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        delivered
-                                            ? 'Dostava potvrđena'
-                                            : 'Teret u prijevozu',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    formatValue(
-                                      shipment!['nazivTereta'] ??
-                                          shipment!['title'],
-                                    ),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    '${formatValue(shipment!['mjestoUtovara'] ?? shipment!['pickupCity'])} → ${formatValue(shipment!['mjestoIstovara'] ?? shipment!['deliveryCity'])}',
-                                    style: const TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 18),
-                            sectionTitle('Podaci o teretu'),
-                            infoTile(
-                              label: 'Naziv tereta',
-                              value: formatValue(
-                                shipment!['nazivTereta'] ?? shipment!['title'],
-                              ),
-                              icon: Icons.inventory_2_outlined,
-                            ),
-                            infoTile(
-                              label: 'Datum utovara',
-                              value: formatDate(
-                                shipment!['datumUtovara'] ??
-                                    shipment!['datum'] ??
-                                    shipment!['pickupDate'],
-                              ),
-                              icon: Icons.calendar_today_outlined,
-                            ),
-                            infoTile(
-                              label: 'Mjesto utovara',
-                              value: formatValue(
-                                shipment!['mjestoUtovara'] ??
-                                    shipment!['pickupCity'],
-                              ),
-                              icon: Icons.upload_outlined,
-                            ),
-                            infoTile(
-                              label: 'Mjesto istovara',
-                              value: formatValue(
-                                shipment!['mjestoIstovara'] ??
-                                    shipment!['deliveryCity'],
-                              ),
-                              icon: Icons.download_outlined,
-                            ),
-                            if (acceptedOffer != null) ...[
-                              const SizedBox(height: 8),
-                              sectionTitle('Dodijeljeni prijevoznik'),
-                              infoTile(
-                                label: 'Prijevoznik',
-                                value: buildCarrierName(acceptedOffer),
-                                icon: Icons.person_outline,
-                              ),
-                              infoTile(
-                                label: 'Email',
-                                value: formatValue(
-                                  acceptedOffer['carrierEmail'] ??
-                                      acceptedOffer['email'],
-                                ),
-                                icon: Icons.email_outlined,
-                              ),
-                              infoTile(
-                                label: 'Telefon',
-                                value: formatValue(
-                                  acceptedOffer['carrierPhone'] ??
-                                      acceptedOffer['phone'] ??
-                                      acceptedOffer['brojTelefona'],
-                                  fallback: 'Telefon nije dostupan',
-                                ),
-                                icon: Icons.phone_outlined,
-                              ),
-                              infoTile(
-                                label: 'Dogovorena cijena',
-                                value: formatPrice(
-                                  acceptedOffer['amount'] ??
-                                      acceptedOffer['price'],
-                                ),
-                                icon: Icons.euro_outlined,
-                              ),
-                            ],
-                            const SizedBox(height: 8),
-                            sectionTitle('Status'),
-                            infoTile(
-                              label: 'Status prijevoza',
-                              value: delivered
-                                  ? 'Dostava je potvrđena'
-                                  : 'Čeka se potvrda dostave od naručitelja',
-                              icon: delivered
-                                  ? Icons.verified_outlined
-                                  : Icons.timelapse_outlined,
-                            ),
-                            const SizedBox(height: 12),
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: delivered
-                                    ? Colors.green.shade50
-                                    : Colors.orange.shade50,
-                                borderRadius: BorderRadius.circular(18),
-                                border: Border.all(
-                                  color: delivered
-                                      ? Colors.green.shade200
-                                      : Colors.orange.shade200,
-                                ),
-                              ),
-                              child: Text(
-                                delivered
-                                    ? 'Prijevoz je završen i potvrđen. Sljedeći korak može biti ocjenjivanje prijevoznika.'
-                                    : 'Ako je teret stigao na odredište, kliknite na potvrdu dostave. Time se posao označava kao završen.',
-                                style: const TextStyle(
-                                  height: 1.45,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            if (!delivered)
-                              actionButton(
-                                text: isSubmitting
-                                    ? 'Potvrđujem...'
-                                    : 'POTVRDI DOSTAVU',
-                                onPressed:
-                                    isSubmitting ? null : showConfirmDialog,
-                                backgroundColor: Colors.green.shade600,
-                                icon: Icons.check_circle_outline,
-                              ),
-                            if (delivered) ...[
-                              actionButton(
-                                text: 'IDI NA MOJE TERETE',
-                                onPressed: () {
-                                  Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          const MyShipmentsScreen(),
-                                    ),
-                                    (route) => false,
-                                  );
-                                },
-                                backgroundColor: Colors.blue.shade600,
-                                icon: Icons.list_alt_outlined,
-                              ),
-                            ],
-                            const SizedBox(height: 24),
-                          ],
-                        ),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${formatValue(
+                        shipment!['mjestoUtovara'] ??
+                            shipment!['pickupCity'],
+                      )} → ${formatValue(
+                        shipment!['mjestoIstovara'] ??
+                            shipment!['deliveryCity'],
+                      )}',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+              sectionTitle(l10n.shipmentData),
+              infoTile(
+                label: l10n.shipmentName,
+                value: formatValue(
+                  shipment!['nazivTereta'] ??
+                      shipment!['title'],
+                ),
+                icon:
+                Icons.inventory_2_outlined,
+              ),
+              infoTile(
+                label: l10n.loadingDate,
+                value: formatDate(
+                  shipment!['datumUtovara'] ??
+                      shipment!['datum'] ??
+                      shipment!['pickupDate'],
+                ),
+                icon:
+                Icons.calendar_today_outlined,
+              ),
+              infoTile(
+                label: l10n.loadingPlace,
+                value: formatValue(
+                  shipment!['mjestoUtovara'] ??
+                      shipment!['pickupCity'],
+                ),
+                icon: Icons.upload_outlined,
+              ),
+              infoTile(
+                label: l10n.unloadingPlace,
+                value: formatValue(
+                  shipment!['mjestoIstovara'] ??
+                      shipment!['deliveryCity'],
+                ),
+                icon: Icons.download_outlined,
+              ),
+              if (acceptedOffer != null) ...[
+                const SizedBox(height: 8),
+                sectionTitle(
+                  l10n.assignedCarrier,
+                ),
+                infoTile(
+                  label: l10n.carrier,
+                  value: buildCarrierName(
+                    acceptedOffer,
+                  ),
+                  icon: Icons.person_outline,
+                ),
+                infoTile(
+                  label: l10n.email,
+                  value: formatValue(
+                    acceptedOffer[
+                    'carrierEmail'] ??
+                        acceptedOffer['email'],
+                  ),
+                  icon: Icons.email_outlined,
+                ),
+                infoTile(
+                  label: l10n.phone,
+                  value: formatValue(
+                    acceptedOffer[
+                    'carrierPhone'] ??
+                        acceptedOffer['phone'] ??
+                        acceptedOffer[
+                        'brojTelefona'],
+                    fallback:
+                    l10n.phoneNotAvailable,
+                  ),
+                  icon: Icons.phone_outlined,
+                ),
+                infoTile(
+                  label: l10n.agreedPrice,
+                  value: formatPrice(
+                    acceptedOffer['amount'] ??
+                        acceptedOffer['price'],
+                  ),
+                  icon: Icons.euro_outlined,
+                ),
+              ],
+              const SizedBox(height: 8),
+              sectionTitle('Status'),
+              infoTile(
+                label: l10n.transportStatus,
+                value: delivered
+                    ? l10n.deliveryConfirmed
+                    : l10n
+                    .waitingDeliveryConfirmation,
+                icon: delivered
+                    ? Icons.verified_outlined
+                    : Icons.timelapse_outlined,
+              ),
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: delivered
+                      ? Colors.green.shade50
+                      : Colors.orange.shade50,
+                  borderRadius:
+                  BorderRadius.circular(18),
+                  border: Border.all(
+                    color: delivered
+                        ? Colors.green.shade200
+                        : Colors.orange.shade200,
+                  ),
+                ),
+                child: Text(
+                  delivered
+                      ? l10n
+                      .transportCompletedMessage
+                      : l10n.confirmDeliveryInfo,
+                  style: const TextStyle(
+                    height: 1.45,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              if (!delivered)
+                actionButton(
+                  text: isSubmitting
+                      ? l10n.confirming
+                      : l10n
+                      .confirmDeliveryButton,
+                  onPressed: isSubmitting
+                      ? null
+                      : showConfirmDialog,
+                  backgroundColor:
+                  Colors.green.shade600,
+                  icon: Icons
+                      .check_circle_outline,
+                ),
+              if (delivered)
+                actionButton(
+                  text: l10n.goToMyShipments,
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                        const MyShipmentsScreen(),
+                      ),
+                          (route) => false,
+                    );
+                  },
+                  backgroundColor:
+                  Colors.blue.shade600,
+                  icon: Icons.list_alt_outlined,
+                ),
+              const SizedBox(height: 24),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../config.dart';
+import '../l10n/app_localizations.dart';
 import '../services/token_storage.dart';
 import 'login_screen.dart';
 import 'my_offers_screen.dart';
@@ -42,7 +43,7 @@ class _AvailableShipmentsScreenState extends State<AvailableShipmentsScreen> {
         if (!mounted) return;
         setState(() {
           isLoading = false;
-          errorMessage = 'Niste prijavljeni. Prijavite se ponovno.';
+          errorMessage = AppLocalizations.of(context)!.availableNotLoggedIn;
         });
         return;
       }
@@ -66,14 +67,16 @@ class _AvailableShipmentsScreenState extends State<AvailableShipmentsScreen> {
         });
       } else {
         setState(() {
-          errorMessage = data['message'] ?? 'Greška kod dohvaćanja tereta.';
+          errorMessage = data['message']?.toString() ??
+              AppLocalizations.of(context)!.availableFetchError;
           isLoading = false;
         });
       }
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        errorMessage = 'Greška veze sa serverom: $e';
+        errorMessage =
+        '${AppLocalizations.of(context)!.availableServerConnectionError}: $e';
         isLoading = false;
       });
     }
@@ -89,7 +92,7 @@ class _AvailableShipmentsScreenState extends State<AvailableShipmentsScreen> {
       MaterialPageRoute(
         builder: (_) => const LoginScreen(),
       ),
-      (route) => false,
+          (route) => false,
     );
   }
 
@@ -123,7 +126,10 @@ class _AvailableShipmentsScreenState extends State<AvailableShipmentsScreen> {
 
   Widget _buildShipmentCard(Map<String, dynamic> shipment) {
     final int shipmentId = shipment['id'] ?? 0;
-    final String nazivTereta = (shipment['nazivTereta'] ?? 'Teret').toString();
+    final String nazivTereta = (
+        shipment['nazivTereta'] ??
+            AppLocalizations.of(context)!.availableShipmentFallback
+    ).toString();
     final String mjestoUtovara = (shipment['mjestoUtovara'] ?? '').toString();
     final String mjestoIstovara = (shipment['mjestoIstovara'] ?? '').toString();
     final String datumUtovara = (shipment['datumUtovara'] ?? '').toString();
@@ -202,12 +208,14 @@ class _AvailableShipmentsScreenState extends State<AvailableShipmentsScreen> {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      status == 'open' ? 'Novo' : 'Zatvoreno',
+                      status == 'open'
+                          ? AppLocalizations.of(context)!.availableNew
+                          : AppLocalizations.of(context)!.availableClosed,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color:
-                            status == 'open' ? Colors.orange : Colors.green,
+                        status == 'open' ? Colors.orange : Colors.green,
                       ),
                     ),
                   ),
@@ -262,13 +270,22 @@ class _AvailableShipmentsScreenState extends State<AvailableShipmentsScreen> {
                 _buildInfoRow(Icons.calendar_today, datumUtovara),
               ],
               if (tezina.isNotEmpty) ...[
-                _buildInfoRow(Icons.scale_outlined, 'Težina: $tezina'),
+                _buildInfoRow(
+                  Icons.scale_outlined,
+                  '${AppLocalizations.of(context)!.availableWeight}: $tezina',
+                ),
               ],
               if (brojPaleta.isNotEmpty) ...[
-                _buildInfoRow(Icons.view_module_outlined, 'Palete: $brojPaleta'),
+                _buildInfoRow(
+                  Icons.view_module_outlined,
+                  '${AppLocalizations.of(context)!.availablePallets}: $brojPaleta',
+                ),
               ],
               if (rokUtovara.isNotEmpty) ...[
-                _buildInfoRow(Icons.schedule, 'Rok utovara: $rokUtovara'),
+                _buildInfoRow(
+                  Icons.schedule,
+                  '${AppLocalizations.of(context)!.availableLoadingDeadline}: $rokUtovara',
+                ),
               ],
               const SizedBox(height: 12),
               SizedBox(
@@ -293,8 +310,8 @@ class _AvailableShipmentsScreenState extends State<AvailableShipmentsScreen> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text(
-                    'Otvori detalje',
+                  child: Text(
+                    AppLocalizations.of(context)!.availableOpenDetails,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
@@ -353,8 +370,8 @@ class _AvailableShipmentsScreenState extends State<AvailableShipmentsScreen> {
                         color: Colors.grey.shade400,
                       ),
                       const SizedBox(height: 14),
-                      const Text(
-                        'Trenutno nema dostupnih tereta.',
+                      Text(
+                        AppLocalizations.of(context)!.availableNoShipments,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 18,
@@ -364,7 +381,7 @@ class _AvailableShipmentsScreenState extends State<AvailableShipmentsScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Kad se objave novi tereti, prikazat će se ovdje.',
+                        AppLocalizations.of(context)!.availableNewShipmentsAppearHere,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 14,
@@ -404,8 +421,8 @@ class _AvailableShipmentsScreenState extends State<AvailableShipmentsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Dostupni tereti',
+                Text(
+                  AppLocalizations.of(context)!.availableShipmentsTitle,
                   style: TextStyle(
                     fontSize: 13,
                     color: Colors.white70,
@@ -414,7 +431,8 @@ class _AvailableShipmentsScreenState extends State<AvailableShipmentsScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '${shipments.length} aktivnih objava',
+                  AppLocalizations.of(context)!
+                      .availableActiveListings(shipments.length),
                   style: const TextStyle(
                     fontSize: 21,
                     color: Colors.white,
@@ -422,8 +440,8 @@ class _AvailableShipmentsScreenState extends State<AvailableShipmentsScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Otvorite teret i pošaljite svoju ponudu.',
+                Text(
+                  AppLocalizations.of(context)!.availableOpenAndSendOffer,
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.white70,
@@ -449,8 +467,8 @@ class _AvailableShipmentsScreenState extends State<AvailableShipmentsScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F8),
       appBar: AppBar(
-        title: const Text(
-          'Dostupni tereti',
+        title: Text(
+          AppLocalizations.of(context)!.availableShipmentsTitle,
           style: TextStyle(fontWeight: FontWeight.w700),
         ),
         centerTitle: true,
@@ -459,7 +477,7 @@ class _AvailableShipmentsScreenState extends State<AvailableShipmentsScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            tooltip: 'Moje ponude',
+            tooltip: AppLocalizations.of(context)!.availableMyOffers,
             onPressed: () {
               Navigator.push(
                 context,
@@ -471,7 +489,7 @@ class _AvailableShipmentsScreenState extends State<AvailableShipmentsScreen> {
             icon: const Icon(Icons.description_outlined),
           ),
           IconButton(
-            tooltip: 'Odjava',
+            tooltip: AppLocalizations.of(context)!.availableLogout,
             onPressed: logout,
             icon: const Icon(Icons.logout),
           ),
@@ -490,8 +508,8 @@ class _AvailableShipmentsScreenState extends State<AvailableShipmentsScreen> {
         backgroundColor: const Color(0xFF1E3A8A),
         foregroundColor: Colors.white,
         icon: const Icon(Icons.request_quote_outlined),
-        label: const Text(
-          'Moje ponude',
+        label: Text(
+          AppLocalizations.of(context)!.availableMyOffers,
           style: TextStyle(fontWeight: FontWeight.w800),
         ),
       ),

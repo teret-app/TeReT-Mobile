@@ -1,11 +1,74 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl_phone_field/intl_phone_field.dart';
 import '../config.dart';
+import '../l10n/app_localizations.dart';
 import 'login_screen.dart';
 import 'terms_screen.dart';
 import '../utils/country_helper.dart';
+
+class PhoneCountryOption {
+  final String name;
+  final String flag;
+  final String dialCode;
+  final String region;
+
+  const PhoneCountryOption({
+    required this.name,
+    required this.flag,
+    required this.dialCode,
+    this.region = 'Evropa',
+  });
+}
+
+const List<PhoneCountryOption> phoneCountryOptions = [
+  PhoneCountryOption(name: 'Hrvatska', flag: '🇭🇷', dialCode: '+385'),
+  PhoneCountryOption(name: 'Slovenija', flag: '🇸🇮', dialCode: '+386'),
+  PhoneCountryOption(name: 'Bosna i Hercegovina', flag: '🇧🇦', dialCode: '+387'),
+  PhoneCountryOption(name: 'Srbija', flag: '🇷🇸', dialCode: '+381'),
+  PhoneCountryOption(name: 'Crna Gora', flag: '🇲🇪', dialCode: '+382'),
+  PhoneCountryOption(name: 'Sjeverna Makedonija', flag: '🇲🇰', dialCode: '+389'),
+  PhoneCountryOption(name: 'Albanija', flag: '🇦🇱', dialCode: '+355'),
+  PhoneCountryOption(name: 'Kosovo', flag: '🇽🇰', dialCode: '+383'),
+  PhoneCountryOption(name: 'Austrija', flag: '🇦🇹', dialCode: '+43'),
+  PhoneCountryOption(name: 'Njemačka', flag: '🇩🇪', dialCode: '+49'),
+  PhoneCountryOption(name: 'Italija', flag: '🇮🇹', dialCode: '+39'),
+  PhoneCountryOption(name: 'Mađarska', flag: '🇭🇺', dialCode: '+36'),
+  PhoneCountryOption(name: 'Češka', flag: '🇨🇿', dialCode: '+420'),
+  PhoneCountryOption(name: 'Slovačka', flag: '🇸🇰', dialCode: '+421'),
+  PhoneCountryOption(name: 'Poljska', flag: '🇵🇱', dialCode: '+48'),
+  PhoneCountryOption(name: 'Francuska', flag: '🇫🇷', dialCode: '+33'),
+  PhoneCountryOption(name: 'Belgija', flag: '🇧🇪', dialCode: '+32'),
+  PhoneCountryOption(name: 'Nizozemska', flag: '🇳🇱', dialCode: '+31'),
+  PhoneCountryOption(name: 'Luksemburg', flag: '🇱🇺', dialCode: '+352'),
+  PhoneCountryOption(name: 'Švicarska', flag: '🇨🇭', dialCode: '+41', region: 'SWITZERLAND'),
+  PhoneCountryOption(name: 'Lihtenštajn', flag: '🇱🇮', dialCode: '+423'),
+  PhoneCountryOption(name: 'Španjolska', flag: '🇪🇸', dialCode: '+34'),
+  PhoneCountryOption(name: 'Portugal', flag: '🇵🇹', dialCode: '+351'),
+  PhoneCountryOption(name: 'Ujedinjeno Kraljevstvo', flag: '🇬🇧', dialCode: '+44', region: 'UK'),
+  PhoneCountryOption(name: 'Irska', flag: '🇮🇪', dialCode: '+353'),
+  PhoneCountryOption(name: 'Danska', flag: '🇩🇰', dialCode: '+45'),
+  PhoneCountryOption(name: 'Švedska', flag: '🇸🇪', dialCode: '+46'),
+  PhoneCountryOption(name: 'Norveška', flag: '🇳🇴', dialCode: '+47'),
+  PhoneCountryOption(name: 'Finska', flag: '🇫🇮', dialCode: '+358'),
+  PhoneCountryOption(name: 'Island', flag: '🇮🇸', dialCode: '+354'),
+  PhoneCountryOption(name: 'Estonija', flag: '🇪🇪', dialCode: '+372'),
+  PhoneCountryOption(name: 'Latvija', flag: '🇱🇻', dialCode: '+371'),
+  PhoneCountryOption(name: 'Litva', flag: '🇱🇹', dialCode: '+370'),
+  PhoneCountryOption(name: 'Rumunjska', flag: '🇷🇴', dialCode: '+40'),
+  PhoneCountryOption(name: 'Bugarska', flag: '🇧🇬', dialCode: '+359'),
+  PhoneCountryOption(name: 'Grčka', flag: '🇬🇷', dialCode: '+30'),
+  PhoneCountryOption(name: 'Cipar', flag: '🇨🇾', dialCode: '+357'),
+  PhoneCountryOption(name: 'Malta', flag: '🇲🇹', dialCode: '+356'),
+  PhoneCountryOption(name: 'Moldavija', flag: '🇲🇩', dialCode: '+373'),
+  PhoneCountryOption(name: 'Ukrajina', flag: '🇺🇦', dialCode: '+380'),
+  PhoneCountryOption(name: 'Turska', flag: '🇹🇷', dialCode: '+90'),
+  PhoneCountryOption(name: 'Sjedinjene Američke Države', flag: '🇺🇸', dialCode: '+1', region: 'USA'),
+  PhoneCountryOption(name: 'Kanada', flag: '🇨🇦', dialCode: '+1', region: 'CANADA'),
+  PhoneCountryOption(name: 'Australija', flag: '🇦🇺', dialCode: '+61', region: 'AUSTRALIA_NZ'),
+  PhoneCountryOption(name: 'Novi Zeland', flag: '🇳🇿', dialCode: '+64', region: 'AUSTRALIA_NZ'),
+];
+
 class RegisterScreen extends StatefulWidget {
   final String role;
 
@@ -33,13 +96,63 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool acceptedTerms = false;
   String errorMessage = '';
   String verificationUrl = '';
-  String selectedCountry = 'Hrvatska';
+  late String selectedCountry;
   String selectedRegion = 'Evropa';
+  late PhoneCountryOption selectedPhoneCountry;
+  @override
+  void initState() {
+    super.initState();
+
+    final countries = countryOptionsForDevice();
+    final deviceCountry = countries.first;
+
+    selectedCountry = deviceCountry.name;
+    selectedRegion = deviceCountry.region;
+
+    selectedPhoneCountry = phoneCountryOptions.firstWhere(
+          (country) => country.flag == deviceCountry.flag,
+      orElse: () => phoneCountryOptions.first,
+    );
+  }
+  String get completePhoneNumber {
+    var localNumber = phoneController.text.trim().replaceAll(RegExp(r'\s+'), '');
+
+    while (localNumber.startsWith('0')) {
+      localNumber = localNumber.substring(1);
+    }
+
+    return '${selectedPhoneCountry.dialCode}$localNumber';
+  }
   String get selectedRole => widget.role;
 
-  String get roleTitle {
-    if (selectedRole == 'sender') return 'Naručitelj prijevoza';
-    return 'Prijevoznik';
+  String roleTitle(AppLocalizations t) {
+    if (selectedRole == 'sender') {
+      return t.transportCustomer;
+    }
+
+    return t.carrier;
+  }
+
+
+  void capitalizeWords(
+      String value,
+      TextEditingController controller,
+      ) {
+    if (value.isEmpty) return;
+
+    final newText = value.replaceAllMapped(
+      RegExp(r'(^|\s)(\S)'),
+          (match) => '${match.group(1)}${match.group(2)!.toUpperCase()}',
+    );
+
+    if (newText != value) {
+      controller.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection.collapsed(
+          offset: newText.length,
+        ),
+      );
+    }
   }
 
   @override
@@ -54,11 +167,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> register() async {
+    final AppLocalizations t = AppLocalizations.of(context)!;
+
     if (!_formKey.currentState!.validate()) return;
 
     if (!acceptedTerms) {
       setState(() {
-        errorMessage = 'Za registraciju morate prihvatiti Uvjete korištenja.';
+        errorMessage = t.termsAcceptanceRequired;
       });
       return;
     }
@@ -72,7 +187,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       print('REGISTER URL: ${AppConfig.baseUrl}/register');
-      print('PHONE VALUE: ${phoneController.text}');
+      print('PHONE VALUE: $completePhoneNumber');
       final response = await http.post(
         Uri.parse('${AppConfig.baseUrl}/register'),
         headers: {
@@ -82,7 +197,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'fullName': fullNameController.text.trim(),
           'companyName': companyNameController.text.trim(),
           'nickname': nicknameController.text.trim(),
-          'phone': phoneController.text.trim(),
+          'phone': completePhoneNumber,
           'email': emailController.text.trim(),
           'password': passwordController.text.trim(),
           'role': selectedRole,
@@ -103,24 +218,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Registracija uspješna. Potvrdite email adresu prije prijave.',
-            ),
+          SnackBar(
+            content: Text(t.registrationSuccessfulVerifyEmail),
           ),
         );
       } else {
         if (!mounted) return;
         setState(() {
-          errorMessage = (data['message'] ?? 'Greška pri registraciji.').toString();
+          final String backendMessage =
+          (data['message'] ?? '').toString().trim();
+
+          errorMessage = backendMessage.isNotEmpty
+              ? backendMessage
+              : t.registrationError;
         });
       }
     } catch (e) {
       print('REGISTER ERROR: $e');
       if (!mounted) return;
       setState(() {
-        errorMessage =
-        'Greška konekcije sa serverom. Provjerite je li backend pokrenut i je li IP adresa ispravna.';
+        errorMessage = t.registrationConnectionError;
       });
     } finally {
       if (!mounted) return;
@@ -152,7 +269,123 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ],
     );
   }
+  List<PhoneCountryOption> phoneCountryOptionsForDevice() {
+    final deviceCountry = countryFromIsoCode(deviceCountryCode());
+
+    if (deviceCountry == null) {
+      return List<PhoneCountryOption>.from(phoneCountryOptions);
+    }
+
+    final result = List<PhoneCountryOption>.from(phoneCountryOptions);
+
+    final deviceCountryIndex = result.indexWhere(
+          (country) => country.flag == deviceCountry.flag,
+    );
+
+    if (deviceCountryIndex == -1) {
+      return result;
+    }
+
+    final firstCountry = result.removeAt(deviceCountryIndex);
+    result.insert(0, firstCountry);
+
+    return result;
+  }
+  Future<void> selectPhoneCountry() async {
+    final AppLocalizations t = AppLocalizations.of(context)!;
+
+    final result = await showDialog<PhoneCountryOption>(
+      context: context,
+      builder: (dialogContext) {
+        String searchText = '';
+
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final filteredCountries =
+            phoneCountryOptionsForDevice().where((country) {
+              final query = searchText.trim().toLowerCase();
+
+              return query.isEmpty ||
+                  country.name.toLowerCase().contains(query) ||
+                  country.dialCode.contains(query);
+            }).toList();
+
+            return AlertDialog(
+              titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
+              contentPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              title: Text(t.selectCountry),
+              content: SizedBox(
+                width: double.maxFinite,
+                height: 500,
+                child: Column(
+                  children: [
+                    TextField(
+                      autofocus: true,
+                      decoration: InputDecoration(
+                        hintText: t.searchCountryOrDialCode,
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onChanged: (value) {
+                        setDialogState(() {
+                          searchText = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    Expanded(
+                      child: filteredCountries.isEmpty
+                          ? Center(
+                        child: Text(t.noCountriesFound),
+                      )
+                          : ListView.separated(
+                        itemCount: filteredCountries.length,
+                        separatorBuilder: (_, __) =>
+                        const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final country = filteredCountries[index];
+
+                          return ListTile(
+                            leading: Text(
+                              country.flag,
+                              style: const TextStyle(fontSize: 24),
+                            ),
+                            title: Text(country.name),
+                            trailing: Text(
+                              country.dialCode,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            onTap: () {
+                              Navigator.pop(dialogContext, country);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    if (result == null || !mounted) return;
+
+    setState(() {
+      selectedPhoneCountry = result;
+      selectedRegion = result.region;
+    });
+  }
+
   Widget buildTermsCheckbox() {
+    final AppLocalizations t = AppLocalizations.of(context)!;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -170,7 +403,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Wrap(
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              const Text('Prihvaćam '),
+              Text(t.iAccept),
               GestureDetector(
                 onTap: isLoading
                     ? null
@@ -182,16 +415,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   );
                 },
-                child: const Text(
-                  'Uvjete korištenja',
-                  style: TextStyle(
+                child: Text(
+                  t.termsOfUse,
+                  style: const TextStyle(
                     color: Colors.blue,
                     fontWeight: FontWeight.w700,
                     decoration: TextDecoration.underline,
                   ),
                 ),
               ),
-              const Text(' platforme TeReT.'),
+              Text(t.teretPlatformSuffix),
             ],
           ),
         ),
@@ -201,9 +434,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations t = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Registracija'),
+        title: Text(t.register),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -230,7 +464,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           children: [
                             const SizedBox(height: 8),
                             Text(
-                              'Registracija — $roleTitle',
+                              '${t.register} — ${roleTitle(t)}',
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 22,
@@ -241,11 +475,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                             TextFormField(
                               controller: fullNameController,
+                              onChanged: (value) =>
+                                  capitalizeWords(value, fullNameController),
                               textInputAction: TextInputAction.next,
-                              decoration: buildInputDecoration('Ime i prezime'),
+                              decoration: buildInputDecoration(t.fullName),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return 'Unesite ime i prezime';
+                                  return t.enterFullName;
                                 }
                                 return null;
                               },
@@ -255,9 +491,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                             TextFormField(
                               controller: companyNameController,
+                              onChanged: (value) =>
+                                  capitalizeWords(value, companyNameController),
                               textInputAction: TextInputAction.next,
                               decoration: buildInputDecoration(
-                                'Naziv tvrtke / obrta (nije obavezno)',
+                                t.companyNameOptional,
                               ),
                             ),
 
@@ -273,20 +511,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     color: Colors.amber.shade300,
                                   ),
                                 ),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(14),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(14),
                                   child: Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         Icons.info_outline,
                                         color: Colors.orange,
                                       ),
-                                      SizedBox(width: 12),
+                                      const SizedBox(width: 12),
                                       Expanded(
                                         child: Text(
-                                          'Ako trebate R1 račun, prilikom plaćanja putem Stripe Checkouta unesite točne podatke za račun kako bismo vam mogli izdati i dostaviti R1 račun.',
-                                          style: TextStyle(
+                                          t.r1InvoiceNotice,
+                                          style: const TextStyle(
                                             fontSize: 14,
                                             height: 1.4,
                                           ),
@@ -301,20 +539,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                             TextFormField(
                               controller: nicknameController,
+                              onChanged: (value) =>
+                                  capitalizeWords(value, nicknameController),
                               textInputAction: TextInputAction.next,
                               decoration: buildInputDecoration(
-                                'Grad / sjedište ',
+                                t.cityOrHeadquarters,
                               ),
                             ),
 
                             const SizedBox(height: 14),
                             DropdownButtonFormField<String>(
                               value: selectedCountry,
-                              decoration: buildInputDecoration('Država'),
-                              items: countryOptions.map((country) {
+                              decoration: buildInputDecoration(t.country),
+                              items: countryOptionsForDevice().map((country) {
                                 return DropdownMenuItem<String>(
                                   value: country.name,
-                                  child: countryItem(country.flag, country.name),
+                                  child: countryItem(
+                                    country.flag,
+                                    country.localizedName(
+                                      Localizations.localeOf(context).languageCode,
+                                    ),
+                                  ),
                                 );
                               }).toList(),
                               onChanged: (value) {
@@ -384,34 +629,75 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
 
                             const SizedBox(height: 14),
-                            IntlPhoneField(
-                              decoration: buildInputDecoration('Broj mobitela'),
-                              initialCountryCode: 'HR',
-                              disableLengthCheck: true,
-                              onChanged: (phone) {
-                                phoneController.text = phone.completeNumber;
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                InkWell(
+                                  borderRadius: BorderRadius.circular(12),
+                                  onTap: isLoading ? null : selectPhoneCountry,
+                                  child: Container(
+                                    height: 56,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.grey.shade600,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          selectedPhoneCountry.flag,
+                                          style: const TextStyle(fontSize: 22),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          selectedPhoneCountry.dialCode,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        const Icon(
+                                          Icons.arrow_drop_down,
+                                          size: 20,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: phoneController,
+                                    keyboardType: TextInputType.phone,
+                                    textInputAction: TextInputAction.next,
+                                    decoration: buildInputDecoration(
+                                      t.mobilePhoneNumber,
+                                    ),
+                                    validator: (value) {
+                                      if (value == null ||
+                                          value.trim().isEmpty) {
+                                        return t.enterPhoneNumber;
+                                      }
 
-                                final code = phone.countryCode;
+                                      final digits = value.replaceAll(
+                                        RegExp(r'\D'),
+                                        '',
+                                      );
 
-                                if (['381', '387', '382', '389', '383', '355']
-                                    .contains(code)) {
-                                  selectedRegion = 'Evropa';
-                                } else if (code == '44') {
-                                  selectedRegion = 'UK';
-                                } else if (code == '1') {
-                                  selectedRegion = 'USA';
-                                } else if (code == '61' || code == '64') {
-                                  selectedRegion = 'AUSTRALIA_NZ';
-                                } else {
-                                  selectedRegion = 'Evropa';
-                                }
-                              },
-                              validator: (phone) {
-                                if (phone == null || phone.number.trim().isEmpty) {
-                                  return 'Unesite broj mobitela';
-                                }
-                                return null;
-                              },
+                                      if (digits.length < 6) {
+                                        return t.enterValidPhoneNumber;
+                                      }
+
+                                      return null;
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
 
                             const SizedBox(height: 14),
@@ -420,13 +706,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               controller: emailController,
                               keyboardType: TextInputType.emailAddress,
                               textInputAction: TextInputAction.next,
-                              decoration: buildInputDecoration('Email'),
+                              decoration: buildInputDecoration(t.email),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return 'Unesite email';
+                                  return t.enterEmail;
                                 }
                                 if (!value.contains('@')) {
-                                  return 'Unesite ispravan email';
+                                  return t.enterValidEmail;
                                 }
                                 return null;
                               },
@@ -438,8 +724,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               controller: passwordController,
                               obscureText: obscurePassword,
                               textInputAction: TextInputAction.done,
-                              decoration: buildInputDecoration('Lozinka').copyWith(
+                              decoration: buildInputDecoration(t.password).copyWith(
                                 suffixIcon: IconButton(
+                                  tooltip: obscurePassword
+                                      ? t.showPassword
+                                      : t.hidePassword,
                                   icon: Icon(
                                     obscurePassword
                                         ? Icons.visibility
@@ -454,10 +743,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return 'Unesite lozinku';
+                                  return t.enterPassword;
                                 }
                                 if (value.trim().length < 4) {
-                                  return 'Lozinka mora imati barem 4 znaka';
+                                  return t.passwordMinimumFourCharacters;
                                 }
                                 return null;
                               },
@@ -495,17 +784,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
-                                    const Text(
-                                      'Registracija je uspješna.',
+                                    Text(
+                                      t.registrationSuccessful,
                                       textAlign: TextAlign.center,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         color: Colors.green,
                                       ),
                                     ),
                                     const SizedBox(height: 8),
-                                    const Text(
-                                      'Za testiranje kopirajte ovaj link i otvorite ga u browseru:',
+                                    Text(
+                                      t.copyVerificationLinkForTesting,
                                       textAlign: TextAlign.center,
                                     ),
                                     const SizedBox(height: 8),
@@ -522,15 +811,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         Navigator.pushAndRemoveUntil(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (_) => const LoginScreen(
+                                            builder: (_) => LoginScreen(
                                               errorMessage:
-                                              'Nakon potvrde email adrese možete se prijaviti.',
+                                              t.afterEmailVerificationLogin,
                                             ),
                                           ),
                                               (route) => false,
                                         );
                                       },
-                                      child: const Text('Idi na prijavu'),
+                                      child: Text(t.goToLogin),
                                     ),
                                   ],
                                 ),
@@ -557,9 +846,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     color: Colors.white,
                                   ),
                                 )
-                                    : const Text(
-                                  'Registriraj se',
-                                  style: TextStyle(
+                                    : Text(
+                                  t.registerButton,
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -580,7 +869,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   ),
                                 );
                               },
-                              child: const Text('Već imaš račun? Prijavi se'),
+                              child: Text(t.alreadyHaveAccountLogin),
                             ),
                           ],
                         ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../l10n/app_localizations.dart';
 import 'login_screen.dart';
 
 class RolePickerScreen extends StatefulWidget {
@@ -15,10 +15,11 @@ class _RolePickerScreenState extends State<RolePickerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: const Color(0xFFF3F6FB),
       appBar: AppBar(
-        title: const Text('Odaberi ulogu'),
+        title: Text(l10n.roleSelection),
         centerTitle: true,
         elevation: 0,
         backgroundColor: const Color(0xFFF3F6FB),
@@ -39,8 +40,8 @@ class _RolePickerScreenState extends State<RolePickerScreen> {
                 ),
               ),
               const SizedBox(height: 18),
-              const Text(
-                'Odaberi kako želiš koristiti aplikaciju',
+               Text(
+                l10n.howDoYouWantToUseApp,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Color(0xFF6B7280),
@@ -112,7 +113,7 @@ class _RolePickerScreenState extends State<RolePickerScreen> {
                           ),
                         ),
                         const SizedBox(width: 14),
-                        const Expanded(
+                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -120,7 +121,7 @@ class _RolePickerScreenState extends State<RolePickerScreen> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      'Naručitelj prijevoza',
+                                      l10n.transportCustomer,
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 17,
@@ -128,12 +129,12 @@ class _RolePickerScreenState extends State<RolePickerScreen> {
                                       ),
                                     ),
                                   ),
-                                  _Badge(text: 'NOVO'),
+                                  _Badge(text: l10n.newBadge)
                                 ],
                               ),
                               SizedBox(height: 6),
                               Text(
-                                'Objavi teret i primaj ponude prijevoznika',
+                                l10n.senderRoleDescription,
                                 style: TextStyle(
                                   color: Colors.white70,
                                   fontSize: 13,
@@ -219,7 +220,7 @@ class _RolePickerScreenState extends State<RolePickerScreen> {
                           ),
                         ),
                         const SizedBox(width: 14),
-                        const Expanded(
+                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -227,7 +228,7 @@ class _RolePickerScreenState extends State<RolePickerScreen> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      'Prijevoznik',
+                                      l10n.carrier,
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 17,
@@ -235,12 +236,12 @@ class _RolePickerScreenState extends State<RolePickerScreen> {
                                       ),
                                     ),
                                   ),
-                                  _Badge(text: 'NOVO'),
+                                  _Badge(text: l10n.newBadge)
                                 ],
                               ),
                               SizedBox(height: 6),
                               Text(
-                                'Pregledaj terete i pošalji svoju ponudu',
+                                l10n.carrierRoleDescription,
                                 style: TextStyle(
                                   color: Colors.white70,
                                   fontSize: 13,
@@ -281,7 +282,7 @@ class _RolePickerScreenState extends State<RolePickerScreen> {
                     ),
                   ],
                 ),
-                child: const Row(
+                child:  Row(
                   children: [
                     Icon(
                       Icons.info_outline_rounded,
@@ -291,7 +292,7 @@ class _RolePickerScreenState extends State<RolePickerScreen> {
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Odaberi ulogu i nastavi na prijavu ili registraciju.',
+                        l10n.selectRoleInfo,
                         style: TextStyle(
                           fontSize: 13,
                           color: Color(0xFF64748B),

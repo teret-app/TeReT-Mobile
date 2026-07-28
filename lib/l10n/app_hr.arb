@@ -1,0 +1,891 @@
+{
+  "@@locale": "hr",
+
+  "appName": "TeReT",
+
+  "welcomeToTeret": "Dobro došli u TeReT",
+  "loginPlatformDescription": "Platforma za jednostavno povezivanje naručitelja i prijevoznika.",
+
+  "login": "Prijava",
+  "email": "Email",
+  "password": "Lozinka",
+  "signIn": "Prijavi se",
+  "noAccountRegister": "Nemaš račun? Registriraj se",
+
+  "enterEmail": "Unesite email",
+  "enterValidEmail": "Unesite ispravnu email adresu",
+  "enterPassword": "Unesite lozinku",
+  "enterValidEmailFirst": "Prvo unesite ispravnu email adresu.",
+
+  "showPassword": "Prikaži lozinku",
+  "hidePassword": "Sakrij lozinku",
+
+  "forgotPasswordQuestion": "Zaboravili ste lozinku?",
+  "forgotPasswordTitle": "Zaboravljena lozinka",
+  "forgotPasswordDescription": "Unesite email adresu povezanu s vašim računom. Poslat ćemo vam poveznicu za postavljanje nove lozinke.",
+  "sendResetLink": "Pošalji poveznicu",
+  "passwordResetLinkSent": "Ako račun s tim emailom postoji, poslana je poveznica za promjenu lozinke.",
+  "passwordResetLinkSendError": "Slanje poveznice nije uspjelo.",
+
+  "accountNotVerified": "Račun nije potvrđen. Molimo potvrdite email adresu prije prijave.",
+  "resendVerificationEmail": "Pošalji ponovno email za potvrdu",
+  "verificationEmailResent": "Email za potvrdu je ponovno poslan.",
+  "verificationEmailSendError": "Greška prilikom slanja emaila za potvrdu.",
+
+  "loginError": "Greška pri prijavi.",
+  "invalidUserRole": "Korisnička uloga nije ispravna.",
+  "emailAndPasswordRequired": "Email i lozinka su obavezni.",
+  "invalidEmailOrPassword": "Email ili lozinka nisu ispravni.",
+  "serverError": "Došlo je do greške na serveru. Pokušajte ponovno.",
+  "serverConnectionError": "Greška konekcije sa serverom.",
+
+  "close": "Zatvori",
+  "cancel": "Odustani",
+  "confirm": "Potvrdi",
+
+  "carrier": "Prijevoznik",
+  "sender": "Naručitelj",
+  "register": "Registracija",
+  "logout": "Odjava",
+  "roleSelection": "Odabir uloge",
+  "howDoYouWantToUseApp": "Kako želite koristiti aplikaciju?",
+  "transportCustomer": "Naručitelj prijevoza",
+
+  "termsAcceptanceRequired": "Za registraciju morate prihvatiti Uvjete korištenja.",
+  "registrationSuccessfulVerifyEmail": "Registracija uspješna. Potvrdite email adresu prije prijave.",
+  "registrationError": "Greška pri registraciji.",
+  "registrationConnectionError": "Greška konekcije sa serverom. Provjerite internetsku vezu i pokušajte ponovno.",
+  "enterFullName": "Unesite ime i prezime",
+  "enterPhoneNumber": "Unesite broj mobitela",
+  "enterValidPhoneNumber": "Unesite ispravan broj mobitela",
+  "passwordMinimumFourCharacters": "Lozinka mora imati barem 4 znaka",
+  "r1InvoiceNotice": "Ako trebate R1 račun, prilikom plaćanja putem Stripe Checkouta unesite točne podatke za račun kako bismo vam mogli izdati i dostaviti R1 račun.",
+  "fullName": "Ime i prezime",
+  "companyNameOptional": "Naziv tvrtke / obrta (nije obavezno)",
+  "cityOrHeadquarters": "Grad / sjedište",
+  "country": "Država",
+  "mobilePhoneNumber": "Broj mobitela",
+  "selectCountry": "Odaberite državu",
+  "searchCountryOrDialCode": "Pretraži državu ili pozivni broj",
+  "noCountriesFound": "Nema pronađenih država.",
+  "iAccept": "Prihvaćam ",
+  "termsOfUse": "Uvjete korištenja",
+  "teretPlatformSuffix": " platforme TeReT.",
+  "registrationSuccessful": "Registracija je uspješna.",
+  "copyVerificationLinkForTesting": "Za testiranje kopirajte ovu poveznicu i otvorite je u pregledniku:",
+  "afterEmailVerificationLogin": "Nakon potvrde email adrese možete se prijaviti.",
+  "goToLogin": "Idi na prijavu",
+  "registerButton": "Registriraj se",
+  "alreadyHaveAccountLogin": "Već imaš račun? Prijavi se",
+  "exitAppTitle": "Izlaz iz aplikacije",
+  "exitAppQuestion": "Jeste li sigurni da želite izaći iz aplikacije?",
+  "exit": "Izađi",
+  "info": "Info",
+  "shipmentList": "Lista tereta",
+  "myOffers": "Moje ponude",
+  "notifications": "Obavijesti",
+  "notificationsDisabled": "Obavijesti su isključene",
+  "notificationsWarningDescription": "Uključite obavijesti kako biste na vrijeme primali nove terete, informacije o ponudi i ostale važne obavijesti o licitacijama.",
+  "enableNotifications": "Uključi obavijesti",
+  "splashTagline": "Radar prijevoza",
+  "senderRoleDescription": "Objavi teret i primaj ponude prijevoznika",
+  "carrierRoleDescription": "Pregledaj terete i pošalji svoju ponudu",
+  "selectRoleInfo": "Odaberi ulogu i nastavi na prijavu ili registraciju.",
+  "newBadge": "NOVO",
+  "myShipments": "Moje objave",
+  "publishShipment": "Objava tereta",
+  "shipmentPublishDescription": "Ispunite podatke o teretu kako bi prijevoznici mogli slati ponude.",
+  "basicInformation": "Osnovno",
+  "route": "Ruta",
+  "timeAndQuantity": "Vrijeme i količina",
+  "contact": "Kontakt",
+  "shipmentImages": "Slike tereta",
+  "additionalDetails": "Dodatni detalji (opcionalno)",
+  "shipmentName": "Naziv tereta",
+  "shortShipmentDescription": "Kratki opis tereta",
+  "enterShipmentDescription": "Unesite opis tereta.",
+  "shipmentDescriptionNoContactInfo": "Opis ne smije sadržavati kontakt podatke.",
+  "loadingCountry": "Država utovara",
+  "loadingCity": "Mjesto utovara",
+  "loadingAddress": "Ulica i kućni broj utovara",
+  "unloadingCountry": "Država istovara",
+  "unloadingCity": "Mjesto istovara",
+  "unloadingAddress": "Ulica i kućni broj istovara",
+    "auctionDuration": "Trajanje licitacije",
+   "contactHiddenUntilAccepted": "Kontakt podaci neće biti vidljivi prijevozniku dok ne prihvatite ponudu.",
+   "loadingDeadlineAfterAuction": "Rok preuzimanja",
+   "approxWeight": "Težina cca (kg/lb)",
+   "palletCount": "Broj paleta",
+   "phoneNumber": "Broj telefona",
+   "oneHour": "1 sat",
+   "twoHours": "2 sata",
+   "sixHours": "6 sati",
+   "twelveHours": "12 sati",
+   "twentyFourHours": "24 sata",
+   "twentyFourHours": "24 sata",
+   "fortyEightHours": "48 sati",
+   "seventyTwoHours": "72 sata",
+   "byAgreement": "Po dogovoru",
+   "loadingLocationType": "Tip lokacije utovara",
+   "building": "Zgrada",
+   "productionFacility": "Proizvodni pogon",
+   "warehouse": "Skladište",
+   "house": "Kuća",
+   "constructionSite": "Gradilište",
+   "businessPremises": "Poslovni prostor",
+   "unloadingLocationType": "Tip lokacije istovara",
+   "loadingMethod": "Način utovara",
+   "manualLoading": "Ručno",
+   "machineLoading": "Strojno",
+   "length": "Dužina (cm/in)",
+   "width": "Širina (cm/in)",
+   "height": "Visina (cm/in)",
+   "truckAccess": "Prilaz za tegljač",
+   "driverHelp": "Treba pomoć vozača",
+   "gallery": "Galerija",
+   "camera": "Kamera",
+   "selectedImages": "Odabrano slika: {count}/{max}",
+   "@selectedImages": {
+     "placeholders": {
+       "count": {
+         "type": "int"
+       },
+       "max": {
+         "type": "int"
+       }
+     }
+   },
+   "noImagesSelected": "Nema odabranih slika.",
+   "publishShipment": "Objavi teret",
+   "noShipmentsYet": "Trenutno nemaš nijednu objavu.",
+   "active": "Aktivno",
+   "transportAgreed": "Prijevoz dogovoren",
+   "completed": "Završeno",
+   "auctionFinished": "Licitacija završena",
+   "unknown": "Nepoznato",
+   "auction": "Licitacija",
+   "offers": "Ponude",
+   "views": "Pregledi",
+   "lowestOffer": "Najniža ponuda",
+   "details": "Detalji",
+   "auctionProgress": "Tijek licitacije",
+   "removeFromHistory": "Ukloni iz povijesti",
+   "repost": "Ponovno objavi",
+  "paymentSuccessfulContactUnlocked": "Plaćanje je uspješno. Kontakt je otključan.",
+  "errorFetchingShipmentDetails": "Greška pri dohvaćanju detalja tereta.",
+  "serverConnectionError": "Greška konekcije sa serverom.",
+  "cannotOpenStripePayment": "Nije moguće otvoriti Stripe plaćanje.",
+  "commissionRecorded": "Provizija je evidentirana.",
+  "areYouSure": "Jesi li siguran?",
+  "confirmDeliveryExplanation": "Potvrdom označavaš da je prijevoz obavljen.",
+  "cancel": "Odustani",
+  "transportCompleted": "Prijevoz obavljen",
+  "transportMarkedCompleted": "Prijevoz je označen kao obavljen.",
+  "carrierAccusative": "prijevoznika",
+  "cannotOpenPhoneApp": "Nije moguće otvoriti aplikaciju za poziv.",
+  "active": "Aktivan",
+  "acceptedOffer": "Prihvaćena ponuda",
+  "completed": "Završeno",
+  "machineLoading": "Strojno",
+  "manualLoading": "Ručno",
+  "senderUppercase": "NARUČITELJ",
+  "noRatings": "Nema ocjena",
+  "shipmentImages": "Slike tereta",
+  "auctionProgress": "Tijek licitacije",
+  "confirming": "Potvrđujem...",
+  "carrierSelected": "Odabrali ste prijevoznika.",
+  "offerAccepted": "Ponuda je prihvaćena.",
+  "carrierWillContactSoon": "Prijevoznik će vas uskoro kontaktirati.",
+  "waitingForCarrierConfirmation": "Čeka se potvrda prijevoznika.",
+  "offerAcceptedShort": "Ponuda prihvaćena.",
+  "platformFeeExplanation": "Posao je Vaš.\n\nZa otključavanje kontakt podataka potrebno je platiti naknadu platforme putem Stripe Checkouta.\n\nNaknada iznosi 5% od dogovorene cijene prijevoza, a za prijevoze u vrijednosti do 100,00 € minimalna naknada iznosi 5,00 €.",
+  "continueToStripeCheckout": "Nastavi na Stripe Checkout",
+  "otherCarrierWonMessage": "Nažalost, drugi prijevoznik je dobio ovaj posao. Hvala na sudjelovanju u licitaciji.",
+  "shipmentNotFound": "Teret nije pronađen.",
+  "sender": "Naručitelj",
+  "senderAccusative": "naručitelja",
+  "auctionFinished": "Licitacija završena",
+  "statusOtherCarrierSelected": "Status: Odabran drugi prijevoznik",
+  "otherCarrierSelectedMessage": "Nažalost, drugi prijevoznik je odabran za ovaj prijevoz. Hvala na sudjelovanju u licitaciji.",
+  "statusAuctionFinished": "Status: Licitacija završena",
+  "statusOfferAcceptedByYou": "Status: Prihvatili ste ponudu",
+  "loadingPlace": "Mjesto utovara",
+  "loadingAddress": "Adresa utovara",
+  "unloadingPlace": "Mjesto istovara",
+  "unloadingAddress": "Adresa istovara",
+  "loadingDeadlineAfterAuction": "Rok utovara nakon isteka licitacije",
+  "auctionDuration": "Trajanje licitacije",
+  "weight": "Težina",
+  "length": "Dužina",
+  "width": "Širina",
+  "height": "Visina",
+  "numberOfPallets": "Broj paleta",
+  "loadingMethod": "Način utovara",
+  "loadingLocationType": "Tip lokacije utovara",
+  "unloadingLocationType": "Tip lokacije istovara",
+  "loadingFloor": "Kat utovara",
+  "unloadingFloor": "Kat istovara",
+  "loadingLift": "Lift na utovaru",
+  "unloadingLift": "Lift na istovaru",
+  "yes": "Da",
+  "no": "Ne",
+  "driverHelpNeeded": "Treba pomoć vozača",
+  "truckAccess": "Prilaz za tegljač",
+  "acceptedPrice": "Prihvaćena cijena",
+  "commission": "Provizija",
+  "numberOfOffers": "Broj ponuda",
+  "listingViews": "Pregledi objave",
+  "contactPhone": "Kontakt telefon",
+  "callSender": "Nazovi naručitelja",
+  "sendOffer": "Pošalji ponudu",
+  "teretDelivered": "TeReT isporučen",
+  "thankYouForRating": "Hvala na vašoj ocjeni.",
+  "ratingBuildsTrust": "Ocjena doprinosi pouzdanosti platforme.",
+  "otherCarrierSelectedForShipment": "Odabran je drugi prijevoznik za ovaj teret.",
+  "offersNoLongerAllowed": "Na ovaj teret više nije moguće slati ponude.",
+  "shipmentDetails": "Detalji tereta",
+  "refresh": "Osvježi",
+  "house": "Kuća",
+  "building": "Zgrada",
+  "warehouse": "Skladište",
+  "productionFacility": "Proizvodni pogon",
+  "constructionSite": "Gradilište",
+  "businessPremises": "Poslovni prostor",
+  "byAgreement": "Po dogovoru",
+  "ratingSummary": "⭐ {rating} ({count} ocjena)",
+  "@ratingSummary": {
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "alreadyRated": "Već ste ocijenili {user}.",
+  "@alreadyRated": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "rateUser": "Ocijeni {user}",
+  "@rateUser": {
+    "placeholders": {
+      "user": {
+        "type": "String"
+      }
+    }
+  },
+  "agreedTransportPrice": "Dogovorena cijena prijevoza: {amount}",
+  "@agreedTransportPrice": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "feeAmount": "Iznos naknade: {amount}",
+  "@feeAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "timeRemaining": "Još {hours}h {minutes}min",
+  "@timeRemaining": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "statusLabel": "Status: {status}",
+  "@statusLabel": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+      }
+      },
+
+        "sessionExpiredLoginAgain": "Sesija je istekla. Prijavite se ponovno.",
+        "errorLoadingOffers": "Greška kod učitavanja ponuda.",
+        "acceptOfferConfirmationText": "Prihvatom ove ponude zaključuješ dogovor i odabireš ovog prijevoznika.",
+        "acceptOffer": "Prihvati ponudu",
+        "invalidOfferId": "Neispravan ID ponude.",
+        "offerAcceptedSuccessfully": "Ponuda je uspješno prihvaćena.",
+        "acceptOfferFailed": "Prihvat ponude nije uspio.",
+        "accepted": "Prihvaćena",
+        "outbid": "Nadmašena",
+        "rejected": "Odbijena",
+        "pending": "Na čekanju",
+        "activeFeminine": "Aktivna",
+        "carrier": "Prijevoznik",
+        "carrierUppercase": "PRIJEVOZNIK",
+        "carrierIdNotFound": "Nije pronađen ID prijevoznika za ovu ponudu.",
+        "offerWithPrice": "Ponuda: {price}",
+        "@offerWithPrice": {
+          "placeholders": {
+            "price": {
+              "type": "String"
+            }
+          }
+        },
+        "thisOfferAccepted": "Ova ponuda je prihvaćena",
+        "thisOfferOutbid": "Ova ponuda je nadmašena",
+        "shipmentOffers": "Ponude za teret",
+        "logout": "Odjava",
+        "noOffersForShipment": "Za ovaj teret još nema ponuda.",
+        "offerAlreadyAcceptedShipmentClosed": "Jedna ponuda je već prihvaćena i teret je zaključen.",
+        "bidHistoryNotLoggedIn": "Niste prijavljeni. Prijavite se ponovno.",
+        "bidHistorySessionExpired": "Sesija je istekla. Prijavite se ponovno.",
+        "bidHistoryFetchError": "Došlo je do pogreške pri dohvaćanju tijeka licitacije.",
+        "bidHistoryConnectionError": "Došlo je do pogreške. Provjerite vezu s backendom.",
+        "bidHistoryStatusActive": "Aktivan",
+        "bidHistoryStatusAccepted": "Prihvaćena ponuda",
+        "bidHistoryStatusCompleted": "Završeno",
+        "bidHistoryYourOffer": "Vaša ponuda",
+        "bidHistoryCarrier": "Prijevoznik",
+        "bidHistoryRatings": "⭐ {averageRating} ({ratingsCount} ocjena)",
+        "@bidHistoryRatings": {
+          "placeholders": {
+            "averageRating": {
+              "type": "String"
+            },
+            "ratingsCount": {
+              "type": "String"
+            }
+          }
+        },
+        "bidHistorySummary": "Sažetak licitacije",
+        "bidHistoryCurrentLowestOffer": "Trenutna najniža ponuda",
+        "bidHistoryOffersCount": "Broj ponuda",
+        "bidHistoryShipmentStatus": "Status tereta",
+        "bidHistoryBadgeAccepted": "PRIHVAĆENO",
+        "bidHistoryBadgeRejected": "ODBIJENO",
+        "bidHistoryBadgeLowest": "NAJNIŽA",
+        "bidHistoryBadgeYours": "VAŠA",
+        "bidHistoryNoOffers": "Još nema ponuda za ovaj teret.",
+        "bidHistoryAuctionProgress": "Tijek licitacije",
+        "bidHistoryRefresh": "Osvježi",
+        "bidHistoryStatusAuctionFinished": "Licitacija završena",
+        "acceptOffer": "Prihvati ponudu",
+        "acceptOfferConfirmation": "Jeste li sigurni da želite prihvatiti ovu ponudu?",
+        "acceptOfferButton": "PRIHVATI PONUDU",
+        "acceptOfferWarning": "Nakon prihvaćanja ponude teret će biti dodijeljen ovom prijevozniku i ostale ponude će biti zatvorene.",
+        "offer": "Ponuda",
+        "carrier": "Prijevoznik",
+        "offerTime": "Vrijeme ponude",
+        "note": "Napomena",
+        "notSpecified": "Nije navedeno",
+        "offerAcceptError": "Greška kod prihvaćanja ponude",
+        "generalError": "Greška: {error}",
+        "@generalError": {
+          "placeholders": {
+            "error": {
+              "type": "String"
+            }
+          }
+        },
+        "offerDateTime": "{day}.{month}.{year} u {hour}:{minute}",
+        "@offerDateTime": {
+          "placeholders": {
+            "day": {
+              "type": "String"
+            },
+            "month": {
+              "type": "String"
+            },
+            "year": {
+              "type": "String"
+            },
+            "hour": {
+              "type": "String"
+            },
+            "minute": {
+              "type": "String"
+            }
+          }
+        },
+        "yes": "Da",
+        "no": "Ne",
+        "hoursShort": "sata",
+          "assignedShipmentTitle": "Dodijeljeni teret",
+          "assignedSessionExpired": "Sesija je istekla. Prijavite se ponovno.",
+          "assignedShipmentLoadError": "Greška kod učitavanja tereta.",
+          "assignedErrorPrefix": "Greška",
+          "assignedAreYouSure": "Jesi li siguran?",
+          "assignedDeliveryConfirmationText": "Potvrdom označavaš da je prijevoz obavljen.",
+          "assignedCancel": "Odustani",
+          "assignedTransportCompleted": "Prijevoz obavljen",
+          "assignedMarkedAsCompleted": "Prijevoz je označen kao obavljen.",
+          "assignedServerConnectionError": "Greška konekcije sa serverom.",
+          "assignedNotSpecified": "Nije navedeno",
+          "assignedYes": "Da",
+          "assignedNo": "Ne",
+          "assignedCarrier": "Prijevoznik",
+          "assignedManual": "Ručno",
+          "assignedMachine": "Strojno",
+          "assignedHouse": "Kuća",
+          "assignedBuilding": "Zgrada",
+          "assignedWarehouse": "Skladište",
+          "assignedProductionFacility": "Proizvodni pogon",
+          "assignedConstructionSite": "Gradilište",
+          "assignedBusinessPremises": "Poslovni prostor",
+          "assignedConfirming": "Potvrđujem...",
+          "assignedTryAgain": "Pokušaj ponovno",
+          "assignedGoToLogin": "Idi na prijavu",
+          "assignedShipmentNotFound": "Teret nije pronađen.",
+          "assignedShipmentAssigned": "Teret je dodijeljen",
+          "assignedCarrierDetails": "Podaci o prijevozniku",
+          "assignedEmail": "Email",
+          "assignedPhone": "Telefon",
+          "assignedAcceptedPrice": "Prihvaćena cijena",
+          "assignedStatus": "Status",
+          "assignedPhoneNotAvailable": "Telefon još nije dostupan",
+          "assignedCarrierDetailsUnavailable": "Ponuda je prihvaćena, ali detalji prijevoznika trenutno nisu dostupni.",
+          "assignedBasicShipmentDetails": "Osnovni podaci o teretu",
+          "assignedShipmentName": "Naziv tereta",
+          "assignedDescription": "Opis",
+          "assignedLoadingDate": "Datum utovara",
+          "assignedLoadingPlace": "Mjesto utovara",
+          "assignedLoadingAddress": "Adresa utovara",
+          "assignedUnloadingPlace": "Mjesto istovara",
+          "assignedUnloadingAddress": "Adresa istovara",
+          "assignedDimensionsAndLogistics": "Dimenzije i logistika",
+          "assignedWeight": "Težina (kg/lb)",
+          "assignedLength": "Dužina (cm/in)",
+          "assignedWidth": "Širina (cm/in)",
+          "assignedHeight": "Visina (cm/in)",
+          "assignedLoadingMethod": "Način utovara",
+          "assignedTruckAccess": "Prilaz za tegljač",
+          "assignedLoadingLocationType": "Tip lokacije utovara",
+          "assignedLoadingFloor": "Kat utovara",
+          "assignedLoadingElevator": "Lift na utovaru",
+          "assignedDriverHelp": "Treba li pomoć vozača",
+          "assignedCustoms": "Carina",
+          "assignedShipmentImages": "Slike tereta",
+           "availableNotLoggedIn": "Niste prijavljeni. Prijavite se ponovno.",
+            "availableFetchError": "Greška kod dohvaćanja tereta.",
+            "availableServerConnectionError": "Greška veze sa serverom",
+            "availableShipmentFallback": "Teret",
+            "availableNew": "Novo",
+            "availableClosed": "Zatvoreno",
+            "availableWeight": "Težina",
+            "availablePallets": "Palete",
+            "availableLoadingDeadline": "Rok utovara",
+            "availableOpenDetails": "Otvori detalje",
+            "availableNoShipments": "Trenutno nema dostupnih tereta.",
+            "availableNewShipmentsAppearHere": "Kad se objave novi tereti, prikazat će se ovdje.",
+            "availableShipmentsTitle": "Dostupni tereti",
+            "availableActiveListings": "{count} aktivnih objava",
+            "@availableActiveListings": {
+            "placeholders": {
+              "count": {
+                "type": "int"
+              }
+            }
+          },
+            "availableOpenAndSendOffer": "Otvorite teret i pošaljite svoju ponudu.",
+            "availableMyOffers": "Moje ponude",
+            "availableLogout": "Odjava",
+            "shipmentListTitle": "Lista tereta",
+            "shipmentFetchError": "Greška pri dohvaćanju tereta.",
+            "serverConnectionError": "Greška konekcije sa serverom.",
+            "auctionFinished": "Licitacija završena",
+            "auctionEndsInHours": "Još {hours}h {minutes}min do isteka licitacije",
+            "@auctionEndsInHours": {
+              "placeholders": {
+                "hours": {
+                  "type": "int"
+                },
+                "minutes": {
+                  "type": "int"
+                }
+              }
+            },
+            "auctionEndsInMinutes": "Još {minutes}min do isteka licitacije",
+            "@auctionEndsInMinutes": {
+              "placeholders": {
+                "minutes": {
+                  "type": "int"
+                }
+              }
+            },
+            "auctionDurationHours": "{hours, plural, =1{1 sat} other{{hours} sata}}",
+            "@auctionDurationHours": {
+              "placeholders": {
+                "hours": {
+                  "type": "int"
+                }
+              }
+            },
+            "machineLoadingUppercase": "STROJNO",
+            "manualLoadingUppercase": "RUČNO",
+            "newUppercase": "NOVO",
+            "acceptedUppercase": "PRIHVAĆENO",
+            "finishedUppercase": "ZAVRŠENA",
+            "activeUppercase": "AKTIVAN",
+            "auctionDurationBadge": "Licitacija {duration}",
+            "@auctionDurationBadge": {
+              "placeholders": {
+                "duration": {
+                  "type": "String"
+                }
+              }
+            },
+            "offersCount": "{count, plural, =0{0 ponuda} =1{1 ponuda} other{{count} ponuda}}",
+            "@offersCount": {
+              "placeholders": {
+                "count": {
+                  "type": "int"
+                }
+              }
+            },
+            "cargo": "Teret",
+            "sender": "Naručitelj",
+            "approximateWeight": "cca {weight} kg",
+            "@approximateWeight": {
+              "placeholders": {
+                "weight": {
+                  "type": "String"
+                }
+              }
+            },
+            "publishedDate": "Objavljeno {date}",
+            "@publishedDate": {
+              "placeholders": {
+                "date": {
+                  "type": "String"
+                }
+              }
+            },
+            "acceptedOfferPrice": "Prihvaćena ponuda: {price}",
+            "@acceptedOfferPrice": {
+              "placeholders": {
+                "price": {
+                  "type": "String"
+                }
+              }
+            },
+            "currentLowestOfferPrice": "Trenutna najniža ponuda: {price}",
+            "@currentLowestOfferPrice": {
+              "placeholders": {
+                "price": {
+                  "type": "String"
+                }
+              }
+            },
+            "viewDetails": "Pogledaj detalje",
+            "noShipmentsAvailable": "Trenutno nema dostupnih tereta.",
+            "newShipmentsWillAppear": "Novi tereti pojavit će se ovdje čim ih naručitelji objave.",
+            "notificationsTitle": "Obavijesti",
+            "refresh": "Osvježi",
+            "manageNotifications": "Upravljanje obavijestima",
+            "notificationsFetchError": "Greška pri dohvaćanju obavijesti.",
+            "deleteReadNotificationsTitle": "Obrisati pročitane obavijesti?",
+            "deleteReadNotificationsMessage": "Sve pročitane obavijesti bit će uklonjene iz prikaza.",
+            "deleteAllNotificationsTitle": "Obrisati sve obavijesti?",
+            "deleteAllNotificationsMessage": "Sve obavijesti bit će uklonjene iz prikaza.",
+            "readNotificationsDeleted": "Pročitane obavijesti su obrisane.",
+            "allNotificationsDeleted": "Sve obavijesti su obrisane.",
+            "deletionFailed": "Brisanje nije uspjelo.",
+            "delete": "Obriši",
+            "notificationNewShipment": "Novi teret",
+            "notificationNewOffer": "Nova ponuda",
+            "notificationUpdatedOffer": "Ažurirana ponuda",
+            "notificationOfferOutbid": "Ponuda više nije najniža",
+            "notificationJobWon": "🏆 Dobili ste posao",
+            "notificationAuctionFinished": "Licitacija je završena",
+            "notificationJobWonCelebration": "🎉 Dobili ste posao",
+            "notificationConnected": "🤝 TeReT vas je povezao",
+            "notificationDeliveryConfirmed": "✅ Prijevoz potvrđen",
+            "notification": "Obavijest",
+            "justNow": "Upravo sada",
+            "minutesAgo": "Prije {minutes} min",
+            "@minutesAgo": {
+              "placeholders": {
+                "minutes": {
+                  "type": "int"
+                }
+              }
+            },
+            "hoursAgo": "Prije {hours} h",
+            "@hoursAgo": {
+              "placeholders": {
+                "hours": {
+                  "type": "int"
+                }
+              }
+            },
+            "notificationDeletionFailed": "Brisanje obavijesti nije uspjelo.",
+            "notificationDeleted": "Obavijest je obrisana.",
+            "noNotifications": "Nema obavijesti",
+            "notificationsEmptyDescription": "Nove ponude, prihvati i promjene prikazat će se ovdje.",
+            "deleteReadNotifications": "Obriši pročitane",
+            "deleteAllNotifications": "Obriši sve obavijesti",
+            "notificationNewShipmentMessage": "Objavljen je novi teret: {route}",
+            "@notificationNewShipmentMessage": {
+              "placeholders": {
+                "route": {
+                  "type": "String"
+                }
+              }
+            },
+            "notificationNewShipmentMessageWithoutRoute": "Objavljen je novi teret.",
+            "notificationNewOfferMessage": "Primili ste novu ponudu za svoj teret.",
+            "notificationUpdatedOfferMessage": "Prijevoznik je ažurirao svoju ponudu.",
+            "notificationOfferOutbidMessage": "Vaša ponuda više nije najniža. Pošaljite novu ponudu kako biste ostali konkurentni.",
+            "notificationOfferAcceptedMessage": "Vaša ponuda je prihvaćena. Otvorite detalje tereta za nastavak.",
+            "notificationOfferRejectedMessage": "Drugi prijevoznik je odabran za ovaj prijevoz.",
+            "notificationContactUnlockedMessage": "Kontakt podaci su otključani. Otvorite detalje tereta.",
+            "notificationCarrierConnectedMessage": "TeReT vas je povezao s odabranim prijevoznikom.",
+            "notificationDeliveryConfirmedMessage": "Naručitelj je potvrdio završetak prijevoza.",
+            "deliveryConfirmationTitle": "Potvrda dostave",
+            "sessionExpiredLoginAgain": "Sesija je istekla. Prijavite se ponovno.",
+            "shipmentLoadingError": "Greška kod učitavanja tereta.",
+            "notSpecified": "Nije navedeno",
+            "carrier": "Prijevoznik",
+            "deliveryConfirmedSuccessfully": "Dostava je uspješno potvrđena.",
+            "deliveryConfirmationError": "Greška kod potvrde dostave.",
+            "confirmDeliveryDialogTitle": "Potvrda dostave",
+            "confirmDeliveryDialogMessage": "Jeste li sigurni da je teret uspješno dostavljen na odredište?",
+            "yes": "Da",
+            "no": "Ne",
+            "shipmentData": "Podaci o teretu",
+            "shipmentName": "Naziv tereta",
+            "loadingDate": "Datum utovara",
+            "loadingPlace": "Mjesto utovara",
+            "unloadingPlace": "Mjesto istovara",
+            "assignedCarrier": "Dodijeljeni prijevoznik",
+            "email": "Email",
+            "phone": "Telefon",
+            "phoneNotAvailable": "Telefon nije dostupan",
+            "agreedPrice": "Dogovorena cijena",
+            "transportStatus": "Status prijevoza",
+            "deliveryConfirmed": "Dostava je potvrđena",
+            "shipmentInTransit": "Teret u prijevozu",
+            "waitingDeliveryConfirmation": "Čeka se potvrda dostave od naručitelja",
+            "transportCompletedMessage": "Prijevoz je završen i potvrđen. Sljedeći korak može biti ocjenjivanje prijevoznika.",
+            "confirmDeliveryInfo": "Ako je teret stigao na odredište, kliknite na potvrdu dostave. Time se posao označava kao završen.",
+            "confirmDeliveryButton": "POTVRDI DOSTAVU",
+            "confirming": "Potvrđujem...",
+            "goToMyShipments": "IDI NA MOJE TERETE",
+            "tryAgain": "Pokušaj ponovno",
+            "goToLogin": "Idi na prijavu",
+            "shipmentNotFound": "Teret nije pronađen.",
+            "myOffersTitle": "Moje ponude",
+            "myOffersRefresh": "Osvježi",
+            "myOffersNotLoggedIn": "Niste prijavljeni. Prijavite se ponovno.",
+            "myOffersSessionExpired": "Sesija je istekla. Prijavite se ponovno.",
+            "myOffersFetchError": "Greška pri dohvaćanju mojih ponuda.",
+            "myOffersConnectionError": "Greška konekcije sa serverom.",
+            "myOffersRemoveFromHistoryTitle": "Ukloniti iz povijesti?",
+            "myOffersRemoveFromHistoryMessage": "Ponuda će nestati iz vašeg popisa, ali neće biti trajno obrisana iz sustava.",
+            "myOffersCancel": "Odustani",
+            "myOffersRemove": "Ukloni",
+            "myOffersRemovedFromHistory": "Ponuda je uklonjena iz povijesti.",
+            "myOffersRemoveFailed": "Uklanjanje nije uspjelo.",
+            "myOffersStatusFinished": "Završeno",
+            "myOffersStatusAccepted": "Prihvaćena",
+            "myOffersStatusLowest": "Najniža",
+            "myOffersStatusOutbid": "Nadmašena",
+            "myOffersShipmentPrefix": "Teret",
+            "myOffersShipmentActive": "Aktivan",
+            "myOffersShipmentOfferAccepted": "Ponuda prihvaćena",
+            "myOffersShipmentUsersConnected": "Korisnici povezani",
+            "myOffersShipmentAuctionEnded": "Licitacija završena",
+            "myOffersDefaultShipmentName": "Teret",
+            "myOffersMyOffer": "Moja ponuda",
+            "myOffersOffersCount": "Broj ponuda",
+            "myOffersLoading": "Utovar",
+            "myOffersByAgreement": "Po dogovoru",
+            "myOffersWeight": "Težina",
+            "myOffersMyMessage": "Moja poruka",
+            "myOffersAcceptedUnlockContact": "🔒 Ponuda je prihvaćena. Otvori detalje tereta i otključaj kontakt.",
+            "myOffersContactUnlocked": "Kontakt otključan — možete započeti dogovor.",
+            "myOffersSendNewOffer": "Pošalji novu ponudu",
+            "myOffersOtherCarrierSelected": "Drugi prijevoznik je odabran za ovaj prijevoz.",
+            "myOffersRemoveFromHistory": "Ukloni iz povijesti",
+            "myOffersTryAgain": "Pokušaj ponovno",
+            "myOffersEmptyTitle": "Još niste poslali nijednu ponudu.",
+            "myOffersEmptyDescription": "Kad pošaljete ponudu za neki teret, ovdje će biti prikazane sve vaše ponude.",
+            "ratingScreenTitle": "Ocijeni prijevoz",
+            "ratingSelectBetweenOneAndFive": "Molimo odaberite ocjenu od 1 do 5.",
+            "ratingSubmittedSuccessfully": "Ocjena je uspješno poslana.",
+            "ratingSubmissionError": "Došlo je do greške kod slanja ocjene.",
+            "ratingServerConnectionError": "Greška spajanja na server.",
+            "ratingVeryPoor": "Vrlo loše",
+            "ratingPoor": "Loše",
+            "ratingGood": "Dobro",
+            "ratingVeryGood": "Vrlo dobro",
+            "ratingExcellent": "Odlično",
+            "ratingSelectRating": "Odaberite ocjenu",
+            "ratingDefaultUserLabel": "korisnika",
+            "ratingRateUserPrefix": "Ocijenite",
+            "ratingFeedbackHelpsOthers": "Vaša povratna informacija pomaže drugim korisnicima.",
+            "ratingCommentOptional": "Komentar (opcionalno)",
+            "ratingCommentHint": "Npr. sve uredno i na vrijeme...",
+            "ratingSubmitButton": "Pošalji ocjenu",
+            "aboutAppTitle": "Info",
+            "aboutAppDescription": "Digitalna platforma za objavu tereta, slanje ponuda i jednostavniji dogovor prijevoza.",
+            "aboutAppPurposeTitle": "Svrha aplikacije",
+            "aboutAppPurposeText": "TeReT povezuje naručitelje prijevoza i prijevoznike na jednom mjestu. Naručitelj objavljuje teret, a prijevoznici šalju svoje ponude.",
+            "aboutAppAuctionTitle": "Licitacija prijevoza",
+            "aboutAppAuctionText": "Prijevoznici mogu dati ponudu za objavljeni teret, a naručitelj bira ponudu koja mu najviše odgovara.",
+            "aboutAppContactProtectionTitle": "Zaštita kontakta",
+            "aboutAppContactProtectionText": "Kontakt podaci nisu javno dostupni. Broj telefona i puni podaci prikazuju se tek nakon prihvaćanja ponude i otključavanja kontakta.",
+            "aboutAppPrivacyTitle": "Sigurnost i privatnost",
+            "aboutAppPrivacyText": "Aplikacija je napravljena tako da štiti podatke korisnika i prikazuje samo informacije potrebne za dogovor prijevoza.",
+            "aboutAppSupportTitle": "Korisnička podrška",
+            "aboutAppSupportText": "Za pomoć, prijavu problema ili pitanja možete kontaktirati podršku na: teretmegs@gmail.com",
+            "aboutAppVersionTitle": "Verzija aplikacije",
+            "aboutAppVersionText": "MVP verzija 1.0.0",
+            "legalSettingsTitle": "Postavke i informacije",
+            "legalSettingsTermsTitle": "Uvjeti korištenja",
+            "legalSettingsTermsSubtitle": "Pravila korištenja platforme TeReT",
+            "legalSettingsPrivacyTitle": "Pravila privatnosti",
+            "legalSettingsPrivacySubtitle": "Zaštita i obrada podataka korisnika",
+            "legalSettingsContactTitle": "Kontakt",
+            "legalSettingsContactSubtitle": "Kontakt informacije i podrška",
+            "legalSettingsAboutTitle": "O aplikaciji",
+            "legalSettingsAboutSubtitle": "Informacije o TeReT aplikaciji",
+            "termsTitle": "Uvjeti korištenja",
+            "termsGeneralTitle": "1. Opće odredbe",
+            "termsGeneralText": "TeReT je digitalna platforma koja povezuje naručitelje prijevoza i prijevoznike. TeReT ne sudjeluje u organizaciji niti izvršenju prijevoza, već omogućuje korisnicima međusobno povezivanje i dogovor.",
+            "termsPlatformRoleTitle": "2. Uloga platforme",
+            "termsPlatformRoleText": "TeReT nije prijevoznik niti špediter. TeReT ne djeluje kao ugovorna strana u prijevozu te ne preuzima odgovornost za izvršenje prijevoza, kašnjenja, otkazivanja, štetu na robi ili netočne podatke korisnika niti sporove između korisnika. Svi dogovori o prijevozu sklapaju se isključivo između naručitelja i prijevoznika.",
+            "termsFeeTitle": "3. Naknada za korištenje platforme",
+            "termsFeeText": "Platforma TeReT potpuno je besplatna za korištenje i nema nikakve članarine ni kotizacije. Naknada se plaća isključivo po zaključenom poslu, odnosno kada naručitelj prihvati ponudu prijevoznika. Iznosi 5% od dogovorene cijene prijevoza, a za dogovorene prijevoze u vrijednosti do 100,00 € minimalna naknada iznosi 5,00 €.",
+            "termsUnlockContactTitle": "4. Otključavanje kontakt podataka",
+            "termsUnlockContactText": "Kontakt podaci naručitelja i prijevoznika dostupni su tek nakon uspješne naplate naknade putem Stripe sustava. Nakon otključavanja kontakt podataka smatra se da je usluga platforme izvršena.",
+            "termsRefundTitle": "5. Povrat naknade",
+            "termsRefundText": "Nakon otključavanja kontakt podataka plaćena naknada se ne vraća. Naknada se odnosi na uslugu povezivanja korisnika putem platforme TeReT, neovisno o tome je li prijevoz kasnije realiziran.",
+            "termsCancellationTitle": "6. Otkazivanje prijevoza",
+            "termsCancellationText": "U slučaju otkazivanja prijevoza od strane naručitelja ili prijevoznika, TeReT ne snosi nikakvu odgovornost za posljedice otkazivanja. Korisnici su sami odgovorni za međusobne dogovore, troškove, štetu, kašnjenja ili druge posljedice koje mogu nastati zbog otkazivanja. Ako je naknada za korištenje platforme već plaćena i kontakt podaci su otključani, naknada se ne vraća jer se smatra da je usluga povezivanja putem platforme izvršena.",
+            "termsTransportResponsibilityTitle": "7. Odgovornost za prijevoz",
+            "termsTransportResponsibilityText": "Za izvršenje prijevoza, stanje robe, vrijeme isporuke i sve ostale detalje odgovorni su isključivo naručitelj i prijevoznik. TeReT ne sudjeluje u prijevozu niti preuzima odgovornost za eventualnu štetu.",
+            "privacyTitle": "Pravila privatnosti",
+            "privacySection1Title": "1. Prikupljanje podataka",
+            "privacySection1Text": "TeReT prikuplja osnovne podatke korisnika potrebne za korištenje platforme, uključujući ime i prezime, broj telefona, email adresu te podatke o prijevozu i objavljenim teretima.",
+            "privacySection2Title": "2. Korištenje podataka",
+            "privacySection2Text": "Prikupljeni podaci koriste se isključivo za omogućavanje komunikacije između naručitelja prijevoza i prijevoznika te za funkcioniranje platforme.",
+            "privacySection3Title": "3. Dijeljenje podataka",
+            "privacySection3Text": "Kontakt podaci korisnika nisu javno dostupni. Podaci se otključavaju tek nakon prihvaćanja ponude i uspješne naplate platforme.",
+            "privacySection4Title": "4. Sigurnost podataka",
+            "privacySection4Text": "TeReT poduzima razumne tehničke i organizacijske mjere kako bi zaštitio korisničke podatke od neovlaštenog pristupa, gubitka ili zlouporabe.",
+            "privacySection5Title": "5. Email verifikacija",
+            "privacySection5Text": "Radi sigurnosti i zaštite korisnika, TeReT koristi verifikaciju email adrese prilikom registracije računa.",
+            "privacySection6Title": "6. Kolačići i tehnički podaci",
+            "privacySection6Text": "Aplikacija može prikupljati tehničke podatke potrebne za rad sustava, sigurnost i poboljšanje korisničkog iskustva.",
+            "privacySection7Title": "7. Prava korisnika",
+            "privacySection7Text": "Korisnici imaju pravo zatražiti izmjenu ili brisanje svojih podataka u skladu s važećim zakonima i pravilima zaštite privatnosti.",
+            "privacySection8Title": "8. Kontakt",
+            "privacySection8Text": "Za sva pitanja vezana uz privatnost i zaštitu podataka korisnici se mogu obratiti putem kontakt opcije unutar aplikacije.",
+            "contactSupportTitle": "Korisnička podrška",
+            "contactSupportHeading": "Kontakt i podrška",
+            "contactSupportDescription": "Za pitanja, probleme s računom ili prijavu poteškoća u radu aplikacije možete se obratiti podršci.",
+            "contactSupportEmailTitle": "Email podrška",
+            "contactSupportResponseTimeTitle": "Vrijeme odgovora",
+            "contactSupportResponseTimeText": "Na upite odgovaramo u najkraćem mogućem roku.",
+            "contactSupportMessageInfoTitle": "Što navesti u poruci",
+            "contactSupportMessageInfoText": "Kod prijave problema navedite email računa, opis problema i po mogućnosti screenshot greške.",
+            "contactSupportEmailSubject": "Podrška - TeReT",
+            "sendOffer": "Pošalji ponudu",
+            "newOffer": "Nova ponuda",
+            "enterRequestedTransportPrice": "Unesite cijenu koju tražite za prijevoz.",
+            "noCurrentOfferForAutomaticReduction": "Nema trenutne ponude za automatsko sniženje.",
+            "offerAmountMustBeGreaterThanZero": "Iznos ponude mora biti veći od 0.",
+            "noLowestOfferForShipment": "Još nema najniže ponude za ovaj teret.",
+            "notLoggedInLoginAgain": "Niste prijavljeni. Prijavite se ponovno.",
+            "enterValidOfferAmount": "Unesite ispravan iznos ponude.",
+            "offerSuccessfullySent": "Ponuda je uspješno poslana.",
+            "sessionExpiredLoginAgain": "Sesija je istekla. Prijavite se ponovno.",
+            "errorSendingOffer": "Greška pri slanju ponude.",
+            "serverConnectionError": "Greška povezivanja sa serverom.",
+            "loadingCurrentLowestOffer": "Učitavam trenutnu najnižu ponudu...",
+            "noOffersForShipmentYet": "Još nema ponuda za ovaj teret.",
+            "currentLowestOfferUnavailable": "Trenutna najniža ponuda: -",
+            "currentLowestOffer": "Trenutna najniža ponuda: {amount}",
+            "@currentLowestOffer": {
+              "placeholders": {
+                "amount": {
+                  "type": "String"
+                }
+              }
+            },
+            "yourOfferNotSubmitted": "Vaša ponuda: još niste poslali ponudu",
+            "yourOffer": "Vaša ponuda: {amount}",
+            "@yourOffer": {
+              "placeholders": {
+                "amount": {
+                  "type": "String"
+                }
+              }
+            },
+            "yourOfferIsCurrentlyLowest": "Vaša ponuda je trenutno najniža.",
+            "newOfferMinimumLower": "Nova ponuda mora biti niža barem 5 {currency} od trenutne najniže ponude.",
+            "@newOfferMinimumLower": {
+              "placeholders": {
+                "currency": {
+                  "type": "String"
+                }
+              }
+            },
+            "offerBindingNotice": "Napomena: slanjem ponude obvezujete se na izvršenje prijevoza ako naručitelj prihvati vašu ponudu.",
+            "currency": "Valuta",
+            "euroCurrency": "Euro (€)",
+            "usDollarCurrency": "Američki dolar ($)",
+            "britishPoundCurrency": "Britanska funta (£)",
+            "canadianDollarCurrency": "Kanadski dolar (C$)",
+            "australianDollarCurrency": "Australski dolar (A$)",
+            "offerAmount": "Iznos ponude ({currency})",
+            "@offerAmount": {
+              "placeholders": {
+                "currency": {
+                  "type": "String"
+                }
+              }
+            },
+            "enterAmount": "Unesite iznos",
+            "enterOfferAmount": "Unesite iznos ponude",
+            "enterValidNumber": "Unesite ispravan broj",
+            "amountMustBeGreaterThanZero": "Iznos mora biti veći od 0",
+            "offerMustBeLowerThanCurrentLowest": "Ponuda mora biti niža od trenutne najniže ponude",
+            "minimumOfferReduction": "Minimalno sniženje ponude je 5 {currency}",
+            "@minimumOfferReduction": {
+              "placeholders": {
+                "currency": {
+                  "type": "String"
+                }
+              }
+            },
+            "setAsLowestOffer": "Postavi kao najnižu",
+            "messageToCustomerOptional": "Poruka naručitelju (nije obavezno)",
+            "enterShortMessage": "Upišite kratku poruku...",
+            "nearLoadingLocationNotice": "Ako ste blizu mjesta utovara i teret možete preuzeti odmah, navedite to u poruci uz ponudu. Brz dolazak može biti presudan pri odabiru prijevoznika.",
+            "checkShipmentData": "Provjera podataka",
+            "checkShipmentDataMessage": "Molimo da prije objave tereta još jednom provjerite sve unesene podatke.\n\nNakon objave teret će biti vidljiv prijevoznicima i neće ga biti moguće uređivati.",
+            "shipmentPublishedSuccessMessage": "✅ Teret je uspješno objavljen.\n\nNe morate čekati završetak licitacije. Ponudu možete prihvatiti u bilo kojem trenutku čim pronađete prijevoznika koji vam odgovara.",
+            "enableNotifications": "Omogućite obavijesti",
+            "notificationPermissionMainMessage": "🔔 Kako bi TeReT ispravno funkcionirao, obavezno omogućite obavijesti u postavkama svog mobitela.",
+            "notificationPermissionDetails": "Tako ćete na vrijeme primati nove ponude, obavijesti o licitacijama i druge važne informacije.",
+            "notificationPermissionStillDisabled": "Obavijesti još nisu omogućene. Pritisnite gumb ponovno kako biste otvorili postavke.",
+            "notificationSettingsCouldNotOpen": "Postavke nije bilo moguće otvoriti. Otvorite postavke mobitela i omogućite obavijesti za TeReT.",
+            "enableNotificationsInSettings": "Uključite obavijesti u postavkama",
+            "checkingNotifications": "Provjera obavijesti...",
+            "enableNotificationsButton": "Omogući obavijesti",
+            "returnAfterEnablingNotifications": "Nakon uključivanja obavijesti vratite se u TeReT. Aplikacija će automatski nastaviti."
+      }
+
+
+
+
+

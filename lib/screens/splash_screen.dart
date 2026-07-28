@@ -1,11 +1,11 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-
+import '../l10n/app_localizations.dart';
 import 'login_screen.dart';
 import 'sender_home_screen.dart';
 import 'transporter_home_screen.dart';
 import '../services/token_storage.dart';
-
+import 'notification_permission_screen.dart';
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -84,7 +84,9 @@ class _SplashScreenState extends State<SplashScreen>
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => const SenderHomeScreen(),
+            builder: (_) => NotificationPermissionScreen(
+              nextScreen: const LoginScreen(),
+            ),
           ),
         );
         return;
@@ -344,7 +346,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Radar prijevoza',
+                        AppLocalizations.of(context)!.splashTagline,
                       style: TextStyle(
                         color: const Color(0xFF8FEAFF).withValues(alpha: 0.95),
                         fontSize: 16,

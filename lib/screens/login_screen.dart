@@ -1,14 +1,16 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'dart:convert';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 import '../config.dart';
+import '../l10n/app_localizations.dart';
+import '../services/language_service.dart';
 import '../services/token_storage.dart';
+import 'odabir_uloge_screen.dart';
 import 'sender_home_screen.dart';
 import 'transporter_home_screen.dart';
-import 'odabir_uloge_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   final String? errorMessage;
@@ -23,18 +25,21 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   bool isLoading = false;
   bool obscurePassword = true;
+
   String serverMessage = '';
+  bool showResendVerificationButton = false;
 
   @override
   void initState() {
     super.initState();
+
     serverMessage = widget.errorMessage ?? '';
   }
 
@@ -46,9 +51,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   String _normalizeRole(dynamic value) {
-    final role = (value ?? '').toString().trim().toLowerCase();
+    final String role = (value ?? '').toString().trim().toLowerCase();
 
-    if (role == 'sender') return 'sender';
+    if (role == 'sender') {
+      return 'sender';
+    }
 
     if (role == 'carrier' || role == 'transporter') {
       return 'transporter';
@@ -58,20 +65,31 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> login() async {
-    if (!_formKey.currentState!.validate()) return;
+    final AppLocalizations t = AppLocalizations.of(context)!;
 
-    if (!mounted) return;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    FocusScope.of(context).unfocus();
+
+    if (!mounted) {
+      return;
+    }
 
     setState(() {
       isLoading = true;
       serverMessage = '';
+      showResendVerificationButton = false;
     });
 
     try {
-      final response = await http.post(
+      final http.Response response = await http.post(
         Uri.parse('${AppConfig.baseUrl}/login'),
         headers: {
           'Content-Type': 'application/json',
+          'Accept-Language':
+          LanguageService.currentLanguage.value,
         },
         body: jsonEncode({
           'email': emailController.text.trim(),
@@ -79,36 +97,80 @@ class _LoginScreenState extends State<LoginScreen> {
         }),
       );
 
-      final data = jsonDecode(response.body);
+      Map<String, dynamic> data = {};
+
+      try {
+        final dynamic decoded = jsonDecode(response.body);
+
+        if (decoded is Map<String, dynamic>) {
+          data = decoded;
+        }
+      } catch (_) {
+        data = {};
+      }
 
       if (response.statusCode == 200) {
-        final token = (data['token'] ?? '').toString();
+        final String token = (data['token'] ?? '').toString();
 
-        if (token.isNotEmpty) {
-          await TokenStorage.saveToken(token);
+        if (token.isEmpty) {
+          if (!mounted) {
+            return;
+          }
+
+          setState(() {
+            serverMessage = t.loginError;
+          });
+
+          return;
         }
 
-        final user = data['user'] ?? {};
-        final role = _normalizeRole(user['role']);
+        await TokenStorage.saveToken(token);
+
+        final dynamic user = data['user'] ?? {};
+        final String role = _normalizeRole(
+          user is Map ? user['role'] : null,
+        );
+
+        if (role.isEmpty) {
+          await TokenStorage.clearAll();
+
+          if (!mounted) {
+            return;
+          }
+
+          setState(() {
+            serverMessage = t.invalidUserRole;
+          });
+
+          return;
+        }
 
         await TokenStorage.saveRole(role);
 
-        final fcmToken = await FirebaseMessaging.instance.getToken();
+        try {
+          final String? fcmToken =
+          await FirebaseMessaging.instance.getToken();
 
-        if (fcmToken != null && fcmToken.isNotEmpty) {
-          await http.post(
-            Uri.parse('${AppConfig.baseUrl}/fcm-token'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer $token',
-            },
-            body: jsonEncode({
-              'fcmToken': fcmToken,
-            }),
-          );
+          if (fcmToken != null && fcmToken.isNotEmpty) {
+            await http.post(
+              Uri.parse('${AppConfig.baseUrl}/fcm-token'),
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer $token',
+              },
+              body: jsonEncode({
+                'fcmToken': fcmToken,
+                'language': LanguageService.currentLanguage.value,
+              }),
+            );
+          }
+        } catch (e) {
+          debugPrint('FCM TOKEN ERROR: $e');
         }
 
-        if (!mounted) return;
+        if (!mounted) {
+          return;
+        }
 
         if (role == 'sender') {
           Navigator.pushAndRemoveUntil(
@@ -130,32 +192,61 @@ class _LoginScreenState extends State<LoginScreen> {
       } else if (response.statusCode == 403) {
         await TokenStorage.clearAll();
 
-        if (!mounted) return;
+        if (!mounted) {
+          return;
+        }
 
         setState(() {
-          serverMessage = (
-              data['message'] ??
-                  'Račun nije potvrđen. Molimo potvrdite email adresu prije prijave.'
-          ).toString();
+          serverMessage = t.accountNotVerified;
+          showResendVerificationButton = true;
+        });
+      } else if (response.statusCode == 400) {
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          serverMessage = t.emailAndPasswordRequired;
+        });
+      } else if (response.statusCode == 401) {
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          serverMessage = t.invalidEmailOrPassword;
+        });
+      } else if (response.statusCode >= 500) {
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          serverMessage = t.serverError;
         });
       } else {
-        if (!mounted) return;
+        if (!mounted) {
+          return;
+        }
 
         setState(() {
-          serverMessage =
-              (data['message'] ?? 'Greška pri prijavi.').toString();
+          serverMessage = t.loginError;
         });
       }
     } catch (e) {
       debugPrint('LOGIN ERROR: $e');
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
-        serverMessage = 'Greška konekcije sa serverom.';
+        serverMessage = t.serverConnectionError;
       });
     } finally {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
         isLoading = false;
@@ -164,16 +255,17 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> resendVerificationEmail() async {
-    final email = emailController.text.trim();
+    final AppLocalizations t = AppLocalizations.of(context)!;
+    final String email = emailController.text.trim();
 
     if (email.isEmpty || !email.contains('@')) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Prvo unesite ispravnu email adresu.',
-          ),
+        SnackBar(
+          content: Text(t.enterValidEmailFirst),
         ),
       );
 
@@ -181,7 +273,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     try {
-      final response = await http.post(
+      final http.Response response = await http.post(
         Uri.parse(
           '${AppConfig.baseUrl}/resend-verification-email',
         ),
@@ -193,35 +285,44 @@ class _LoginScreenState extends State<LoginScreen> {
         }),
       );
 
-      final data = jsonDecode(response.body);
+      if (!mounted) {
+        return;
+      }
 
-      if (!mounted) return;
+      if (response.statusCode >= 200 &&
+          response.statusCode < 300) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(t.verificationEmailResent),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(t.verificationEmailSendError),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('RESEND VERIFICATION ERROR: $e');
+
+      if (!mounted) {
+        return;
+      }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            (
-                data['message'] ??
-                    'Email za potvrdu je ponovno poslan.'
-            ).toString(),
-          ),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Greška prilikom slanja emaila za potvrdu.',
-          ),
+          content: Text(t.verificationEmailSendError),
         ),
       );
     }
   }
 
   Future<void> showForgotPasswordDialog() async {
-    final forgotEmailController = TextEditingController(
+    final AppLocalizations t = AppLocalizations.of(context)!;
+
+    final TextEditingController forgotEmailController =
+    TextEditingController(
       text: emailController.text.trim(),
     );
 
@@ -231,22 +332,26 @@ class _LoginScreenState extends State<LoginScreen> {
 
     await showDialog<void>(
       context: context,
-      barrierDismissible: !isSending,
-      builder: (dialogContext) {
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
         return StatefulBuilder(
-          builder: (context, setDialogState) {
+          builder: (
+              BuildContext dialogBuilderContext,
+              void Function(void Function()) setDialogState,
+              ) {
             Future<void> sendResetRequest() async {
-              final email = forgotEmailController.text.trim();
+              final String email =
+              forgotEmailController.text.trim();
 
               if (email.isEmpty || !email.contains('@')) {
                 setDialogState(() {
-                  dialogMessage =
-                  'Unesite ispravnu email adresu.';
+                  dialogMessage = t.enterValidEmail;
                   requestSuccessful = false;
                 });
-
                 return;
               }
+
+              FocusManager.instance.primaryFocus?.unfocus();
 
               setDialogState(() {
                 isSending = true;
@@ -255,157 +360,142 @@ class _LoginScreenState extends State<LoginScreen> {
               });
 
               try {
-                final response = await http.post(
+                final http.Response response = await http.post(
                   Uri.parse(
                     '${AppConfig.baseUrl}/forgot-password',
                   ),
                   headers: {
                     'Content-Type': 'application/json',
+                    'Accept-Language':
+                    LanguageService.currentLanguage.value,
                   },
                   body: jsonEncode({
                     'email': email,
                   }),
                 );
 
-                Map<String, dynamic> data = {};
-
-                try {
-                  final decoded = jsonDecode(response.body);
-
-                  if (decoded is Map<String, dynamic>) {
-                    data = decoded;
-                  }
-                } catch (_) {
-                  data = {};
+                if (!dialogBuilderContext.mounted) {
+                  return;
                 }
-
-                if (!dialogContext.mounted) return;
 
                 if (response.statusCode >= 200 &&
                     response.statusCode < 300) {
                   setDialogState(() {
                     isSending = false;
                     requestSuccessful = true;
-                    dialogMessage = (
-                        data['message'] ??
-                            'Ako račun s tim emailom postoji, poslana je poveznica za promjenu lozinke.'
-                    ).toString();
+                    dialogMessage = t.passwordResetLinkSent;
                   });
                 } else {
                   setDialogState(() {
                     isSending = false;
                     requestSuccessful = false;
-                    dialogMessage = (
-                        data['message'] ??
-                            'Slanje poveznice nije uspjelo.'
-                    ).toString();
+                    dialogMessage =
+                        t.passwordResetLinkSendError;
                   });
                 }
               } catch (e) {
-                if (!dialogContext.mounted) return;
+                debugPrint('FORGOT PASSWORD ERROR: $e');
+
+                if (!dialogBuilderContext.mounted) {
+                  return;
+                }
 
                 setDialogState(() {
                   isSending = false;
                   requestSuccessful = false;
-                  dialogMessage =
-                  'Greška konekcije sa serverom.';
+                  dialogMessage = t.serverConnectionError;
                 });
               }
             }
 
-            return AlertDialog(
-              title: const Text(
-                'Zaboravljena lozinka',
-              ),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment:
-                  CrossAxisAlignment.stretch,
-                  children: [
-                    const Text(
-                      'Unesite email adresu povezanu s vašim računom. Poslat ćemo vam poveznicu za postavljanje nove lozinke.',
-                    ),
-                    const SizedBox(height: 16),
-                    TextField(
-                      controller: forgotEmailController,
-                      enabled: !isSending,
-                      keyboardType:
-                      TextInputType.emailAddress,
-                      textInputAction: TextInputAction.done,
-                      autofocus: true,
-                      decoration: buildInputDecoration(
-                        'Email',
+            return PopScope(
+              canPop: !isSending,
+              child: AlertDialog(
+                title: Text(t.forgotPasswordTitle),
+                content: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment:
+                    CrossAxisAlignment.stretch,
+                    children: [
+                      Text(t.forgotPasswordDescription),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: forgotEmailController,
+                        enabled: !isSending,
+                        keyboardType:
+                        TextInputType.emailAddress,
+                        textInputAction:
+                        TextInputAction.done,
+                        autofocus: true,
+                        decoration:
+                        buildInputDecoration(t.email),
+                        onSubmitted: (_) {
+                          if (!isSending) {
+                            sendResetRequest();
+                          }
+                        },
                       ),
-                      onSubmitted: (_) {
-                        if (!isSending) {
-                          sendResetRequest();
-                        }
-                      },
-                    ),
-                    if (dialogMessage.isNotEmpty) ...[
-                      const SizedBox(height: 14),
-                      Text(
-                        dialogMessage,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: requestSuccessful
-                              ? Colors.green.shade700
-                              : Colors.red,
-                          fontWeight: FontWeight.w600,
+                      if (dialogMessage.isNotEmpty) ...[
+                        const SizedBox(height: 14),
+                        Text(
+                          dialogMessage,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: requestSuccessful
+                                ? Colors.green.shade700
+                                : Colors.red,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
+                      ],
                     ],
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: isSending
-                      ? null
-                      : () async {
-                    FocusScope.of(dialogContext).unfocus();
-
-                    await Future.delayed(
-                      const Duration(milliseconds: 150),
-                    );
-
-                    if (dialogContext.mounted) {
-                      Navigator.pop(dialogContext);
-                    }
-                  },
-                  child: Text(
-                    requestSuccessful
-                        ? 'Zatvori'
-                        : 'Odustani',
                   ),
                 ),
-                if (!requestSuccessful)
-                  ElevatedButton(
-                    onPressed:
-                    isSending ? null : sendResetRequest,
-                    child: isSending
-                        ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child:
-                      CircularProgressIndicator(
-                        strokeWidth: 2.2,
-                        color: Colors.white,
-                      ),
-                    )
-                        : const Text(
-                      'Pošalji poveznicu',
+                actions: [
+                  TextButton(
+                    onPressed: isSending
+                        ? null
+                        : () {
+                      FocusManager
+                          .instance.primaryFocus
+                          ?.unfocus();
+                      Navigator.of(
+                        dialogBuilderContext,
+                      ).pop();
+                    },
+                    child: Text(
+                      requestSuccessful
+                          ? t.close
+                          : t.cancel,
                     ),
                   ),
-              ],
+                  if (!requestSuccessful)
+                    ElevatedButton(
+                      onPressed:
+                      isSending ? null : sendResetRequest,
+                      child: isSending
+                          ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.2,
+                          color: Colors.white,
+                        ),
+                      )
+                          : Text(t.sendResetLink),
+                    ),
+                ],
+              ),
             );
           },
         );
       },
     );
 
-
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      forgotEmailController.dispose();
+    });
   }
 
   InputDecoration buildInputDecoration(String label) {
@@ -423,9 +513,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bool showResendVerificationButton =
-        serverMessage == 'Račun nije potvrđen.' ||
-            serverMessage.contains('Račun nije potvrđen');
+    final AppLocalizations t = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
@@ -439,24 +527,52 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               child: Column(
                 children: [
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: DropdownButton<String>(
+                      value: LanguageService.language,
+                      underline: const SizedBox.shrink(),
+                      items: const [
+                        DropdownMenuItem(
+                          value: 'hr',
+                          child: Text('🇭🇷 Hrvatski'),
+                        ),
+                        DropdownMenuItem(
+                          value: 'en',
+                          child: Text('🇬🇧 English'),
+                        ),
+                      ],
+                      onChanged: isLoading
+                          ? null
+                          : (String? value) async {
+                        if (value == null) {
+                          return;
+                        }
+
+                        await LanguageService.setLanguage(
+                          value,
+                        );
+                      },
+                    ),
+                  ),
                   Image.asset(
                     'assets/logo_login3.png',
                     height: 180,
                   ),
                   const SizedBox(height: 10),
-                  const Text(
-                    'Dobro došli u TeReT',
+                  Text(
+                    t.welcomeToTeret,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Platforma za jednostavno povezivanje naručitelja i prijevoznika.',
+                    t.loginPlatformDescription,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 15,
                       color: Colors.grey,
                       fontWeight: FontWeight.w500,
@@ -466,8 +582,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Card(
                     elevation: 2,
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                      BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -478,34 +593,36 @@ class _LoginScreenState extends State<LoginScreen> {
                           CrossAxisAlignment.stretch,
                           children: [
                             const SizedBox(height: 8),
-                            const Text(
-                              'Prijava',
+                            Text(
+                              t.login,
                               textAlign: TextAlign.center,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 22,
-                                fontWeight:
-                                FontWeight.bold,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 20),
                             TextFormField(
                               controller: emailController,
+                              enabled: !isLoading,
                               keyboardType:
                               TextInputType.emailAddress,
                               textInputAction:
                               TextInputAction.next,
-                              decoration:
-                              buildInputDecoration(
-                                'Email',
+                              autofillHints: const [
+                                AutofillHints.email,
+                              ],
+                              decoration: buildInputDecoration(
+                                t.email,
                               ),
-                              validator: (value) {
+                              validator: (String? value) {
                                 if (value == null ||
                                     value.trim().isEmpty) {
-                                  return 'Unesite email';
+                                  return t.enterEmail;
                                 }
 
-                                if (!value.contains('@')) {
-                                  return 'Unesite ispravan email';
+                                if (!value.trim().contains('@')) {
+                                  return t.enterValidEmail;
                                 }
 
                                 return null;
@@ -513,22 +630,25 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             const SizedBox(height: 14),
                             TextFormField(
-                              controller:
-                              passwordController,
-                              obscureText:
-                              obscurePassword,
+                              controller: passwordController,
+                              enabled: !isLoading,
+                              obscureText: obscurePassword,
                               textInputAction:
                               TextInputAction.done,
-                              decoration:
-                              buildInputDecoration(
-                                'Lozinka',
+                              autofillHints: const [
+                                AutofillHints.password,
+                              ],
+                              decoration: buildInputDecoration(
+                                t.password,
                               ).copyWith(
                                 suffixIcon: IconButton(
+                                  tooltip: obscurePassword
+                                      ? t.showPassword
+                                      : t.hidePassword,
                                   icon: Icon(
                                     obscurePassword
                                         ? Icons.visibility
-                                        : Icons
-                                        .visibility_off,
+                                        : Icons.visibility_off,
                                   ),
                                   onPressed: () {
                                     setState(() {
@@ -538,10 +658,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                   },
                                 ),
                               ),
-                              validator: (value) {
+                              validator: (String? value) {
                                 if (value == null ||
                                     value.trim().isEmpty) {
-                                  return 'Unesite lozinku';
+                                  return t.enterPassword;
                                 }
 
                                 return null;
@@ -557,8 +677,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: isLoading
                                     ? null
                                     : showForgotPasswordDialog,
-                                child: const Text(
-                                  'Zaboravili ste lozinku?',
+                                child: Text(
+                                  t.forgotPasswordQuestion,
                                 ),
                               ),
                             ),
@@ -569,21 +689,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
                                   color: Colors.red,
-                                  fontWeight:
-                                  FontWeight.w600,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                               if (showResendVerificationButton) ...[
                                 const SizedBox(height: 8),
                                 TextButton.icon(
-                                  onPressed:
-                                  resendVerificationEmail,
+                                  onPressed: isLoading
+                                      ? null
+                                      : resendVerificationEmail,
                                   icon: const Icon(
-                                    Icons
-                                        .mark_email_read_outlined,
+                                    Icons.mark_email_read_outlined,
                                   ),
-                                  label: const Text(
-                                    'Pošalji ponovno email za potvrdu',
+                                  label: Text(
+                                    t.resendVerificationEmail,
                                   ),
                                 ),
                               ],
@@ -594,14 +713,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: ElevatedButton(
                                 onPressed:
                                 isLoading ? null : login,
-                                style:
-                                ElevatedButton.styleFrom(
-                                  shape:
-                                  RoundedRectangleBorder(
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
                                     borderRadius:
-                                    BorderRadius.circular(
-                                      12,
-                                    ),
+                                    BorderRadius.circular(12),
                                   ),
                                 ),
                                 child: isLoading
@@ -614,9 +729,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     color: Colors.white,
                                   ),
                                 )
-                                    : const Text(
-                                  'Prijavi se',
-                                  style: TextStyle(
+                                    : Text(
+                                  t.signIn,
+                                  style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight:
                                     FontWeight.bold,
@@ -637,8 +752,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 );
                               },
-                              child: const Text(
-                                'Nemaš račun? Registriraj se',
+                              child: Text(
+                                t.noAccountRegister,
                               ),
                             ),
                           ],

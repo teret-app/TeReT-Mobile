@@ -86,8 +86,8 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
   String? odabraniNacinUtovara;
   String? odabraniTipLokacijeUtovara;
   String? odabraniTipLokacijeIstovara;
-  String odabranaDrzavaUtovara = 'Hrvatska';
-  String odabranaDrzavaIstovara = 'Hrvatska';
+  late String odabranaDrzavaUtovara;
+  late String odabranaDrzavaIstovara;
   bool prilazZaTegljac = false;
   bool trebaPomocVozaca = false;
   bool liftNaUtovaru = false;
@@ -125,8 +125,15 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
   @override
   void initState() {
     super.initState();
+    final countries = countryOptionsForDevice();
+
+    odabranaDrzavaUtovara = countries.first.name;
+    odabranaDrzavaIstovara = countries.first.name;
+
+
     loadUnreadCount();
     checkNotificationPermission();
+
     notificationTimer = Timer.periodic(
       const Duration(seconds: 10),
           (_) => loadUnreadCount(),
@@ -304,7 +311,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
     return DropdownButtonFormField<String>(
       value: value,
       decoration: poljeDekoracija(label),
-      items: countryOptions.map((country) {
+      items: countryOptionsForDevice().map((country) {
         return DropdownMenuItem<String>(
           value: country.name,
           child: Text(
@@ -486,8 +493,8 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
           odabraniTipLokacijeUtovara = null;
           odabraniTipLokacijeIstovara = null;
 
-          odabranaDrzavaUtovara = 'Hrvatska';
-          odabranaDrzavaIstovara = 'Hrvatska';
+          late String odabranaDrzavaUtovara;
+          late String odabranaDrzavaIstovara;
 
           prilazZaTegljac = false;
           trebaPomocVozaca = false;

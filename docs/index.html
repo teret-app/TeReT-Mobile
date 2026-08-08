@@ -1,143 +1,756 @@
 <!DOCTYPE html>
 <html lang="hr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeReT - Brži put do prijevoza</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TeReT je platforma za obrnuto licitiranje prijevoza tereta koja povezuje naručitelje i prijevoznike.">
+  <title>TeReT - Brži put do prijevoza</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f7fb;
-            color: #222;
-        }
+  <style>
+    :root {
+      --primary: #0D47A1;
+      --primary-dark: #082d66;
+      --accent: #1e88e5;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #667085;
+      --border: #e5e7eb;
+      --success: #15803d;
+    }
 
-        header {
-            background: #0D47A1;
-            color: white;
-            text-align: center;
-            padding: 50px 20px;
-        }
+    * {
+      box-sizing: border-box;
+    }
 
-        header h1 {
-            margin: 0;
-            font-size: 48px;
-        }
+    html {
+      scroll-behavior: smooth;
+    }
 
-        header p {
-            font-size: 20px;
-            margin-top: 10px;
-        }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
 
-        section {
-            max-width: 1000px;
-            margin: auto;
-            padding: 40px 20px;
-        }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        }
+    .container {
+      width: min(1120px, calc(100% - 32px));
+      margin: auto;
+    }
 
-        h2 {
-            color: #0D47A1;
-        }
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.96);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
 
-        footer {
-            background: #0D47A1;
-            color: white;
-            text-align: center;
-            padding: 20px;
-        }
-    </style>
+    .nav-inner {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .brand img {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      object-fit: cover;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .lang-switch {
+      display: flex;
+      gap: 8px;
+    }
+
+    .lang-btn {
+      border: 1px solid var(--border);
+      background: white;
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .lang-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .hero {
+      background:
+        radial-gradient(circle at top right, rgba(30,136,229,0.25), transparent 35%),
+        linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: white;
+      padding: 88px 0 78px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      align-items: center;
+      gap: 50px;
+    }
+
+    .hero h1 {
+      font-size: clamp(42px, 7vw, 72px);
+      line-height: 1;
+      margin: 0 0 20px;
+    }
+
+    .hero h2 {
+      font-size: clamp(24px, 4vw, 34px);
+      margin: 0 0 20px;
+      font-weight: 700;
+    }
+
+    .hero p {
+      font-size: 18px;
+      max-width: 680px;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 30px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 22px;
+      border-radius: 12px;
+      font-weight: 800;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary {
+      background: white;
+      color: var(--primary);
+    }
+
+    .btn-secondary {
+      border: 1px solid rgba(255,255,255,0.45);
+      color: white;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .hero-logo {
+      text-align: center;
+    }
+
+    .hero-logo img {
+      width: min(290px, 80%);
+      border-radius: 32px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    section {
+      padding: 72px 0;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 42px;
+    }
+
+    .section-title h2 {
+      font-size: 34px;
+      color: var(--primary);
+      margin: 0 0 10px;
+    }
+
+    .section-title p {
+      margin: 0 auto;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+
+    .card h3 {
+      margin-top: 0;
+      color: var(--primary);
+      font-size: 22px;
+    }
+
+    .icon {
+      font-size: 34px;
+      margin-bottom: 10px;
+    }
+
+    .steps {
+      counter-reset: step;
+    }
+
+    .step {
+      position: relative;
+      padding-left: 66px;
+    }
+
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+    }
+
+    .pricing {
+      background: linear-gradient(135deg, #eef5ff, #f8fbff);
+    }
+
+    .pricing-box {
+      max-width: 820px;
+      margin: auto;
+      text-align: center;
+    }
+
+    .pricing-highlight {
+      font-size: 34px;
+      font-weight: 900;
+      color: var(--primary);
+      margin: 18px 0;
+    }
+
+    .screenshots {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .phone-shot {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    .phone-shot img {
+      width: 100%;
+      border-radius: 16px;
+      display: block;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+      padding: 20px 0;
+    }
+
+    .faq-item h3 {
+      color: var(--primary);
+      margin: 0 0 8px;
+    }
+
+    .contact-box {
+      text-align: center;
+    }
+
+    footer {
+      background: #071d3f;
+      color: white;
+      padding: 34px 0;
+      text-align: center;
+    }
+
+    footer a {
+      color: #b9d7ff;
+      margin: 0 8px;
+    }
+
+    .hidden-lang {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      .hero-grid,
+      .grid-3,
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        text-align: center;
+      }
+
+      .hero p {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero-actions {
+        justify-content: center;
+      }
+
+      .screenshots {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .nav-links {
+        display: none;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .screenshots {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 54px 0;
+      }
+
+      .hero {
+        padding: 64px 0 56px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<header>
+<nav>
+  <div class="container nav-inner">
+    <a class="brand" href="#">
+      <img src="logo_login3.png" alt="TeReT logo">
+      TeReT
+    </a>
 
-    <img
-            src="logo_login3.png"
-            alt="TeReT Logo"
-            style="
-            width: 220px;
-            border-radius: 20px;
-            margin-bottom: 15px;
-        "
-    >
+    <div class="nav-links">
+      <a href="#how" data-hr="Kako radi" data-en="How it works">Kako radi</a>
+      <a href="#features" data-hr="Mogućnosti" data-en="Features">Mogućnosti</a>
+      <a href="#pricing" data-hr="Naknada" data-en="Pricing">Naknada</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact" data-hr="Kontakt" data-en="Contact">Kontakt</a>
+    </div>
 
-    <h1>TeReT</h1>
+    <div class="lang-switch">
+      <button class="lang-btn active" onclick="setLanguage('hr')">HR</button>
+      <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+    </div>
+  </div>
+</nav>
 
-    <p>Brži put do prijevoza</p>
+<header class="hero">
+  <div class="container hero-grid">
+    <div>
+      <h1>TeReT</h1>
 
+      <h2
+        data-hr="Brži put do prijevoza"
+        data-en="A faster way to transport">
+        Brži put do prijevoza
+      </h2>
+
+      <p
+        data-hr="Mobilna platforma koja povezuje naručitelje i prijevoznike kroz transparentnu obrnutu licitaciju."
+        data-en="A mobile platform connecting shippers and carriers through a transparent reverse auction.">
+        Mobilna platforma koja povezuje naručitelje i prijevoznike kroz transparentnu obrnutu licitaciju.
+      </p>
+
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#how"
+           data-hr="Kako TeReT radi"
+           data-en="How TeReT works">
+          Kako TeReT radi
+        </a>
+
+        <span class="btn btn-secondary"
+              data-hr="Uskoro na Google Playu"
+              data-en="Coming soon to Google Play">
+          Uskoro na Google Playu
+        </span>
+      </div>
+    </div>
+
+    <div class="hero-logo">
+      <img src="logo_login3.png" alt="TeReT aplikacija">
+    </div>
+  </div>
 </header>
 
+<section id="how">
+  <div class="container">
+    <div class="section-title">
+      <h2
+        data-hr="Kako TeReT radi"
+        data-en="How TeReT works">
+        Kako TeReT radi
+      </h2>
+
+      <p
+        data-hr="Naručitelj objavljuje teret, a prijevoznici se natječu spuštanjem cijene svojih ponuda."
+        data-en="The shipper publishes a shipment and carriers compete by lowering their offers.">
+        Naručitelj objavljuje teret, a prijevoznici se natječu spuštanjem cijene svojih ponuda.
+      </p>
+    </div>
+
+    <div class="grid-3 steps">
+      <div class="card step">
+        <h3 data-hr="Objavite teret" data-en="Publish a shipment">Objavite teret</h3>
+        <p
+          data-hr="Naručitelj unosi podatke o teretu, lokacijama, roku i ostalim zahtjevima."
+          data-en="The shipper enters shipment details, locations, deadlines and transport requirements.">
+          Naručitelj unosi podatke o teretu, lokacijama, roku i ostalim zahtjevima.
+        </p>
+      </div>
+
+      <div class="card step">
+        <h3 data-hr="Primajte ponude" data-en="Receive offers">Primajte ponude</h3>
+        <p
+          data-hr="Prijevoznici šalju ponude i međusobno se natječu kroz obrnutu licitaciju."
+          data-en="Carriers submit offers and compete through a reverse auction.">
+          Prijevoznici šalju ponude i međusobno se natječu kroz obrnutu licitaciju.
+        </p>
+      </div>
+
+      <div class="card step">
+        <h3 data-hr="Odaberite prijevoznika" data-en="Choose a carrier">Odaberite prijevoznika</h3>
+        <p
+          data-hr="Naručitelj može prihvatiti odgovarajuću ponudu i prije završetka licitacije."
+          data-en="The shipper can accept the preferred offer even before the auction ends.">
+          Naručitelj može prihvatiti odgovarajuću ponudu i prije završetka licitacije.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="container">
+    <div class="section-title">
+      <h2 data-hr="Zašto TeReT" data-en="Why TeReT">Zašto TeReT</h2>
+    </div>
+
+    <div class="grid-3">
+      <div class="card">
+        <div class="icon">🔄</div>
+        <h3 data-hr="Obrnuta licitacija" data-en="Reverse auction">Obrnuta licitacija</h3>
+        <p
+          data-hr="Prijevoznici se natječu spuštanjem cijene svojih ponuda."
+          data-en="Carriers compete by lowering the price of their offers.">
+          Prijevoznici se natječu spuštanjem cijene svojih ponuda.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">🔔</div>
+        <h3 data-hr="Push obavijesti" data-en="Push notifications">Push obavijesti</h3>
+        <p
+          data-hr="Važne promjene ponuda i statusa stižu izravno na mobitel."
+          data-en="Important offer and status changes arrive directly on your phone.">
+          Važne promjene ponuda i statusa stižu izravno na mobitel.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">🔒</div>
+        <h3 data-hr="Zaštita kontakta" data-en="Contact protection">Zaštita kontakta</h3>
+        <p
+          data-hr="Kontaktni podaci ostaju zaštićeni do prihvaćanja ponude i plaćanja provizije."
+          data-en="Contact details remain protected until the offer is accepted and the service fee is paid.">
+          Kontaktni podaci ostaju zaštićeni do prihvaćanja ponude i plaćanja provizije.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">⭐</div>
+        <h3 data-hr="Ocjene korisnika" data-en="User ratings">Ocjene korisnika</h3>
+        <p
+          data-hr="Naručitelji i prijevoznici mogu se međusobno ocjenjivati nakon prijevoza."
+          data-en="Shippers and carriers can rate each other after transport is completed.">
+          Naručitelji i prijevoznici mogu se međusobno ocjenjivati nakon prijevoza.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">📱</div>
+        <h3 data-hr="Jednostavna mobilna aplikacija" data-en="Simple mobile app">Jednostavna mobilna aplikacija</h3>
+        <p
+          data-hr="Sve ključne radnje dostupne su brzo i pregledno s mobitela."
+          data-en="All key actions are available quickly and clearly from your phone.">
+          Sve ključne radnje dostupne su brzo i pregledno s mobitela.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="icon">⚡</div>
+        <h3 data-hr="Brz dogovor prijevoza" data-en="Fast transport agreement">Brz dogovor prijevoza</h3>
+        <p
+          data-hr="Nije potrebno čekati kraj licitacije ako naručitelj pronađe odgovarajuću ponudu."
+          data-en="There is no need to wait for the auction to end if the shipper finds a suitable offer.">
+          Nije potrebno čekati kraj licitacije ako naručitelj pronađe odgovarajuću ponudu.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section>
-
-    <div class="card">
-        <h2>O aplikaciji</h2>
-
-        <p>
-            TeReT je digitalna platforma koja povezuje naručitelje prijevoza i prijevoznike kroz sustav obrnute licitacije.
+  <div class="container">
+    <div class="grid-2">
+      <div class="card">
+        <h3 data-hr="Za naručitelje" data-en="For shippers">Za naručitelje</h3>
+        <p
+          data-hr="Objavite teret, pratite ponude u stvarnom vremenu i odaberite onu koja vam najviše odgovara."
+          data-en="Publish your shipment, follow offers in real time and choose the one that suits you best.">
+          Objavite teret, pratite ponude u stvarnom vremenu i odaberite onu koja vam najviše odgovara.
         </p>
 
-        <p>
-            Naručitelj objavljuje teret, a prijevoznici šalju svoje ponude. Nakon prihvaćanja ponude i plaćanja provizije prijevoznik otključava kontakt podatke .
+        <p><strong
+          data-hr="Korištenje platforme za naručitelje je besplatno."
+          data-en="Using the platform is free for shippers.">
+          Korištenje platforme za naručitelje je besplatno.
+        </strong></p>
+      </div>
+
+      <div class="card">
+        <h3 data-hr="Za prijevoznike" data-en="For carriers">Za prijevoznike</h3>
+        <p
+          data-hr="Pronađite dostupne terete, pošaljite ponudu i pratite svoj status putem push obavijesti."
+          data-en="Find available shipments, submit an offer and follow your status through push notifications.">
+          Pronađite dostupne terete, pošaljite ponudu i pratite svoj status putem push obavijesti.
         </p>
+
+        <p><strong
+          data-hr="Provizija se plaća samo nakon što naručitelj prihvati ponudu."
+          data-en="The service fee is paid only after the shipper accepts the offer.">
+          Provizija se plaća samo nakon što naručitelj prihvati ponudu.
+        </strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="pricing">
+  <div class="container pricing-box">
+    <div class="section-title">
+      <h2 data-hr="Naknada" data-en="Service fee">Naknada</h2>
     </div>
 
     <div class="card">
-        <h2>About TeReT</h2>
+      <p
+        data-hr="Naručitelj ne plaća naknadu za korištenje platforme."
+        data-en="Shippers do not pay a fee for using the platform.">
+        Naručitelj ne plaća naknadu za korištenje platforme.
+      </p>
 
-        <p>
-            TeReT is a digital freight marketplace connecting shippers and carriers through a reverse auction system.
-        </p>
+      <div class="pricing-highlight">5%</div>
 
-        <p>
-            Shippers publish transport requests while carriers submit competitive offers. After an offer is accepted and fee is paid, the carrier unlocks contact details and arranges transportation.
-        </p>
+      <p
+        data-hr="Prijevoznik plaća proviziju od 5% od prihvaćene cijene prijevoza."
+        data-en="The carrier pays a 5% service fee based on the accepted transport price.">
+        Prijevoznik plaća proviziju od 5% od prihvaćene cijene prijevoza.
+      </p>
+
+      <p>
+        <strong
+          data-hr="Za dogovorene prijevoze do 100 € minimalna naknada iznosi 5 €."
+          data-en="For agreed transports up to €100, the minimum service fee is €5.">
+          Za dogovorene prijevoze do 100 € minimalna naknada iznosi 5 €.
+        </strong>
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="screenshots">
+  <div class="container">
+    <div class="section-title">
+      <h2 data-hr="Aplikacija" data-en="The app">Aplikacija</h2>
+      <p
+        data-hr="Dodaj ovdje screenshotove aplikacije kada želiš prikazati sučelje korisnicima."
+        data-en="Add app screenshots here when you want to showcase the interface to users.">
+        Dodaj ovdje screenshotove aplikacije kada želiš prikazati sučelje korisnicima.
+      </p>
+    </div>
+
+    <!--
+      Primjer:
+      <div class="screenshots">
+        <div class="phone-shot"><img src="screen1.png" alt="TeReT screenshot"></div>
+        <div class="phone-shot"><img src="screen2.png" alt="TeReT screenshot"></div>
+        <div class="phone-shot"><img src="screen3.png" alt="TeReT screenshot"></div>
+        <div class="phone-shot"><img src="screen4.png" alt="TeReT screenshot"></div>
+      </div>
+    -->
+  </div>
+</section>
+
+<section id="faq">
+  <div class="container">
+    <div class="section-title">
+      <h2>FAQ</h2>
     </div>
 
     <div class="card">
-        <h2>Glavne funkcionalnosti / Main Features</h2>
+      <div class="faq-item">
+        <h3
+          data-hr="Je li TeReT besplatan?"
+          data-en="Is TeReT free?">
+          Je li TeReT besplatan?
+        </h3>
 
-        <ul>
-            <li>Objava tereta / Shipment posting</li>
-            <li>Obrnuta licitacija / Reverse auction</li>
-            <li>Ocjene korisnika / User ratings</li>
-            <li>Push notifikacije / Push notifications</li>
-            <li>Fotografije tereta / Shipment photos</li>
-            <li>Otključavanje kontakta nakon prihvaćanja ponude</li>
-        </ul>
+        <p
+          data-hr="Za naručitelje je korištenje platforme besplatno. Prijevoznik plaća proviziju samo nakon prihvaćene ponude."
+          data-en="The platform is free for shippers. The carrier pays a service fee only after an offer is accepted.">
+          Za naručitelje je korištenje platforme besplatno. Prijevoznik plaća proviziju samo nakon prihvaćene ponude.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3
+          data-hr="Što je obrnuta licitacija?"
+          data-en="What is a reverse auction?">
+          Što je obrnuta licitacija?
+        </h3>
+
+        <p
+          data-hr="Prijevoznici se međusobno natječu spuštanjem cijene svojih ponuda, dok naručitelj bira ponudu koja mu najviše odgovara."
+          data-en="Carriers compete by lowering their offer prices while the shipper chooses the offer that suits them best.">
+          Prijevoznici se međusobno natječu spuštanjem cijene svojih ponuda, dok naručitelj bira ponudu koja mu najviše odgovara.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3
+          data-hr="Mora li naručitelj čekati kraj licitacije?"
+          data-en="Does the shipper have to wait for the auction to end?">
+          Mora li naručitelj čekati kraj licitacije?
+        </h3>
+
+        <p
+          data-hr="Ne. Ponuda se može prihvatiti čim naručitelj pronađe odgovarajućeg prijevoznika."
+          data-en="No. An offer can be accepted as soon as the shipper finds a suitable carrier.">
+          Ne. Ponuda se može prihvatiti čim naručitelj pronađe odgovarajućeg prijevoznika.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="container">
+    <div class="section-title">
+      <h2 data-hr="Kontakt" data-en="Contact">Kontakt</h2>
     </div>
 
-    <div class="card">
-        <h2>Kontakt / Contact</h2>
+    <div class="card contact-box">
+      <p>
+        <strong>Email:</strong>
+        <a href="mailto:teretmegs@gmail.com">teretmegs@gmail.com</a>
+      </p>
 
-        <p>
-            Email: teretmegs@gmail.com
-        </p>
-
-        <p>
-            <a href="privacy.html">Privacy Policy</a>
-        </p>
-
-        <p>
-            <a href="terms.html">Terms of Service</a>
-        </p>
-
+      <p>
+        <a href="privacy.html">Privacy Policy</a>
+        &nbsp;•&nbsp;
+        <a href="terms.html">Terms of Service</a>
+      </p>
     </div>
-
+  </div>
 </section>
 
 <footer>
-    © 2026 TeReT • M.E.G.S. • HR.
+  <div class="container">
+    © 2026 TeReT • M.E.G.S. • HR
+  </div>
 </footer>
+
+<script>
+  function setLanguage(lang) {
+    const elements = document.querySelectorAll('[data-hr][data-en]');
+
+    elements.forEach((element) => {
+      element.textContent = element.getAttribute(`data-${lang}`);
+    });
+
+    document.documentElement.lang = lang;
+
+    document.querySelectorAll('.lang-btn').forEach((button) => {
+      button.classList.remove('active');
+    });
+
+    const activeButton = Array.from(
+      document.querySelectorAll('.lang-btn')
+    ).find((button) => button.textContent.trim().toLowerCase() === lang);
+
+    if (activeButton) {
+      activeButton.classList.add('active');
+    }
+
+    localStorage.setItem('teretLanguage', lang);
+  }
+
+  const savedLanguage = localStorage.getItem('teretLanguage');
+
+  if (savedLanguage === 'en' || savedLanguage === 'hr') {
+    setLanguage(savedLanguage);
+  }
+</script>
 
 </body>
 </html>

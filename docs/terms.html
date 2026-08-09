@@ -1,90 +1,407 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TeReT Terms of Service</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TeReT Terms of Use / Uvjeti korištenja">
+  <title>TeReT - Uvjeti korištenja / Terms of Use</title>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 1000px;
-            margin: auto;
-            padding: 30px;
-            background: #f5f7fb;
-            color: #222;
-            line-height: 1.7;
-        }
+  <style>
+    :root {
+      --primary: #0d47a1;
+      --primary-dark: #082d66;
+      --accent: #1e88e5;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #667085;
+      --border: #e5e7eb;
+    }
 
-        h1 {
-            color: #0D47A1;
-        }
+    * {
+      box-sizing: border-box;
+    }
 
-        h2 {
-            color: #0D47A1;
-            margin-top: 30px;
-        }
+    html {
+      scroll-behavior: smooth;
+    }
 
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        }
-    </style>
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(255,255,255,.97);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      color: var(--primary);
+      font-size: 24px;
+    }
+
+    .brand img {
+      width: 46px;
+      height: 46px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .back-link,
+    .lang-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .lang-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: white;
+      padding: 56px 20px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 54px);
+      line-height: 1.1;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: 16px auto 0;
+      font-size: 18px;
+      opacity: .92;
+    }
+
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 36px 20px 56px;
+    }
+
+    .notice {
+      background: #eef5ff;
+      border: 1px solid #cfe0fb;
+      border-left: 5px solid var(--primary);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 24px;
+      color: var(--primary-dark);
+      font-weight: 700;
+    }
+
+    .terms-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.06);
+      overflow: hidden;
+    }
+
+    .term-section {
+      padding: 28px 30px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .term-section:last-child {
+      border-bottom: 0;
+    }
+
+    .term-section h2 {
+      margin: 0 0 12px;
+      color: var(--primary);
+      font-size: 24px;
+    }
+
+    .term-section p {
+      margin: 0;
+      color: var(--text);
+      font-size: 16px;
+    }
+
+    .footer {
+      background: #06162f;
+      color: white;
+      text-align: center;
+      padding: 28px 20px;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .footer-links a {
+      color: #d7e6ff;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    [data-lang] {
+      display: none;
+    }
+
+    [data-lang].visible {
+      display: block;
+    }
+
+    @media (max-width: 700px) {
+      .topbar-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .actions {
+        width: 100%;
+      }
+
+      .back-link,
+      .lang-btn {
+        flex: 1;
+        text-align: center;
+      }
+
+      .term-section {
+        padding: 22px 20px;
+      }
+
+      .hero {
+        padding: 42px 18px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="container">
+  <div class="topbar">
+    <div class="topbar-inner">
+      <a href="index.html" class="brand">
+        <img src="logo_login3.png" alt="TeReT logo">
+        <span>TeReT</span>
+      </a>
 
-    <h1>Terms of Service</h1>
+      <div class="actions">
+        <a href="index.html" class="back-link" id="backLink">← Povratak na početnu</a>
+        <button class="lang-btn active" type="button" data-set-lang="hr">HR</button>
+        <button class="lang-btn" type="button" data-set-lang="en">EN</button>
+      </div>
+    </div>
+  </div>
 
-    <p>
-        By using TeReT, you agree to these Terms of Service.
-    </p>
+  <header class="hero">
+    <div data-lang="hr" class="visible">
+      <h1>Uvjeti korištenja</h1>
+      <p>Pravila korištenja platforme TeReT</p>
+    </div>
 
-    <h2>Platform Purpose</h2>
+    <div data-lang="en">
+      <h1>Terms of Use</h1>
+      <p>Rules for using the TeReT platform</p>
+    </div>
+  </header>
 
-    <p>
-        TeReT is a digital platform that connects shippers and carriers through a reverse auction system for transport services.
-    </p>
+  <main>
 
-    <h2>User Responsibilities</h2>
+    <div class="notice" data-lang="hr" class="visible">
+      Korištenjem platforme TeReT prihvaćate ove Uvjete korištenja.
+    </div>
 
-    <p>
-        Users are responsible for providing accurate information, complying with applicable laws, and fulfilling accepted transport agreements.
-    </p>
+    <div class="notice" data-lang="en">
+      By using the TeReT platform, you agree to these Terms of Use.
+    </div>
 
-    <h2>Offers and Agreements</h2>
+    <div class="terms-card">
 
-    <p>
-        Carrier offers submitted through the platform are considered binding according to platform rules. Shippers are responsible for selecting a carrier and confirming transport completion.
-    </p>
+      <section class="term-section">
+        <div data-lang="hr" class="visible">
+          <h2>1. Opće odredbe</h2>
+          <p>TeReT je digitalna platforma koja povezuje naručitelje prijevoza i prijevoznike. TeReT ne sudjeluje u organizaciji niti izvršenju prijevoza, već omogućuje korisnicima međusobno povezivanje i dogovor.</p>
+        </div>
 
-    <h2>Platform Fees</h2>
+        <div data-lang="en">
+          <h2>1. General provisions</h2>
+          <p>TeReT is a digital platform that connects transport customers and carriers. TeReT does not participate in the organisation or execution of transport, but enables users to connect and make arrangements.</p>
+        </div>
+      </section>
 
-    <p>
-        TeReT may charge service fees or commissions for unlocking contact information and completing transactions through the platform.
-    </p>
+      <section class="term-section">
+        <div data-lang="hr" class="visible">
+          <h2>2. Uloga platforme</h2>
+          <p>TeReT nije prijevoznik niti špediter. TeReT ne djeluje kao ugovorna strana u prijevozu te ne preuzima odgovornost za izvršenje prijevoza, kašnjenja, otkazivanja, štetu na robi ili netočne podatke korisnika niti sporove između korisnika. Svi dogovori o prijevozu sklapaju se isključivo između naručitelja i prijevoznika.</p>
+        </div>
 
-    <h2>Limitation of Liability</h2>
+        <div data-lang="en">
+          <h2>2. Role of the platform</h2>
+          <p>TeReT is neither a carrier nor a freight forwarder. TeReT does not act as a contractual party in transport and accepts no responsibility for the execution of transport, delays, cancellations, damage to goods, inaccurate user information or disputes between users. All transport arrangements are made exclusively between the customer and the carrier.</p>
+        </div>
+      </section>
 
-    <p>
-        TeReT acts solely as a marketplace platform and is not a party to transport contracts between users.
-    </p>
+      <section class="term-section">
+        <div data-lang="hr" class="visible">
+          <h2>3. Naknada za korištenje platforme</h2>
+          <p>Platforma TeReT potpuno je besplatna za korištenje i nema nikakve članarine ni kotizacije. Naknada se plaća isključivo po zaključenom poslu, odnosno kada naručitelj prihvati ponudu prijevoznika. Iznosi 5% od dogovorene cijene prijevoza i plaća je samo prijevoznik, a za dogovorene prijevoze u vrijednosti do 100,00 € minimalna naknada iznosi 5,00 €.</p>
+        </div>
 
-    <h2>Contact</h2>
+        <div data-lang="en">
+          <h2>3. Platform usage fee</h2>
+          <p>The TeReT platform is completely free to use and has no membership or registration fees. A fee is charged only when a transport deal is concluded, meaning when the customer accepts a carrier's offer. The commission is paid exclusively by the carrier and only after the customer accepts the carrier's offer. The fee is 5% of the agreed transport price, with a minimum fee of €5.00 for agreed transports valued up to €100.00.</p>
+        </div>
+      </section>
 
-    <p>
-        For questions regarding these Terms of Service:
-    </p>
+      <section class="term-section">
+        <div data-lang="hr" class="visible">
+          <h2>4. Otključavanje kontakt podataka</h2>
+          <p>Kontakt podaci naručitelja i prijevoznika dostupni su tek nakon uspješne naplate naknade putem Stripe sustava. Nakon otključavanja kontakt podataka smatra se da je usluga platforme izvršena.</p>
+        </div>
 
-    <p>
-        Email: teretmegs@gmail.com
-    </p>
+        <div data-lang="en">
+          <h2>4. Unlocking contact details</h2>
+          <p>The contact details of the customer and carrier become available only after the fee has been successfully paid through Stripe. Once the contact details are unlocked, the platform service is considered completed.</p>
+        </div>
+      </section>
 
-</div>
+      <section class="term-section">
+        <div data-lang="hr" class="visible">
+          <h2>5. Povrat naknade</h2>
+          <p>Nakon otključavanja kontakt podataka plaćena naknada se ne vraća. Naknada se odnosi na uslugu povezivanja korisnika putem platforme TeReT, neovisno o tome je li prijevoz kasnije realiziran.</p>
+        </div>
+
+        <div data-lang="en">
+          <h2>5. Fee refunds</h2>
+          <p>Once the contact details have been unlocked, the paid fee is non-refundable. The fee applies to the service of connecting users through the TeReT platform, regardless of whether the transport is later completed.</p>
+        </div>
+      </section>
+
+      <section class="term-section">
+        <div data-lang="hr" class="visible">
+          <h2>6. Otkazivanje prijevoza</h2>
+          <p>U slučaju otkazivanja prijevoza od strane naručitelja ili prijevoznika, TeReT ne snosi nikakvu odgovornost za posljedice otkazivanja. Korisnici su sami odgovorni za međusobne dogovore, troškove, štetu, kašnjenja ili druge posljedice koje mogu nastati zbog otkazivanja. Ako je naknada za korištenje platforme već plaćena i kontakt podaci su otključani, naknada se ne vraća jer se smatra da je usluga povezivanja putem platforme izvršena.</p>
+        </div>
+
+        <div data-lang="en">
+          <h2>6. Transport cancellation</h2>
+          <p>If the transport is cancelled by the customer or the carrier, TeReT accepts no responsibility for the consequences of the cancellation. Users are solely responsible for their mutual arrangements, costs, damages, delays or other consequences that may arise from cancellation. If the platform fee has already been paid and the contact details have been unlocked, the fee is non-refundable because the connection service through the platform is considered completed.</p>
+        </div>
+      </section>
+
+      <section class="term-section">
+        <div data-lang="hr" class="visible">
+          <h2>7. Odgovornost za prijevoz</h2>
+          <p>Za izvršenje prijevoza, stanje robe, vrijeme isporuke i sve ostale detalje odgovorni su isključivo naručitelj i prijevoznik. TeReT ne sudjeluje u prijevozu niti preuzima odgovornost za eventualnu štetu.</p>
+        </div>
+
+        <div data-lang="en">
+          <h2>7. Responsibility for transport</h2>
+          <p>The customer and carrier are solely responsible for the execution of transport, the condition of the goods, delivery time and all other details. TeReT does not participate in transport and accepts no responsibility for any resulting damage.</p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div>© 2026 TeReT • M.E.G.S. • HR</div>
+    <div class="footer-links">
+      <a href="index.html" id="footerHome">Početna</a>
+      <a href="privacy.html" id="footerPrivacy">Pravila privatnosti</a>
+      <a href="mailto:teretmegs@gmail.com" id="footerContact">Kontakt</a>
+    </div>
+  </footer>
+
+  <script>
+    function setLanguage(lang) {
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll('[data-lang]').forEach((el) => {
+        el.classList.toggle('visible', el.getAttribute('data-lang') === lang);
+      });
+
+      document.querySelectorAll('[data-set-lang]').forEach((btn) => {
+        btn.classList.toggle('active', btn.getAttribute('data-set-lang') === lang);
+      });
+
+      const backLink = document.getElementById('backLink');
+      const footerHome = document.getElementById('footerHome');
+      const footerPrivacy = document.getElementById('footerPrivacy');
+      const footerContact = document.getElementById('footerContact');
+
+      if (lang === 'en') {
+        document.title = 'TeReT - Terms of Use';
+        backLink.textContent = '← Back to home';
+        footerHome.textContent = 'Home';
+        footerPrivacy.textContent = 'Privacy Policy';
+        footerContact.textContent = 'Contact';
+      } else {
+        document.title = 'TeReT - Uvjeti korištenja';
+        backLink.textContent = '← Povratak na početnu';
+        footerHome.textContent = 'Početna';
+        footerPrivacy.textContent = 'Pravila privatnosti';
+        footerContact.textContent = 'Kontakt';
+      }
+
+      localStorage.setItem('teretLanguage', lang);
+    }
+
+    document.querySelectorAll('[data-set-lang]').forEach((button) => {
+      button.addEventListener('click', () => {
+        setLanguage(button.getAttribute('data-set-lang'));
+      });
+    });
+
+    const savedLanguage = localStorage.getItem('teretLanguage');
+    setLanguage(savedLanguage === 'en' ? 'en' : 'hr');
+  </script>
 
 </body>
 </html>

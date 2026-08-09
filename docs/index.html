@@ -326,6 +326,120 @@
       display: none !important;
     }
 
+
+    .promo-banner {
+      padding: 34px 0 20px;
+      background: #06162f;
+    }
+
+    .promo-banner .promo-wrap {
+      width: min(1540px, calc(100% - 24px));
+      margin: 0 auto;
+    }
+
+    .promo-image {
+      width: 100%;
+      display: block;
+      border-radius: 22px;
+      box-shadow: 0 22px 60px rgba(0,0,0,.28);
+    }
+
+    .promo-caption {
+      text-align: center;
+      color: rgba(255,255,255,.82);
+      font-size: 14px;
+      margin: 14px 0 0;
+    }
+
+    .play-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      border-radius: 14px;
+      padding: 12px 18px;
+      background: #101010;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 8px 24px rgba(0,0,0,.22);
+      cursor: default;
+    }
+
+    .play-cta .play-icon {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+    }
+
+    .play-cta-text {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 1.1;
+    }
+
+    .play-cta-small {
+      font-size: 10px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      opacity: .8;
+    }
+
+    .play-cta-large {
+      font-size: 18px;
+      font-weight: 800;
+      margin-top: 3px;
+    }
+
+    .trust-strip {
+      padding: 24px 0;
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .trust-item {
+      background: #f8fbff;
+      border: 1px solid #dce9fb;
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      font-weight: 800;
+      color: var(--primary-dark);
+    }
+
+    .trust-item span {
+      display: block;
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+
+    .legal-note {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .footer-links {
+      margin-top: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .footer-tagline {
+      margin-bottom: 8px;
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+
     @media (max-width: 900px) {
       .hero-grid,
       .grid-3,
@@ -350,6 +464,10 @@
         grid-template-columns: repeat(2, 1fr);
       }
 
+      .trust-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
       .nav-links {
         display: none;
       }
@@ -358,6 +476,18 @@
     @media (max-width: 540px) {
       .screenshots {
         grid-template-columns: 1fr;
+      }
+
+      .trust-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .promo-banner .promo-wrap {
+        width: min(100% - 12px, 1540px);
+      }
+
+      .promo-image {
+        border-radius: 14px;
       }
 
       section {
@@ -419,10 +549,16 @@
           Kako TeReT radi
         </a>
 
-        <span class="btn btn-secondary"
-              data-hr="Uskoro na Google Playu"
-              data-en="Coming soon to Google Play">
-          Uskoro na Google Playu
+        <span class="play-cta" aria-label="Google Play coming soon">
+          <span class="play-icon">▶</span>
+          <span class="play-cta-text">
+            <span class="play-cta-small"
+                  data-hr="Uskoro na"
+                  data-en="Coming soon to">
+              Uskoro na
+            </span>
+            <span class="play-cta-large">Google Play</span>
+          </span>
         </span>
       </div>
     </div>
@@ -432,6 +568,30 @@
     </div>
   </div>
 </header>
+
+<section class="promo-banner" aria-label="TeReT promo">
+  <div class="promo-wrap">
+    <img
+      src="teret-promo-banner.png"
+      alt="TeReT - vaš radar prijevoza, prikaz aplikacije i načina rada"
+      class="promo-image"
+    >
+    <p class="promo-caption"
+       data-hr="TeReT povezuje naručitelje i prijevoznike kroz jednostavan sustav obrnute licitacije."
+       data-en="TeReT connects shippers and carriers through a simple reverse-auction system.">
+      TeReT povezuje naručitelje i prijevoznike kroz jednostavan sustav obrnute licitacije.
+    </p>
+  </div>
+</section>
+
+<section class="trust-strip">
+  <div class="container trust-grid">
+    <div class="trust-item"><span>🔄</span><span data-hr="Obrnuta licitacija" data-en="Reverse auction">Obrnuta licitacija</span></div>
+    <div class="trust-item"><span>🔔</span><span data-hr="Push obavijesti" data-en="Push notifications">Push obavijesti</span></div>
+    <div class="trust-item"><span>🔒</span><span data-hr="Zaštita kontakata" data-en="Contact protection">Zaštita kontakata</span></div>
+    <div class="trust-item"><span>⭐</span><span data-hr="Ocjene korisnika" data-en="User ratings">Ocjene korisnika</span></div>
+  </div>
+</section>
 
 <section id="how">
   <div class="container">
@@ -621,23 +781,21 @@
 <section id="screenshots">
   <div class="container">
     <div class="section-title">
-      <h2 data-hr="Aplikacija" data-en="The app">Aplikacija</h2>
+      <h2 data-hr="TeReT u praksi" data-en="TeReT in action">TeReT u praksi</h2>
       <p
-        data-hr="Dodaj ovdje screenshotove aplikacije kada želiš prikazati sučelje korisnicima."
-        data-en="Add app screenshots here when you want to showcase the interface to users.">
-        Dodaj ovdje screenshotove aplikacije kada želiš prikazati sučelje korisnicima.
+        data-hr="Od objave tereta i praćenja licitacije do prihvaćanja ponude, plaćanja provizije i otključavanja kontakta."
+        data-en="From publishing a shipment and following the auction to accepting an offer, paying the service fee and unlocking contact details.">
+        Od objave tereta i praćenja licitacije do prihvaćanja ponude, plaćanja provizije i otključavanja kontakta.
       </p>
     </div>
 
-    <!--
-      Primjer:
-      <div class="screenshots">
-        <div class="phone-shot"><img src="screen1.png" alt="TeReT screenshot"></div>
-        <div class="phone-shot"><img src="screen2.png" alt="TeReT screenshot"></div>
-        <div class="phone-shot"><img src="screen3.png" alt="TeReT screenshot"></div>
-        <div class="phone-shot"><img src="screen4.png" alt="TeReT screenshot"></div>
-      </div>
-    -->
+    <div class="card">
+      <p
+        data-hr="Promotivni prikaz iznad prikazuje ključne ekrane aplikacije i cijeli tijek dogovaranja prijevoza."
+        data-en="The promotional visual above shows the key app screens and the complete transport-booking flow.">
+        Promotivni prikaz iznad prikazuje ključne ekrane aplikacije i cijeli tijek dogovaranja prijevoza.
+      </p>
+    </div>
   </div>
 </section>
 
@@ -688,6 +846,24 @@
           data-en="No. An offer can be accepted as soon as the shipper finds a suitable carrier.">
           Ne. Ponuda se može prihvatiti čim naručitelj pronađe odgovarajućeg prijevoznika.
         </p>
+
+      <div class="faq-item">
+        <h3 data-hr="Tko plaća proviziju?" data-en="Who pays the service fee?">Tko plaća proviziju?</h3>
+        <p
+          data-hr="Proviziju plaća isključivo prijevoznik čiju je ponudu naručitelj prihvatio. Iznosi 5% dogovorene cijene, uz minimalnu naknadu od 5 € za prijevoze do 100 €."
+          data-en="The service fee is paid only by the carrier whose offer the shipper accepts. It is 5% of the agreed price, with a minimum fee of €5 for transports up to €100.">
+          Proviziju plaća isključivo prijevoznik čiju je ponudu naručitelj prihvatio. Iznosi 5% dogovorene cijene, uz minimalnu naknadu od 5 € za prijevoze do 100 €.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3 data-hr="Kada se otključavaju kontaktni podaci?" data-en="When are contact details unlocked?">Kada se otključavaju kontaktni podaci?</h3>
+        <p
+          data-hr="Kontaktni podaci otključavaju se odabranom prijevozniku nakon što naručitelj prihvati njegovu ponudu i provizija bude uspješno plaćena."
+          data-en="Contact details are unlocked for the selected carrier after the shipper accepts the offer and the service fee is successfully paid.">
+          Kontaktni podaci otključavaju se odabranom prijevozniku nakon što naručitelj prihvati njegovu ponudu i provizija bude uspješno plaćena.
+        </p>
+      </div>
       </div>
     </div>
   </div>
@@ -706,9 +882,15 @@
       </p>
 
       <p>
-        <a href="privacy.html">Privacy Policy</a>
+        <a href="privacy.html" data-hr="Pravila privatnosti" data-en="Privacy Policy">Pravila privatnosti</a>
         &nbsp;•&nbsp;
-        <a href="terms.html">Terms of Service</a>
+        <a href="terms.html" data-hr="Uvjeti korištenja" data-en="Terms of Service">Uvjeti korištenja</a>
+      </p>
+
+      <p class="legal-note"
+         data-hr="TeReT je platforma za povezivanje naručitelja i prijevoznika. Ugovor o prijevozu sklapaju korisnici međusobno."
+         data-en="TeReT is a platform connecting shippers and carriers. Transport agreements are concluded directly between users.">
+        TeReT je platforma za povezivanje naručitelja i prijevoznika. Ugovor o prijevozu sklapaju korisnici međusobno.
       </p>
     </div>
   </div>
@@ -716,7 +898,17 @@
 
 <footer>
   <div class="container">
-    © 2026 TeReT • M.E.G.S. • HR
+    <div class="footer-tagline"
+         data-hr="TeReT — Vaš radar prijevoza. Brzo. Sigurno. Pouzdano."
+         data-en="TeReT — Your transport radar. Fast. Secure. Reliable.">
+      TeReT — Vaš radar prijevoza. Brzo. Sigurno. Pouzdano.
+    </div>
+    <div>© 2026 TeReT • M.E.G.S. • HR</div>
+    <div class="footer-links">
+      <a href="privacy.html" data-hr="Pravila privatnosti" data-en="Privacy Policy">Pravila privatnosti</a>
+      <a href="terms.html" data-hr="Uvjeti korištenja" data-en="Terms of Service">Uvjeti korištenja</a>
+      <a href="#contact" data-hr="Kontakt" data-en="Contact">Kontakt</a>
+    </div>
   </div>
 </footer>
 

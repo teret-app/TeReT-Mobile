@@ -590,11 +590,12 @@
 
 <section class="promo-banner" aria-label="TeReT promo">
   <div class="promo-wrap">
-    <img
-      src="teret-promo-banner.png"
-      alt="TeReT - vaš radar prijevoza, prikaz aplikacije i načina rada"
-      class="promo-image"
-    >
+  <img
+  id="promoImage"
+  src="teret-promo-banner.png"
+  alt="TeReT - vaš radar prijevoza, prikaz aplikacije i načina rada"
+  class="promo-image"
+>
     <p class="promo-caption"
        data-hr="TeReT povezuje naručitelje i prijevoznike kroz jednostavan sustav obrnute licitacije."
        data-en="TeReT connects shippers and carriers through a simple reverse-auction system.">
@@ -933,6 +934,14 @@
 
 <script>
   function setLanguage(lang) {
+    const promoImage = document.getElementById('promoImage');
+
+if (promoImage) {
+  promoImage.src =
+    lang === 'en'
+      ? 'teret-promo-banner-en.png'
+      : 'teret-promo-banner.png';
+}
     const elements = document.querySelectorAll('[data-hr][data-en]');
 
     elements.forEach((element) => {

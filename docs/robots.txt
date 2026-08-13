@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://teret-app.github.io/TeReT-Mobile/sitemap.xml

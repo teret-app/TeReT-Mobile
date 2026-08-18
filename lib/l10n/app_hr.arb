@@ -198,7 +198,7 @@
   "carrierWillContactSoon": "Prijevoznik će vas uskoro kontaktirati.",
   "waitingForCarrierConfirmation": "Čeka se potvrda prijevoznika.",
   "offerAcceptedShort": "Ponuda prihvaćena.",
-  "platformFeeExplanation": "Posao je Vaš.\n\nZa otključavanje kontakt podataka potrebno je platiti naknadu platforme putem Stripe Checkouta.\n\nNaknada iznosi 5% od dogovorene cijene prijevoza, a za prijevoze u vrijednosti do 100,00 € minimalna naknada iznosi 5,00 €.",
+  "platformFeeExplanation": "Posao je Vaš.\n\nZa otključavanje kontakt podataka potrebno je platiti naknadu platforme putem Stripe Checkouta.\n\nNaknada iznosi 7% od dogovorene cijene prijevoza, a za prijevoze u vrijednosti do 100,00 € naknada iznosi 5,00 €.",
   "continueToStripeCheckout": "Nastavi na Stripe Checkout",
   "otherCarrierWonMessage": "Nažalost, drugi prijevoznik je dobio ovaj posao. Hvala na sudjelovanju u licitaciji.",
   "shipmentNotFound": "Teret nije pronađen.",
@@ -763,7 +763,7 @@
             "termsPlatformRoleTitle": "2. Uloga platforme",
             "termsPlatformRoleText": "TeReT nije prijevoznik niti špediter. TeReT ne djeluje kao ugovorna strana u prijevozu te ne preuzima odgovornost za izvršenje prijevoza, kašnjenja, otkazivanja, štetu na robi ili netočne podatke korisnika niti sporove između korisnika. Svi dogovori o prijevozu sklapaju se isključivo između naručitelja i prijevoznika.",
             "termsFeeTitle": "3. Naknada za korištenje platforme",
-            "termsFeeText": "Platforma TeReT potpuno je besplatna za korištenje i nema nikakve članarine ni kotizacije. Naknada se plaća isključivo po zaključenom poslu, odnosno kada naručitelj prihvati ponudu prijevoznika. Iznosi 5% od dogovorene cijene prijevoza, a za dogovorene prijevoze u vrijednosti do 100,00 € minimalna naknada iznosi 5,00 €.",
+            "termsFeeText": "Platforma TeReT potpuno je besplatna za korištenje i nema nikakve članarine ni kotizacije. Naknada se plaća isključivo po zaključenom poslu, odnosno kada naručitelj prihvati ponudu prijevoznika. Iznosi 7% od dogovorene cijene prijevoza i plaća je samo prijevoznik, a za dogovorene prijevoze u vrijednosti do 100,00 € naknada iznosi 5,00 €.",
             "termsUnlockContactTitle": "4. Otključavanje kontakt podataka",
             "termsUnlockContactText": "Kontakt podaci naručitelja i prijevoznika dostupni su tek nakon uspješne naplate naknade putem Stripe sustava. Nakon otključavanja kontakt podataka smatra se da je usluga platforme izvršena.",
             "termsRefundTitle": "5. Povrat naknade",
@@ -882,7 +882,10 @@
             "enableNotificationsInSettings": "Uključite obavijesti u postavkama",
             "checkingNotifications": "Provjera obavijesti...",
             "enableNotificationsButton": "Omogući obavijesti",
-            "returnAfterEnablingNotifications": "Nakon uključivanja obavijesti vratite se u TeReT. Aplikacija će automatski nastaviti."
+            "returnAfterEnablingNotifications": "Nakon uključivanja obavijesti vratite se u TeReT. Aplikacija će automatski nastaviti.",
+            "fortyEightHours": "48 sati",
+            "seventyTwoHours": "72 sata",
+            "sevenDays": "7 dana"
       }
 
 

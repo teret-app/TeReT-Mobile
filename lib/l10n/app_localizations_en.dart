@@ -512,7 +512,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offerAcceptedShort => 'Offer accepted.';
 
   @override
-  String get platformFeeExplanation => 'The job is yours.\n\nTo unlock the contact details, you need to pay the platform fee through Stripe Checkout.\n\nThe fee is 5% of the agreed transport price. For transports worth up to €100.00, the minimum fee is €5.00.';
+  String get platformFeeExplanation => 'The job is yours.\n\nTo unlock the contact details, you need to pay the platform fee through Stripe Checkout.\n\nThe fee is 7% of the agreed transport price. For transports worth up to €100.00, fee is €5.00.';
 
   @override
   String get continueToStripeCheckout => 'Continue to Stripe Checkout';
@@ -1560,7 +1560,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get termsFeeTitle => '3. Platform usage fee';
 
   @override
-  String get termsFeeText => 'The TeReT platform is completely free to use and has no membership or registration fees. A fee is charged only when a transport deal is concluded, meaning when the customer accepts a carrier\'s offer. The fee is 5% of the agreed transport price, with a minimum fee of €5.00 for agreed transports valued up to €100.00.';
+  String get termsFeeText => 'The TeReT platform is completely free to use and has no membership or registration fees. A fee is charged only when a transport deal is concluded, meaning when the customer accepts a carrier\'s offer.The commission is paid exclusively by the carrier and only after the customer accepts the carrier\'s offer. The fee is 7% of the agreed transport price, and for transports worth up to €100.00, the fee is €5.00.';
 
   @override
   String get termsUnlockContactTitle => '4. Unlocking contact details';
@@ -1811,4 +1811,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get returnAfterEnablingNotifications => 'After enabling notifications, return to TeReT. The app will continue automatically.';
+
+  @override
+  String get sevenDays => '7 days';
 }

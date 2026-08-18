@@ -1100,7 +1100,7 @@ abstract class AppLocalizations {
   /// No description provided for @platformFeeExplanation.
   ///
   /// In en, this message translates to:
-  /// **'The job is yours.\n\nTo unlock the contact details, you need to pay the platform fee through Stripe Checkout.\n\nThe fee is 5% of the agreed transport price. For transports worth up to €100.00, the minimum fee is €5.00.'**
+  /// **'The job is yours.\n\nTo unlock the contact details, you need to pay the platform fee through Stripe Checkout.\n\nThe fee is 7% of the agreed transport price. For transports worth up to €100.00, fee is €5.00.'**
   String get platformFeeExplanation;
 
   /// No description provided for @continueToStripeCheckout.
@@ -3074,7 +3074,7 @@ abstract class AppLocalizations {
   /// No description provided for @termsFeeText.
   ///
   /// In en, this message translates to:
-  /// **'The TeReT platform is completely free to use and has no membership or registration fees. A fee is charged only when a transport deal is concluded, meaning when the customer accepts a carrier\'s offer. The fee is 5% of the agreed transport price, with a minimum fee of €5.00 for agreed transports valued up to €100.00.'**
+  /// **'The TeReT platform is completely free to use and has no membership or registration fees. A fee is charged only when a transport deal is concluded, meaning when the customer accepts a carrier\'s offer.The commission is paid exclusively by the carrier and only after the customer accepts the carrier\'s offer. The fee is 7% of the agreed transport price, and for transports worth up to €100.00, the fee is €5.00.'**
   String get termsFeeText;
 
   /// No description provided for @termsUnlockContactTitle.
@@ -3556,6 +3556,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'After enabling notifications, return to TeReT. The app will continue automatically.'**
   String get returnAfterEnablingNotifications;
+
+  /// No description provided for @sevenDays.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days'**
+  String get sevenDays;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

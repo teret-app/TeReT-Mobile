@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
+import '../services/language_service.dart';
 import '../config.dart';
 import '../l10n/app_localizations.dart';
 import '../services/token_storage.dart';
@@ -282,6 +282,7 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
         headers: {
           HttpHeaders.contentTypeHeader: 'application/json',
           HttpHeaders.authorizationHeader: 'Bearer $token',
+          'Accept-Language': LanguageService.currentLanguage.value,
         },
         body: jsonEncode({
           'shipmentId': widget.shipmentId,

@@ -102,6 +102,9 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
     '6 sati',
     '12 sati',
     '24 sata',
+    '48 sati',
+    '72 sata',
+    '7 dana',
   ];
 
   final List<String> rokPreuzimanjaOpcije = [
@@ -389,7 +392,19 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
   }
 
   Future<void> objaviTeret() async {
-    if (!_formKey.currentState!.validate()) return;
+    debugPrint('KLIK NA PUBLISH SHIPMENT');
+
+    final formIsValid =
+        _formKey.currentState?.validate() ?? false;
+
+    debugPrint('FORMA ISPRAVNA: $formIsValid');
+
+    if (!formIsValid) {
+      prikaziPoruku(
+        AppLocalizations.of(context)!.checkShipmentData,
+      );
+      return;
+    }
 
     if (odabranoTrajanjeLicitacije == null ||
         odabranoTrajanjeLicitacije!.trim().isEmpty) {
@@ -460,7 +475,18 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
         body: jsonEncode(payload),
       );
 
-      final data = jsonDecode(response.body);
+      dynamic data;
+
+      try {
+        data = response.body.trim().isNotEmpty
+            ? jsonDecode(response.body)
+            : null;
+      } catch (_) {
+        debugPrint('STATUS OBJAVE: ${response.statusCode}');
+        debugPrint('ODGOVOR OBJAVE: ${response.body}');
+
+        data = null;
+      }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (!mounted) return;
@@ -517,16 +543,22 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
               : 'Greška pri objavi tereta.',
         );
       }
-    } catch (e) {
-      prikaziPoruku('Greška konekcije sa serverom.');
-    } finally {
+    } catch (e, stackTrace) {
+      debugPrint('GREŠKA OBJAVE TERETA: $e');
+      debugPrintStack(stackTrace: stackTrace);
+
       if (!mounted) return;
-      setState(() {
-        isLoading = false;
-      });
+
+      final l10n = AppLocalizations.of(context)!;
+      prikaziPoruku(l10n.serverConnectionError);
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
-
   Widget buildTopActionButton({
     required IconData icon,
     required String label,
@@ -654,6 +686,12 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
         return l10n.twelveHours;
       case '24 sata':
         return l10n.twentyFourHours;
+      case '48 sati':
+        return l10n.fortyEightHours;
+      case '72 sata':
+        return l10n.seventyTwoHours;
+      case '7 dana':
+        return l10n.sevenDays;
       default:
         return value;
     }

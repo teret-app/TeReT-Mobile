@@ -624,7 +624,34 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
         status == 'completed';
   }
 
+  String localizedAuctionDuration(
+      AppLocalizations l10n,
+      String value,
+      ) {
+    final normalized = value
+        .toLowerCase()
+        .trim()
+        .replaceAll('sata', '')
+        .replaceAll('sat', '')
+        .replaceAll('hours', '')
+        .replaceAll('hour', '')
+        .trim();
 
+    switch (normalized) {
+      case '1':
+        return l10n.oneHour;
+      case '2':
+        return l10n.twoHours;
+      case '6':
+        return l10n.sixHours;
+      case '12':
+        return l10n.twelveHours;
+      case '24':
+        return l10n.twentyFourHours;
+      default:
+        return value;
+    }
+  }
   String _localizeStoredValue(String value) {
     final normalized = value.toLowerCase().trim();
 
@@ -1510,7 +1537,10 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                       !statusIsAccepted &&
                       !kontaktOtkljucan &&
                       trajanjeLicitacije != '-')
-                    _buildInfoRow(l10n.auctionDuration, trajanjeLicitacije),
+                    _buildInfoRow(
+                      l10n.auctionDuration,
+                      localizedAuctionDuration(l10n, trajanjeLicitacije),
+                    ),
                   if (statusIsActive &&
                       !statusIsAccepted &&
                       !kontaktOtkljucan &&

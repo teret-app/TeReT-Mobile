@@ -79,6 +79,9 @@ Future<void> main() async {
   await Firebase.initializeApp();
 
   await LanguageService.loadLanguage();
+  debugPrint(
+    'JEZIK = ${LanguageService.currentLanguage.value}',
+  );
 
   await localNotifications
       .resolvePlatformSpecificImplementation<

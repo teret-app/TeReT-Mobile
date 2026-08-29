@@ -278,7 +278,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   bool _opensShipmentOffersScreen(String type) {
-    return type == 'offer_created' || type == 'offer_updated';
+    return type == 'offer_created' ||
+        type == 'offer_updated' ||
+        type == 'auction_ended';
   }
 
   bool _opensShipmentDetails(String type) {
@@ -307,6 +309,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         return Icons.lock_open;
       case 'delivery_confirmed':
         return Icons.local_shipping_outlined;
+      case 'auction_ended':
+        return Icons.gavel_outlined;
       default:
         return Icons.notifications_none;
     }
@@ -331,6 +335,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         return Colors.blue;
       case 'delivery_confirmed':
         return Colors.teal;
+      case 'auction_ended':
+        return Colors.deepOrange;
       default:
         return Colors.blueGrey;
     }
@@ -356,6 +362,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         return l10n.notificationConnected;
       case 'delivery_confirmed':
         return l10n.notificationDeliveryConfirmed;
+      case 'auction_ended':
+        return l10n.notificationAuctionFinished;
       default:
         return _text(n['title'], l10n.notification);
     }

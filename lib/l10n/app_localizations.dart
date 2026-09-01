@@ -3562,6 +3562,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'7 days'**
   String get sevenDays;
+
+  /// No description provided for @auctionFinishedChooseCarrier.
+  ///
+  /// In en, this message translates to:
+  /// **'The auction has ended — choose a carrier'**
+  String get auctionFinishedChooseCarrier;
+
+  /// No description provided for @chooseCarrier.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a carrier'**
+  String get chooseCarrier;
+
+  /// No description provided for @reliability.
+  ///
+  /// In en, this message translates to:
+  /// **'Reliability'**
+  String get reliability;
+
+  /// No description provided for @noReliabilityMisses.
+  ///
+  /// In en, this message translates to:
+  /// **'No recorded reliability issues'**
+  String get noReliabilityMisses;
+
+  /// No description provided for @senderNoSelectionInTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Did not choose a carrier in time: {count}'**
+  String senderNoSelectionInTime(Object count);
+
+  /// No description provided for @carrierNoPaymentInTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Did not pay the service fee in time: {count}'**
+  String carrierNoPaymentInTime(Object count);
+
+  /// No description provided for @userProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'User profile'**
+  String get userProfile;
+
+  /// No description provided for @userComments.
+  ///
+  /// In en, this message translates to:
+  /// **'User comments'**
+  String get userComments;
+
+  /// No description provided for @reliabilityMissesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} recorded reliability issues'**
+  String reliabilityMissesCount(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -884,7 +884,23 @@
             "returnAfterEnablingNotifications": "After enabling notifications, return to TeReT. The app will continue automatically.",
             "fortyEightHours": "48 hours",
             "seventyTwoHours": "72 hours",
-            "sevenDays": "7 days"
+            "sevenDays": "7 days",
+            "auctionFinishedChooseCarrier": "The auction has ended — choose a carrier",
+            "chooseCarrier": "Choose a carrier",
+            "reliability": "Reliability",
+            "noReliabilityMisses": "No recorded reliability issues",
+            "senderNoSelectionInTime": "Did not choose a carrier in time: {count}",
+            "carrierNoPaymentInTime": "Did not pay the service fee in time: {count}",
+            "userProfile": "User profile",
+            "userComments": "User comments",
+            "reliabilityMissesCount": "{count} recorded reliability issues",
+            "@reliabilityMissesCount": {
+              "placeholders": {
+                "count": {
+                  "type": "int"
+                }
+              }
+            }
       }
 
 

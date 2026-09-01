@@ -885,7 +885,23 @@
             "returnAfterEnablingNotifications": "Nakon uključivanja obavijesti vratite se u TeReT. Aplikacija će automatski nastaviti.",
             "fortyEightHours": "48 sati",
             "seventyTwoHours": "72 sata",
-            "sevenDays": "7 dana"
+            "sevenDays": "7 dana",
+            "auctionFinishedChooseCarrier": "Licitacija je završena — odaberite prijevoznika",
+            "chooseCarrier": "Odaberi prijevoznika",
+            "reliability": "Pouzdanost",
+            "noReliabilityMisses": "Bez zabilježenih propusta",
+            "senderNoSelectionInTime": "Nije odabrao prijevoznika u roku: {count}",
+            "carrierNoPaymentInTime": "Nije platio naknadu u roku: {count}",
+            "userProfile": "Profil korisnika",
+            "userComments": "Komentari korisnika",
+            "reliabilityMissesCount": "{count} zabilježenih propusta",
+            "@reliabilityMissesCount": {
+              "placeholders": {
+                "count": {
+                  "type": "int"
+                }
+              }
+            }
       }
 
 

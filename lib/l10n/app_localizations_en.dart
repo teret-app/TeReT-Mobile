@@ -1814,4 +1814,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sevenDays => '7 days';
+
+  @override
+  String get auctionFinishedChooseCarrier => 'The auction has ended — choose a carrier';
+
+  @override
+  String get chooseCarrier => 'Choose a carrier';
+
+  @override
+  String get reliability => 'Reliability';
+
+  @override
+  String get noReliabilityMisses => 'No recorded reliability issues';
+
+  @override
+  String senderNoSelectionInTime(Object count) {
+    return 'Did not choose a carrier in time: $count';
+  }
+
+  @override
+  String carrierNoPaymentInTime(Object count) {
+    return 'Did not pay the service fee in time: $count';
+  }
+
+  @override
+  String get userProfile => 'User profile';
+
+  @override
+  String get userComments => 'User comments';
+
+  @override
+  String reliabilityMissesCount(int count) {
+    return '$count recorded reliability issues';
+  }
 }

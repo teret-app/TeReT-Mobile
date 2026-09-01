@@ -1814,4 +1814,37 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get sevenDays => '7 dana';
+
+  @override
+  String get auctionFinishedChooseCarrier => 'Licitacija je završena — odaberite prijevoznika';
+
+  @override
+  String get chooseCarrier => 'Odaberi prijevoznika';
+
+  @override
+  String get reliability => 'Pouzdanost';
+
+  @override
+  String get noReliabilityMisses => 'Bez zabilježenih propusta';
+
+  @override
+  String senderNoSelectionInTime(Object count) {
+    return 'Nije odabrao prijevoznika u roku: $count';
+  }
+
+  @override
+  String carrierNoPaymentInTime(Object count) {
+    return 'Nije platio naknadu u roku: $count';
+  }
+
+  @override
+  String get userProfile => 'Profil korisnika';
+
+  @override
+  String get userComments => 'Komentari korisnika';
+
+  @override
+  String reliabilityMissesCount(int count) {
+    return '$count zabilježenih propusta';
+  }
 }

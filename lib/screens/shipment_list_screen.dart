@@ -293,11 +293,23 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
         return l10n.auctionFinished;
       }
 
-      final hours = difference.inHours;
+      final days = difference.inDays;
+      final hours = difference.inHours.remainder(24);
       final minutes = difference.inMinutes.remainder(60);
 
+      if (days > 0) {
+        return l10n.auctionEndsInDaysHours(
+          days,
+          hours,
+          minutes,
+        );
+      }
+
       if (hours > 0) {
-        return l10n.auctionEndsInHours(hours, minutes);
+        return l10n.auctionEndsInHours(
+          hours,
+          minutes,
+        );
       }
 
       return l10n.auctionEndsInMinutes(minutes);
@@ -316,13 +328,22 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
 
     final normalized = value.toLowerCase().trim();
     final numberMatch = RegExp(r'\d+').firstMatch(normalized);
-    final hours = int.tryParse(numberMatch?.group(0) ?? '');
+    final number = int.tryParse(numberMatch?.group(0) ?? '');
 
-    if (hours == null) {
+    if (number == null) {
       return value;
     }
 
-    return l10n.auctionDurationHours(hours);
+    final isDays =
+        normalized.contains('dan') ||
+            normalized.contains('days') ||
+            normalized.contains('day');
+
+    if (isDays) {
+      return '$number ${number == 1 ? 'dan' : 'dana'}';
+    }
+
+    return l10n.auctionDurationHours(number);
   }
 
   String loadingMethodCode(Map item) {

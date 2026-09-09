@@ -499,6 +499,20 @@
             "shipmentFetchError": "Failed to load shipments.",
             "serverConnectionError": "Server connection error.",
             "auctionFinished": "Auction finished",
+            "auctionEndsInDaysHours": "Auction ends in {days}d {hours}h {minutes}min",
+            "@auctionEndsInDaysHours": {
+              "placeholders": {
+                "days": {
+                  "type": "int"
+                },
+                "hours": {
+                  "type": "int"
+                },
+                "minutes": {
+                  "type": "int"
+                }
+              }
+            },
             "auctionEndsInHours": "{hours}h {minutes}min remaining until the auction ends",
             "@auctionEndsInHours": {
               "placeholders": {

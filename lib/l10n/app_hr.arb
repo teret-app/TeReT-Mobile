@@ -500,6 +500,20 @@
             "shipmentFetchError": "Greška pri dohvaćanju tereta.",
             "serverConnectionError": "Greška konekcije sa serverom.",
             "auctionFinished": "Licitacija završena",
+            "auctionEndsInDaysHours": "Još {days}d {hours}h {minutes}min do isteka licitacije",
+            "@auctionEndsInDaysHours": {
+              "placeholders": {
+                "days": {
+                  "type": "int"
+                },
+                "hours": {
+                  "type": "int"
+                },
+                "minutes": {
+                  "type": "int"
+                }
+              }
+            },
             "auctionEndsInHours": "Još {hours}h {minutes}min do isteka licitacije",
             "@auctionEndsInHours": {
               "placeholders": {

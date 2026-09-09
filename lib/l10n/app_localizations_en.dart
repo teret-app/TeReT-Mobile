@@ -1040,6 +1040,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shipmentFetchError => 'Failed to load shipments.';
 
   @override
+  String auctionEndsInDaysHours(int days, int hours, int minutes) {
+    return 'Auction ends in ${days}d ${hours}h ${minutes}min';
+  }
+
+  @override
   String auctionEndsInHours(int hours, int minutes) {
     return '${hours}h ${minutes}min remaining until the auction ends';
   }

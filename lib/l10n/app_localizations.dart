@@ -2105,6 +2105,12 @@ abstract class AppLocalizations {
   /// **'Failed to load shipments.'**
   String get shipmentFetchError;
 
+  /// No description provided for @auctionEndsInDaysHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Auction ends in {days}d {hours}h {minutes}min'**
+  String auctionEndsInDaysHours(int days, int hours, int minutes);
+
   /// No description provided for @auctionEndsInHours.
   ///
   /// In en, this message translates to:

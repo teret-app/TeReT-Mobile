@@ -1040,6 +1040,11 @@ class AppLocalizationsHr extends AppLocalizations {
   String get shipmentFetchError => 'Greška pri dohvaćanju tereta.';
 
   @override
+  String auctionEndsInDaysHours(int days, int hours, int minutes) {
+    return 'Još ${days}d ${hours}h ${minutes}min do isteka licitacije';
+  }
+
+  @override
   String auctionEndsInHours(int hours, int minutes) {
     return 'Još ${hours}h ${minutes}min do isteka licitacije';
   }

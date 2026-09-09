@@ -345,14 +345,28 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
         return AppLocalizations.of(context)!.auctionFinished;
       }
 
-      final hours = diff.inHours;
+      final l10n = AppLocalizations.of(context)!;
+
+      final days = diff.inDays;
+      final hours = diff.inHours.remainder(24);
       final minutes = diff.inMinutes.remainder(60);
 
-      if (hours > 0) {
-        return 'Još ${hours}h ${minutes}min';
+      if (days > 0) {
+        return l10n.auctionEndsInDaysHours(
+          days,
+          hours,
+          minutes,
+        );
       }
 
-      return 'Još ${minutes}min';
+      if (hours > 0) {
+        return l10n.auctionEndsInHours(
+          hours,
+          minutes,
+        );
+      }
+
+      return l10n.auctionEndsInMinutes(minutes);
     } catch (_) {
       return '';
     }
@@ -475,7 +489,11 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
             offerCount == 0 &&
             !isAccepted &&
             !isCompleted;
-
+    final bool needsCarrierSelection =
+        (timerExpired || isExpiredStatus) &&
+            offerCount > 0 &&
+            !isAccepted &&
+            !isCompleted;
     final bool showHideButton =
         shipmentId > 0 && _canHideFromHistory(status, timerExpired);
 
@@ -558,6 +576,38 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
                 ),
               ),
             ],
+            if (needsCarrierSelection) ...[
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.deepOrange.withOpacity(0.10),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: Colors.deepOrange.withOpacity(0.35),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: Colors.deepOrange,
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        AppLocalizations.of(context)!.auctionFinishedChooseCarrier,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: Colors.deepOrange,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 10),
             Row(
               children: [
@@ -578,12 +628,15 @@ class _MyShipmentsScreenState extends State<MyShipmentsScreen> {
                         ? () => _openShipmentOffers(shipmentId)
                         : null,
                     child: Text(
-                      AppLocalizations.of(context)!.offers,
+                      needsCarrierSelection
+                          ? AppLocalizations.of(context)!.chooseCarrier
+                          : AppLocalizations.of(context)!.offers,
                     ),
                   ),
                 ),
               ],
             ),
+
             const SizedBox(height: 7),
             SizedBox(
               width: double.infinity,

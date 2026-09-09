@@ -406,6 +406,11 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
       return;
     }
 
+    if (odabraneSlike.isEmpty) {
+      prikaziPoruku('Dodajte najmanje jednu sliku tereta.');
+      return;
+    }
+
     if (odabranoTrajanjeLicitacije == null ||
         odabranoTrajanjeLicitacije!.trim().isEmpty) {
       prikaziPoruku('Odaberite trajanje licitacije.');
@@ -458,6 +463,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
         'tip_lokacije_utovara': odabraniTipLokacijeUtovara,
         'tip_lokacije_istovara': odabraniTipLokacijeIstovara,
         'kat_utovara': katUtovaraController.text.trim(),
+        'kat_istovara': katIstovaraController.text.trim(),
         'lift_na_utovaru': liftNaUtovaru,
         'lift_na_istovaru': liftNaIstovaru,
         'prilaz_za_tegljac': prilazZaTegljac,
@@ -992,12 +998,37 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                         controller: tezinaController,
                         keyboardType: TextInputType.number,
                         decoration: poljeDekoracija(l10n.approxWeight),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Unesite težinu tereta.';
+                          }
+                          final parsed = double.tryParse(
+                            value.trim().replaceAll(',', '.'),
+                          );
+                          if (parsed == null || parsed <= 0) {
+                            return 'Unesite ispravnu težinu tereta.';
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: brojPaletaController,
                         keyboardType: TextInputType.number,
-                        decoration:poljeDekoracija(l10n.palletCount),
+                        decoration: poljeDekoracija(l10n.palletCount),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return null;
+                          }
+
+                          final parsed = int.tryParse(value.trim());
+
+                          if (parsed == null || parsed < 0) {
+                            return 'Unesite ispravan broj paleta.';
+                          }
+
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 18),
                       buildSectionTitle(l10n.contact),
@@ -1089,7 +1120,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                           border: Border.all(color: Colors.blue.shade200),
                         ),
                         child: Text(
-                            l10n.contactHiddenUntilAccepted,
+                          l10n.contactHiddenUntilAccepted,
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.blue.shade800,
@@ -1102,7 +1133,9 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                         tilePadding: EdgeInsets.zero,
                         childrenPadding: EdgeInsets.zero,
                         title: Text(
-                          l10n.additionalDetails,
+                          l10n.additionalDetails
+                              .replaceAll(' (opcionalno)', '')
+                              .replaceAll(' (optional)', ''),
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w800,
@@ -1134,6 +1167,12 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                                 }
                               });
                             },
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Odaberite tip lokacije utovara.';
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<String>(
@@ -1160,6 +1199,12 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                                 }
                               });
                             },
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Odaberite tip lokacije istovara.';
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 12),
                           DropdownButtonFormField<String>(
@@ -1180,6 +1225,12 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                                 odabraniNacinUtovara = value;
                               });
                             },
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Odaberite način utovara.';
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 12),
                           if (odabraniTipLokacijeUtovara == 'Zgrada' ||
@@ -1189,6 +1240,15 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                               controller: katUtovaraController,
                               keyboardType: TextInputType.number,
                               decoration: poljeDekoracija('Kat utovara'),
+                              validator: (value) {
+                                if ((odabraniTipLokacijeUtovara == 'Zgrada' ||
+                                    odabraniTipLokacijeUtovara ==
+                                        'Poslovni prostor') &&
+                                    (value == null || value.trim().isEmpty)) {
+                                  return 'Unesite kat utovara.';
+                                }
+                                return null;
+                              },
                             ),
                             const SizedBox(height: 8),
                             SwitchListTile(
@@ -1209,6 +1269,15 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                               controller: katIstovaraController,
                               keyboardType: TextInputType.number,
                               decoration: poljeDekoracija('Kat istovara'),
+                              validator: (value) {
+                                if ((odabraniTipLokacijeIstovara == 'Zgrada' ||
+                                    odabraniTipLokacijeIstovara ==
+                                        'Poslovni prostor') &&
+                                    (value == null || value.trim().isEmpty)) {
+                                  return 'Unesite kat istovara.';
+                                }
+                                return null;
+                              },
                             ),
                             const SizedBox(height: 8),
                             SwitchListTile(
@@ -1226,12 +1295,36 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                             controller: duzinaController,
                             keyboardType: TextInputType.number,
                             decoration: poljeDekoracija(l10n.length),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Unesite dužinu tereta.';
+                              }
+                              final parsed = double.tryParse(
+                                value.trim().replaceAll(',', '.'),
+                              );
+                              if (parsed == null || parsed <= 0) {
+                                return 'Unesite ispravnu dužinu tereta.';
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: sirinaController,
                             keyboardType: TextInputType.number,
                             decoration: poljeDekoracija(l10n.width),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Unesite širinu tereta.';
+                              }
+                              final parsed = double.tryParse(
+                                value.trim().replaceAll(',', '.'),
+                              );
+                              if (parsed == null || parsed <= 0) {
+                                return 'Unesite ispravnu širinu tereta.';
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 12),
 
@@ -1239,6 +1332,18 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                             controller: visinaController,
                             keyboardType: TextInputType.number,
                             decoration: poljeDekoracija(l10n.height),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Unesite visinu tereta.';
+                              }
+                              final parsed = double.tryParse(
+                                value.trim().replaceAll(',', '.'),
+                              );
+                              if (parsed == null || parsed <= 0) {
+                                return 'Unesite ispravnu visinu tereta.';
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 8),
 

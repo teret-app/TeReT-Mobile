@@ -1016,19 +1016,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                         controller: brojPaletaController,
                         keyboardType: TextInputType.number,
                         decoration: poljeDekoracija(l10n.palletCount),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return null;
-                          }
 
-                          final parsed = int.tryParse(value.trim());
-
-                          if (parsed == null || parsed < 0) {
-                            return 'Unesite ispravan broj paleta.';
-                          }
-
-                          return null;
-                        },
                       ),
                       const SizedBox(height: 18),
                       buildSectionTitle(l10n.contact),

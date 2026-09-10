@@ -1592,6 +1592,12 @@ class AppLocalizationsHr extends AppLocalizations {
   String get termsTransportResponsibilityText => 'Za izvršenje prijevoza, stanje robe, vrijeme isporuke i sve ostale detalje odgovorni su isključivo naručitelj i prijevoznik. TeReT ne sudjeluje u prijevozu niti preuzima odgovornost za eventualnu štetu.';
 
   @override
+  String get termsProhibitedAdvertisingTitle => '8. Zabrana oglašavanja prijevozničkih usluga';
+
+  @override
+  String get termsProhibitedAdvertisingText => 'TeReT je namijenjen objavi zahtjeva za prijevoz tereta od strane naručitelja i slanju ponuda prijevoznika putem sustava licitacije. Nije dopušteno koristiti objavu tereta za oglašavanje vlastitih prijevozničkih usluga, slobodnog kapaciteta vozila, povratnih ruta ili drugih oblika oglašavanja kojima se zaobilazi sustav ponuda unutar aplikacije. TeReT zadržava pravo bez prethodne najave ukloniti svaku objavu za koju procijeni da predstavlja oglašavanje prijevozničkih usluga ili zlouporabu sustava. U slučaju ponavljanja takvog ponašanja TeReT može ograničiti ili onemogućiti korištenje korisničkog računa.';
+
+  @override
   String get privacyTitle => 'Pravila privatnosti';
 
   @override

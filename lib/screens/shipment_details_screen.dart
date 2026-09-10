@@ -35,6 +35,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
   bool isPayingCommission = false;
   bool isConfirmingDelivery = false;
   bool currentUserIsSender = false;
+  int? currentUserId;
   bool get isSenderView =>
       widget.isSenderView ||
           currentUserIsSender ||
@@ -120,7 +121,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
         final decoded = jsonDecode(response.body);
         final decodedShipment = Map<String, dynamic>.from(decoded);
 
-        final currentUserId = _getUserIdFromToken(token);
+        currentUserId = _getUserIdFromToken(token);
         final senderId = int.tryParse(
           decodedShipment['senderId']?.toString() ?? '',
         );
@@ -355,6 +356,79 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
       setState(() {
         isConfirmingDelivery = false;
       });
+    }
+  }
+  Future<void> deleteShipmentAsAdmin() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Obriši objavu'),
+          content: const Text(
+            'Želite li trajno obrisati ovu objavu? Ova radnja se ne može poništiti.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Odustani'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Obriši'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    final token = await TokenStorage.getToken();
+
+    if (token == null || token.isEmpty) {
+      return;
+    }
+
+    try {
+      final response = await http.delete(
+        Uri.parse(
+          '${AppConfig.baseUrl}/admin/shipments/${widget.shipmentId}',
+        ),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      String message = 'Objava je obrisana.';
+
+      try {
+        final body = jsonDecode(response.body);
+        if (body is Map && body['message'] != null) {
+          message = body['message'].toString();
+        }
+      } catch (_) {}
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.of(context).pop(true);
+      }
+    } catch (_) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.serverConnectionError)),
+      );
     }
   }
   Future<void> _callPhoneNumber(String phoneNumber) async {
@@ -1681,6 +1755,22 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                   l10n.sendOffer,
                   style: TextStyle(fontSize: 16),
                 ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
+
+          if (currentUserId == 3) ...[
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: deleteShipmentAsAdmin,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+                icon: const Icon(Icons.delete_forever),
+                label: const Text('Obriši objavu'),
               ),
             ),
             const SizedBox(height: 12),

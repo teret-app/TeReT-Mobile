@@ -92,6 +92,8 @@ class TermsScreen extends StatelessWidget {
               sectionText(l10n.termsCancellationText),
               sectionTitle(l10n.termsTransportResponsibilityTitle),
               sectionText(l10n.termsTransportResponsibilityText),
+              sectionTitle(l10n.termsProhibitedAdvertisingTitle),
+              sectionText(l10n.termsProhibitedAdvertisingText),
               const SizedBox(height: 40),
             ],
           ),

@@ -3131,6 +3131,18 @@ abstract class AppLocalizations {
   /// **'The customer and carrier are solely responsible for the execution of transport, the condition of the goods, delivery time and all other details. TeReT does not participate in transport and accepts no responsibility for any resulting damage.'**
   String get termsTransportResponsibilityText;
 
+  /// No description provided for @termsProhibitedAdvertisingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'8. Prohibition of advertising carrier services'**
+  String get termsProhibitedAdvertisingTitle;
+
+  /// No description provided for @termsProhibitedAdvertisingText.
+  ///
+  /// In en, this message translates to:
+  /// **'TeReT is intended for publishing transport requests by customers and for carriers to submit offers through the auction system. Shipment listings may not be used to advertise carrier services, available vehicle capacity, return routes or any other form of advertising intended to bypass the in-app offer system. TeReT reserves the right to remove, without prior notice, any listing that it determines constitutes advertising of carrier services or misuse of the platform. In cases of repeated violations, TeReT may restrict or disable the user\'s account.'**
+  String get termsProhibitedAdvertisingText;
+
   /// No description provided for @privacyTitle.
   ///
   /// In en, this message translates to:

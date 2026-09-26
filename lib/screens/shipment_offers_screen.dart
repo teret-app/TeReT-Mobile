@@ -368,43 +368,8 @@ class _ShipmentOffersScreenState extends State<ShipmentOffersScreen> {
   }
 
   String getCarrierDisplayName(dynamic offer) {
-    if (offer is! Map) {
-      return AppLocalizations.of(context)!.carrier;
-    }
-
-    final carrier = offer['carrier'];
-
-    if (carrier is Map) {
-      final nickname = (carrier['nickname'] ?? '').toString().trim();
-      final companyName = (carrier['companyName'] ?? '').toString().trim();
-      final fullName = (carrier['fullName'] ?? '').toString().trim();
-
-      if (nickname.isNotEmpty) return nickname;
-      if (companyName.isNotEmpty) return companyName;
-
-      if (fullName.isNotEmpty) {
-        final parts = fullName.split(RegExp(r'\s+'));
-        if (parts.length >= 2 && parts[0].isNotEmpty && parts[1].isNotEmpty) {
-          return '${parts[0][0]}. ${parts.sublist(1).join(' ')}';
-        }
-        return fullName;
-      }
-    }
-
-    final fallbackName = (offer['transporterName'] ??
-        offer['carrierName'] ??
-        offer['prijevoznik_ime'] ??
-        offer['full_name'] ??
-        offer['name'] ??
-        '')
-        .toString()
-        .trim();
-
-    return fallbackName.isNotEmpty
-        ? fallbackName
-        : AppLocalizations.of(context)!.carrier;
+    return AppLocalizations.of(context)!.carrier;
   }
-
   String getCarrierRatingText(dynamic offer) {
     if (offer is! Map) return '';
 

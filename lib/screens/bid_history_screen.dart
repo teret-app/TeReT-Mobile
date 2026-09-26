@@ -7,7 +7,7 @@ import '../config.dart';
 import '../l10n/app_localizations.dart';
 import '../services/token_storage.dart';
 import 'login_screen.dart';
-
+import 'user_profile_screen.dart';
 class BidHistoryScreen extends StatefulWidget {
   final int shipmentId;
 
@@ -207,32 +207,13 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
   String _carrierTitle(Map<String, dynamic> bid) {
     final l10n = AppLocalizations.of(context)!;
 
-    final isMyOffer = bid['isMyOffer'] == true;
-
-    final carrierName =
-    (bid['carrierName'] ?? '').toString().trim();
-
-    final carrierCompany =
-    (bid['carrierCompany'] ?? '').toString().trim();
-
-    if (isMyOffer) {
+    if (bid['isMyOffer'] == true) {
       return l10n.bidHistoryYourOffer;
-    }
-
-    if (carrierCompany.isNotEmpty &&
-        carrierCompany != 'Drugi prijevoznik' &&
-        carrierCompany != 'Other carrier') {
-      return carrierCompany;
-    }
-
-    if (carrierName.isNotEmpty &&
-        carrierName != 'Drugi prijevoznik' &&
-        carrierName != 'Other carrier') {
-      return carrierName;
     }
 
     return l10n.bidHistoryCarrier;
   }
+
 
   String _carrierRatingText(Map<String, dynamic> bid) {
     final l10n = AppLocalizations.of(context)!;
@@ -263,8 +244,7 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
     final lowestOffer = data?['lowestOffer'];
     final myOfferAmount = data?['myOfferAmount'];
 
-    final offersCount =
-        data?['offersCount'] ?? bidHistory.length;
+    final offersCount = bidHistory.length;
 
     final shipmentStatus = data?['shipmentStatus'];
 
@@ -358,7 +338,10 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
 
     final carrierRatingText =
     _carrierRatingText(bid);
+    final carrierId =
+    int.tryParse((bid['carrierId'] ?? '').toString());
 
+    final carrierTitle = _carrierTitle(bid);
     String badgeText = '';
     Color badgeColor = Colors.grey;
 
@@ -405,14 +388,32 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
                           crossAxisAlignment:
                           CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              _carrierTitle(bid),
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight:
-                                FontWeight.bold,
+                            InkWell(
+                              onTap: carrierId == null
+                                  ? null
+                                  : () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => UserProfileScreen(
+                                      userId: carrierId,
+                                      userName: carrierTitle,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                carrierTitle,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: carrierId != null ? Colors.blue : null,
+                                  decoration:
+                                  carrierId != null ? TextDecoration.underline : null,
+                                ),
                               ),
                             ),
+
 
                             if (carrierRatingText
                                 .isNotEmpty) ...[
@@ -552,7 +553,40 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           _summaryCard(),
-
+          if (data?['isSenderOwner'] == true) ...[
+            Container(
+              width: double.infinity,
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.green.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.green.withValues(alpha: 0.35),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.info_outline,
+                    color: Colors.green,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      l10n.bidHistorySenderPaymentInfo,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        height: 1.4,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
           Text(
             l10n.bidHistoryAuctionProgress,
             style: const TextStyle(

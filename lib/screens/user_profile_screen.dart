@@ -108,14 +108,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final ratings = (ratingData?['ratings'] as List?) ?? [];
     final averageRating = ratingData?['averageRating'];
     final ratingsCount = ratingData?['ratingsCount'] ?? 0;
-    final reliabilityMisses =
-    NumberFormatHelper.toNum(ratingData?['reliabilityMisses']).toInt();
 
-    final senderNoSelectionCount =
-    NumberFormatHelper.toNum(ratingData?['senderNoSelectionCount']).toInt();
-
-    final carrierNoPaymentCount =
-    NumberFormatHelper.toNum(ratingData?['carrierNoPaymentCount']).toInt();
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.userProfile),
@@ -187,76 +180,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 18),
-               Text(
-                    l10n.reliability,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-              const SizedBox(height: 10),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.verified_user_outlined,
-                          color: mainColor,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            reliabilityMisses == 0
-                                ? l10n.noReliabilityMisses
-                                : l10n.reliabilityMissesCount(reliabilityMisses),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (senderNoSelectionCount > 0) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        l10n.senderNoSelectionInTime(senderNoSelectionCount),
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                    if (carrierNoPaymentCount > 0) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.carrierNoPaymentInTime(carrierNoPaymentCount),
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const SizedBox(height: 18),
+
               Text(
                 l10n.userComments,
                 style: const TextStyle(

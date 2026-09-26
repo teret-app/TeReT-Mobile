@@ -1100,7 +1100,7 @@ abstract class AppLocalizations {
   /// No description provided for @platformFeeExplanation.
   ///
   /// In en, this message translates to:
-  /// **'The job is yours.\n\nTo unlock the contact details, you need to pay the platform fee through Stripe Checkout.\n\nThe fee is 7% of the agreed transport price. For transports worth up to €100.00, fee is €5.00.'**
+  /// **'The job is yours.\n\nTo unlock the contact details, you need to pay the platform fee through Stripe Checkout.\n\nThe fee is 5% of the agreed transport price. For transports worth up to €100.00, fee is €5.00.'**
   String get platformFeeExplanation;
 
   /// No description provided for @continueToStripeCheckout.
@@ -1528,6 +1528,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Auction summary'**
   String get bidHistorySummary;
+
+  /// No description provided for @bidHistorySenderPaymentInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'You pay nothing through the TeReT app when accepting an offer. The transport price is paid directly to the carrier as agreed after the transport has been completed.'**
+  String get bidHistorySenderPaymentInfo;
 
   /// No description provided for @bidHistoryCurrentLowestOffer.
   ///
@@ -3080,7 +3086,7 @@ abstract class AppLocalizations {
   /// No description provided for @termsFeeText.
   ///
   /// In en, this message translates to:
-  /// **'The TeReT platform is completely free to use and has no membership or registration fees. A fee is charged only when a transport deal is concluded, meaning when the customer accepts a carrier\'s offer.The commission is paid exclusively by the carrier and only after the customer accepts the carrier\'s offer. The fee is 7% of the agreed transport price, and for transports worth up to €100.00, the fee is €5.00.'**
+  /// **'The TeReT platform is completely free to use and has no membership or registration fees. A fee is charged only when a transport deal is concluded, meaning when the customer accepts a carrier\'s offer.The commission is paid exclusively by the carrier and only after the customer accepts the carrier\'s offer. The fee is 5% of the agreed transport price, and for transports worth up to €100.00, the fee is €5.00.'**
   String get termsFeeText;
 
   /// No description provided for @termsUnlockContactTitle.
@@ -3134,13 +3140,13 @@ abstract class AppLocalizations {
   /// No description provided for @termsProhibitedAdvertisingTitle.
   ///
   /// In en, this message translates to:
-  /// **'8. Prohibition of advertising carrier services'**
+  /// **'8. Prohibited advertising'**
   String get termsProhibitedAdvertisingTitle;
 
   /// No description provided for @termsProhibitedAdvertisingText.
   ///
   /// In en, this message translates to:
-  /// **'TeReT is intended for publishing transport requests by customers and for carriers to submit offers through the auction system. Shipment listings may not be used to advertise carrier services, available vehicle capacity, return routes or any other form of advertising intended to bypass the in-app offer system. TeReT reserves the right to remove, without prior notice, any listing that it determines constitutes advertising of carrier services or misuse of the platform. In cases of repeated violations, TeReT may restrict or disable the user\'s account.'**
+  /// **'It is prohibited to use shipment listings for advertising services, offering return routes, publishing contact details, or any other content that is not an actual transport request. TeReT reserves the right to remove such listings.'**
   String get termsProhibitedAdvertisingText;
 
   /// No description provided for @privacyTitle.
@@ -3634,6 +3640,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} recorded reliability issues'**
   String reliabilityMissesCount(int count);
+
+  /// No description provided for @commissionTimeRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Time remaining for payment: {hours}h {minutes}min'**
+  String commissionTimeRemaining(int hours, int minutes);
+
+  /// No description provided for @commissionPaymentExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment deadline has expired'**
+  String get commissionPaymentExpired;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -197,7 +197,7 @@
   "carrierWillContactSoon": "The carrier will contact you soon.",
   "waitingForCarrierConfirmation": "Waiting for the carrier's confirmation.",
   "offerAcceptedShort": "Offer accepted.",
-  "platformFeeExplanation": "The job is yours.\n\nTo unlock the contact details, you need to pay the platform fee through Stripe Checkout.\n\nThe fee is 7% of the agreed transport price. For transports worth up to €100.00, fee is €5.00.",
+  "platformFeeExplanation": "The job is yours.\n\nTo unlock the contact details, you need to pay the platform fee through Stripe Checkout.\n\nThe fee is 5% of the agreed transport price. For transports worth up to €100.00, fee is €5.00.",
   "continueToStripeCheckout": "Continue to Stripe Checkout",
   "otherCarrierWonMessage": "Unfortunately, another carrier got this job. Thank you for taking part in the auction.",
   "shipmentNotFound": "Shipment not found.",
@@ -364,6 +364,7 @@
           }
         },
         "bidHistorySummary": "Auction summary",
+        "bidHistorySenderPaymentInfo": "You pay nothing through the TeReT app when accepting an offer. The transport price is paid directly to the carrier as agreed after the transport has been completed.",
         "bidHistoryCurrentLowestOffer": "Current lowest offer",
         "bidHistoryOffersCount": "Number of offers",
         "bidHistoryShipmentStatus": "Shipment status",
@@ -776,7 +777,7 @@
             "termsPlatformRoleTitle": "2. Role of the platform",
             "termsPlatformRoleText": "TeReT is neither a carrier nor a freight forwarder. TeReT does not act as a contractual party in transport and accepts no responsibility for the execution of transport, delays, cancellations, damage to goods, inaccurate user information or disputes between users. All transport arrangements are made exclusively between the customer and the carrier.",
             "termsFeeTitle": "3. Platform usage fee",
-            "termsFeeText": "The TeReT platform is completely free to use and has no membership or registration fees. A fee is charged only when a transport deal is concluded, meaning when the customer accepts a carrier's offer.The commission is paid exclusively by the carrier and only after the customer accepts the carrier's offer. The fee is 7% of the agreed transport price, and for transports worth up to €100.00, the fee is €5.00.",
+            "termsFeeText": "The TeReT platform is completely free to use and has no membership or registration fees. A fee is charged only when a transport deal is concluded, meaning when the customer accepts a carrier's offer.The commission is paid exclusively by the carrier and only after the customer accepts the carrier's offer. The fee is 5% of the agreed transport price, and for transports worth up to €100.00, the fee is €5.00.",
             "termsUnlockContactTitle": "4. Unlocking contact details",
             "termsUnlockContactText": "The contact details of the customer and carrier become available only after the fee has been successfully paid through Stripe. Once the contact details are unlocked, the platform service is considered completed.",
             "termsRefundTitle": "5. Fee refunds",
@@ -784,9 +785,9 @@
             "termsCancellationTitle": "6. Transport cancellation",
             "termsCancellationText": "If the transport is cancelled by the customer or the carrier, TeReT accepts no responsibility for the consequences of the cancellation. Users are solely responsible for their mutual arrangements, costs, damages, delays or other consequences that may arise from cancellation. If the platform fee has already been paid and the contact details have been unlocked, the fee is non-refundable because the connection service through the platform is considered completed.",
             "termsTransportResponsibilityTitle": "7. Responsibility for transport",
-            "termsTransportResponsibilityText": "The customer and carrier are solely responsible for the execution of transport, the condition of the goods, delivery time and all other details. TeReT does not participate in transport and accepts no responsibility for any resulting damage.",
-            "termsProhibitedAdvertisingTitle": "8. Prohibition of advertising carrier services",
-            "termsProhibitedAdvertisingText": "TeReT is intended for publishing transport requests by customers and for carriers to submit offers through the auction system. Shipment listings may not be used to advertise carrier services, available vehicle capacity, return routes or any other form of advertising intended to bypass the in-app offer system. TeReT reserves the right to remove, without prior notice, any listing that it determines constitutes advertising of carrier services or misuse of the platform. In cases of repeated violations, TeReT may restrict or disable the user's account.",
+           "termsTransportResponsibilityText": "The customer and carrier are solely responsible for the execution of transport, the condition of the goods, delivery time and all other details. TeReT does not participate in transport and accepts no responsibility for any resulting damage.",
+            "termsProhibitedAdvertisingTitle": "8. Prohibited advertising",
+            "termsProhibitedAdvertisingText": "It is prohibited to use shipment listings for advertising services, offering return routes, publishing contact details, or any other content that is not an actual transport request. TeReT reserves the right to remove such listings.",
             "privacyTitle": "Privacy policy",
             "privacySection1Title": "1. Data collection",
             "privacySection1Text": "TeReT collects the basic user information required to use the platform, including full name, phone number, email address, transport information and published shipments.",
@@ -916,7 +917,17 @@
                   "type": "int"
                 }
               }
-            }
+            },
+  "commissionTimeRemaining": "Time remaining for payment: {hours}h {minutes}min",
+  "@commissionTimeRemaining": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
       }
-
-
+    }
+  },
+  "commissionPaymentExpired": "The payment deadline has expired"
+}

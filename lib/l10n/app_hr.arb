@@ -198,7 +198,7 @@
   "carrierWillContactSoon": "Prijevoznik će vas uskoro kontaktirati.",
   "waitingForCarrierConfirmation": "Čeka se potvrda prijevoznika.",
   "offerAcceptedShort": "Ponuda prihvaćena.",
-  "platformFeeExplanation": "Posao je Vaš.\n\nZa otključavanje kontakt podataka potrebno je platiti naknadu platforme putem Stripe Checkouta.\n\nNaknada iznosi 7% od dogovorene cijene prijevoza, a za prijevoze u vrijednosti do 100,00 € naknada iznosi 5,00 €.",
+  "platformFeeExplanation": "Posao je Vaš.\n\nZa otključavanje kontakt podataka potrebno je platiti naknadu platforme putem Stripe Checkouta.\n\nNaknada iznosi 5% od dogovorene cijene prijevoza, a za prijevoze u vrijednosti do 100,00 € naknada iznosi 5,00 €.",
   "continueToStripeCheckout": "Nastavi na Stripe Checkout",
   "otherCarrierWonMessage": "Nažalost, drugi prijevoznik je dobio ovaj posao. Hvala na sudjelovanju u licitaciji.",
   "shipmentNotFound": "Teret nije pronađen.",
@@ -365,6 +365,7 @@
           }
         },
         "bidHistorySummary": "Sažetak licitacije",
+        "bidHistorySenderPaymentInfo": "Prihvaćanjem ponude ne plaćate ništa putem TeReT aplikacije. Cijenu prijevoza plaćate prijevozniku prema dogovoru nakon izvršenog prijevoza.",
         "bidHistoryCurrentLowestOffer": "Trenutna najniža ponuda",
         "bidHistoryOffersCount": "Broj ponuda",
         "bidHistoryShipmentStatus": "Status tereta",
@@ -777,7 +778,7 @@
             "termsPlatformRoleTitle": "2. Uloga platforme",
             "termsPlatformRoleText": "TeReT nije prijevoznik niti špediter. TeReT ne djeluje kao ugovorna strana u prijevozu te ne preuzima odgovornost za izvršenje prijevoza, kašnjenja, otkazivanja, štetu na robi ili netočne podatke korisnika niti sporove između korisnika. Svi dogovori o prijevozu sklapaju se isključivo između naručitelja i prijevoznika.",
             "termsFeeTitle": "3. Naknada za korištenje platforme",
-            "termsFeeText": "Platforma TeReT potpuno je besplatna za korištenje i nema nikakve članarine ni kotizacije. Naknada se plaća isključivo po zaključenom poslu, odnosno kada naručitelj prihvati ponudu prijevoznika. Iznosi 7% od dogovorene cijene prijevoza i plaća je samo prijevoznik, a za dogovorene prijevoze u vrijednosti do 100,00 € naknada iznosi 5,00 €.",
+            "termsFeeText": "Platforma TeReT potpuno je besplatna za korištenje i nema nikakve članarine ni kotizacije. Naknada se plaća isključivo po zaključenom poslu, odnosno kada naručitelj prihvati ponudu prijevoznika. Iznosi 5% od dogovorene cijene prijevoza i plaća je samo prijevoznik, a za dogovorene prijevoze u vrijednosti do 100,00 € naknada iznosi 5,00 €.",
             "termsUnlockContactTitle": "4. Otključavanje kontakt podataka",
             "termsUnlockContactText": "Kontakt podaci naručitelja i prijevoznika dostupni su tek nakon uspješne naplate naknade putem Stripe sustava. Nakon otključavanja kontakt podataka smatra se da je usluga platforme izvršena.",
             "termsRefundTitle": "5. Povrat naknade",
@@ -786,8 +787,6 @@
             "termsCancellationText": "U slučaju otkazivanja prijevoza od strane naručitelja ili prijevoznika, TeReT ne snosi nikakvu odgovornost za posljedice otkazivanja. Korisnici su sami odgovorni za međusobne dogovore, troškove, štetu, kašnjenja ili druge posljedice koje mogu nastati zbog otkazivanja. Ako je naknada za korištenje platforme već plaćena i kontakt podaci su otključani, naknada se ne vraća jer se smatra da je usluga povezivanja putem platforme izvršena.",
             "termsTransportResponsibilityTitle": "7. Odgovornost za prijevoz",
             "termsTransportResponsibilityText": "Za izvršenje prijevoza, stanje robe, vrijeme isporuke i sve ostale detalje odgovorni su isključivo naručitelj i prijevoznik. TeReT ne sudjeluje u prijevozu niti preuzima odgovornost za eventualnu štetu.",
-           "termsProhibitedAdvertisingTitle": "8. Zabrana oglašavanja prijevozničkih usluga",
-           "termsProhibitedAdvertisingText": "TeReT je namijenjen objavi zahtjeva za prijevoz tereta od strane naručitelja i slanju ponuda prijevoznika putem sustava licitacije. Nije dopušteno koristiti objavu tereta za oglašavanje vlastitih prijevozničkih usluga, slobodnog kapaciteta vozila, povratnih ruta ili drugih oblika oglašavanja kojima se zaobilazi sustav ponuda unutar aplikacije. TeReT zadržava pravo bez prethodne najave ukloniti svaku objavu za koju procijeni da predstavlja oglašavanje prijevozničkih usluga ili zlouporabu sustava. U slučaju ponavljanja takvog ponašanja TeReT može ograničiti ili onemogućiti korištenje korisničkog računa.",
             "privacyTitle": "Pravila privatnosti",
             "privacySection1Title": "1. Prikupljanje podataka",
             "privacySection1Text": "TeReT prikuplja osnovne podatke korisnika potrebne za korištenje platforme, uključujući ime i prezime, broj telefona, email adresu te podatke o prijevozu i objavljenim teretima.",
@@ -917,10 +916,19 @@
                   "type": "int"
                 }
               }
-            }
+            },
+  "commissionTimeRemaining": "Preostalo za plaćanje: {hours}h {minutes}min",
+  "@commissionTimeRemaining": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      },
+      "minutes": {
+        "type": "int"
       }
-
-
-
-
-
+    }
+  },
+  "commissionPaymentExpired": "Rok za plaćanje je istekao",
+  "termsProhibitedAdvertisingTitle": "8. Zabrana oglašavanja prijevozničkih usluga",
+  "termsProhibitedAdvertisingText": "TeReT je namijenjen objavi zahtjeva za prijevoz tereta od strane naručitelja i slanju ponuda prijevoznika putem sustava licitacije. Nije dopušteno koristiti objavu tereta za oglašavanje vlastitih prijevozničkih usluga, slobodnog kapaciteta vozila, povratnih ruta ili drugih oblika oglašavanja kojima se zaobilazi sustav ponuda unutar aplikacije. TeReT zadržava pravo bez prethodne najave ukloniti svaku objavu za koju procijeni da predstavlja oglašavanje prijevozničkih usluga ili zlouporabu sustava. U slučaju ponavljanja takvog ponašanja TeReT može ograničiti ili onemogućiti korištenje korisničkog računa."
+}

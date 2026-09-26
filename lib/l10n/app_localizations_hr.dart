@@ -512,7 +512,7 @@ class AppLocalizationsHr extends AppLocalizations {
   String get offerAcceptedShort => 'Ponuda prihvaćena.';
 
   @override
-  String get platformFeeExplanation => 'Posao je Vaš.\n\nZa otključavanje kontakt podataka potrebno je platiti naknadu platforme putem Stripe Checkouta.\n\nNaknada iznosi 7% od dogovorene cijene prijevoza, a za prijevoze u vrijednosti do 100,00 € naknada iznosi 5,00 €.';
+  String get platformFeeExplanation => 'Posao je Vaš.\n\nZa otključavanje kontakt podataka potrebno je platiti naknadu platforme putem Stripe Checkouta.\n\nNaknada iznosi 5% od dogovorene cijene prijevoza, a za prijevoze u vrijednosti do 100,00 € naknada iznosi 5,00 €.';
 
   @override
   String get continueToStripeCheckout => 'Nastavi na Stripe Checkout';
@@ -744,6 +744,9 @@ class AppLocalizationsHr extends AppLocalizations {
 
   @override
   String get bidHistorySummary => 'Sažetak licitacije';
+
+  @override
+  String get bidHistorySenderPaymentInfo => 'Prihvaćanjem ponude ne plaćate ništa putem TeReT aplikacije. Cijenu prijevoza plaćate prijevozniku prema dogovoru nakon izvršenog prijevoza.';
 
   @override
   String get bidHistoryCurrentLowestOffer => 'Trenutna najniža ponuda';
@@ -1565,7 +1568,7 @@ class AppLocalizationsHr extends AppLocalizations {
   String get termsFeeTitle => '3. Naknada za korištenje platforme';
 
   @override
-  String get termsFeeText => 'Platforma TeReT potpuno je besplatna za korištenje i nema nikakve članarine ni kotizacije. Naknada se plaća isključivo po zaključenom poslu, odnosno kada naručitelj prihvati ponudu prijevoznika. Iznosi 7% od dogovorene cijene prijevoza i plaća je samo prijevoznik, a za dogovorene prijevoze u vrijednosti do 100,00 € naknada iznosi 5,00 €.';
+  String get termsFeeText => 'Platforma TeReT potpuno je besplatna za korištenje i nema nikakve članarine ni kotizacije. Naknada se plaća isključivo po zaključenom poslu, odnosno kada naručitelj prihvati ponudu prijevoznika. Iznosi 5% od dogovorene cijene prijevoza i plaća je samo prijevoznik, a za dogovorene prijevoze u vrijednosti do 100,00 € naknada iznosi 5,00 €.';
 
   @override
   String get termsUnlockContactTitle => '4. Otključavanje kontakt podataka';
@@ -1858,4 +1861,12 @@ class AppLocalizationsHr extends AppLocalizations {
   String reliabilityMissesCount(int count) {
     return '$count zabilježenih propusta';
   }
+
+  @override
+  String commissionTimeRemaining(int hours, int minutes) {
+    return 'Preostalo za plaćanje: ${hours}h ${minutes}min';
+  }
+
+  @override
+  String get commissionPaymentExpired => 'Rok za plaćanje je istekao';
 }

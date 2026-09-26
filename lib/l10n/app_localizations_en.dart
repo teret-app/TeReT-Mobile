@@ -512,7 +512,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offerAcceptedShort => 'Offer accepted.';
 
   @override
-  String get platformFeeExplanation => 'The job is yours.\n\nTo unlock the contact details, you need to pay the platform fee through Stripe Checkout.\n\nThe fee is 7% of the agreed transport price. For transports worth up to €100.00, fee is €5.00.';
+  String get platformFeeExplanation => 'The job is yours.\n\nTo unlock the contact details, you need to pay the platform fee through Stripe Checkout.\n\nThe fee is 5% of the agreed transport price. For transports worth up to €100.00, fee is €5.00.';
 
   @override
   String get continueToStripeCheckout => 'Continue to Stripe Checkout';
@@ -744,6 +744,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bidHistorySummary => 'Auction summary';
+
+  @override
+  String get bidHistorySenderPaymentInfo => 'You pay nothing through the TeReT app when accepting an offer. The transport price is paid directly to the carrier as agreed after the transport has been completed.';
 
   @override
   String get bidHistoryCurrentLowestOffer => 'Current lowest offer';
@@ -1565,7 +1568,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get termsFeeTitle => '3. Platform usage fee';
 
   @override
-  String get termsFeeText => 'The TeReT platform is completely free to use and has no membership or registration fees. A fee is charged only when a transport deal is concluded, meaning when the customer accepts a carrier\'s offer.The commission is paid exclusively by the carrier and only after the customer accepts the carrier\'s offer. The fee is 7% of the agreed transport price, and for transports worth up to €100.00, the fee is €5.00.';
+  String get termsFeeText => 'The TeReT platform is completely free to use and has no membership or registration fees. A fee is charged only when a transport deal is concluded, meaning when the customer accepts a carrier\'s offer.The commission is paid exclusively by the carrier and only after the customer accepts the carrier\'s offer. The fee is 5% of the agreed transport price, and for transports worth up to €100.00, the fee is €5.00.';
 
   @override
   String get termsUnlockContactTitle => '4. Unlocking contact details';
@@ -1592,10 +1595,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get termsTransportResponsibilityText => 'The customer and carrier are solely responsible for the execution of transport, the condition of the goods, delivery time and all other details. TeReT does not participate in transport and accepts no responsibility for any resulting damage.';
 
   @override
-  String get termsProhibitedAdvertisingTitle => '8. Prohibition of advertising carrier services';
+  String get termsProhibitedAdvertisingTitle => '8. Prohibited advertising';
 
   @override
-  String get termsProhibitedAdvertisingText => 'TeReT is intended for publishing transport requests by customers and for carriers to submit offers through the auction system. Shipment listings may not be used to advertise carrier services, available vehicle capacity, return routes or any other form of advertising intended to bypass the in-app offer system. TeReT reserves the right to remove, without prior notice, any listing that it determines constitutes advertising of carrier services or misuse of the platform. In cases of repeated violations, TeReT may restrict or disable the user\'s account.';
+  String get termsProhibitedAdvertisingText => 'It is prohibited to use shipment listings for advertising services, offering return routes, publishing contact details, or any other content that is not an actual transport request. TeReT reserves the right to remove such listings.';
 
   @override
   String get privacyTitle => 'Privacy policy';
@@ -1858,4 +1861,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String reliabilityMissesCount(int count) {
     return '$count recorded reliability issues';
   }
+
+  @override
+  String commissionTimeRemaining(int hours, int minutes) {
+    return 'Time remaining for payment: ${hours}h ${minutes}min';
+  }
+
+  @override
+  String get commissionPaymentExpired => 'The payment deadline has expired';
 }

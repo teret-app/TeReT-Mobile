@@ -207,6 +207,21 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
   String _carrierTitle(Map<String, dynamic> bid) {
     final l10n = AppLocalizations.of(context)!;
 
+    final carrierName =
+    (bid['carrierName'] ?? '').toString().trim();
+
+    final carrierCompany =
+    (bid['carrierCompany'] ?? '').toString().trim();
+
+    // Backend šalje ime/tvrtku samo Adminu.
+    if (carrierCompany.isNotEmpty) {
+      return carrierCompany;
+    }
+
+    if (carrierName.isNotEmpty) {
+      return carrierName;
+    }
+
     if (bid['isMyOffer'] == true) {
       return l10n.bidHistoryYourOffer;
     }

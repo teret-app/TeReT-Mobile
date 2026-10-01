@@ -5,6 +5,7 @@ import '../config.dart';
 import '../l10n/app_localizations.dart';
 import 'login_screen.dart';
 import 'terms_screen.dart';
+import 'phone_verification_screen.dart';
 import '../utils/country_helper.dart';
 
 class PhoneCountryOption {
@@ -24,10 +25,12 @@ class PhoneCountryOption {
 const List<PhoneCountryOption> phoneCountryOptions = [
   PhoneCountryOption(name: 'Hrvatska', flag: '🇭🇷', dialCode: '+385'),
   PhoneCountryOption(name: 'Slovenija', flag: '🇸🇮', dialCode: '+386'),
-  PhoneCountryOption(name: 'Bosna i Hercegovina', flag: '🇧🇦', dialCode: '+387'),
+  PhoneCountryOption(
+      name: 'Bosna i Hercegovina', flag: '🇧🇦', dialCode: '+387'),
   PhoneCountryOption(name: 'Srbija', flag: '🇷🇸', dialCode: '+381'),
   PhoneCountryOption(name: 'Crna Gora', flag: '🇲🇪', dialCode: '+382'),
-  PhoneCountryOption(name: 'Sjeverna Makedonija', flag: '🇲🇰', dialCode: '+389'),
+  PhoneCountryOption(
+      name: 'Sjeverna Makedonija', flag: '🇲🇰', dialCode: '+389'),
   PhoneCountryOption(name: 'Albanija', flag: '🇦🇱', dialCode: '+355'),
   PhoneCountryOption(name: 'Kosovo', flag: '🇽🇰', dialCode: '+383'),
   PhoneCountryOption(name: 'Austrija', flag: '🇦🇹', dialCode: '+43'),
@@ -41,11 +44,16 @@ const List<PhoneCountryOption> phoneCountryOptions = [
   PhoneCountryOption(name: 'Belgija', flag: '🇧🇪', dialCode: '+32'),
   PhoneCountryOption(name: 'Nizozemska', flag: '🇳🇱', dialCode: '+31'),
   PhoneCountryOption(name: 'Luksemburg', flag: '🇱🇺', dialCode: '+352'),
-  PhoneCountryOption(name: 'Švicarska', flag: '🇨🇭', dialCode: '+41', region: 'SWITZERLAND'),
+  PhoneCountryOption(
+      name: 'Švicarska', flag: '🇨🇭', dialCode: '+41', region: 'SWITZERLAND'),
   PhoneCountryOption(name: 'Lihtenštajn', flag: '🇱🇮', dialCode: '+423'),
   PhoneCountryOption(name: 'Španjolska', flag: '🇪🇸', dialCode: '+34'),
   PhoneCountryOption(name: 'Portugal', flag: '🇵🇹', dialCode: '+351'),
-  PhoneCountryOption(name: 'Ujedinjeno Kraljevstvo', flag: '🇬🇧', dialCode: '+44', region: 'UK'),
+  PhoneCountryOption(
+      name: 'Ujedinjeno Kraljevstvo',
+      flag: '🇬🇧',
+      dialCode: '+44',
+      region: 'UK'),
   PhoneCountryOption(name: 'Irska', flag: '🇮🇪', dialCode: '+353'),
   PhoneCountryOption(name: 'Danska', flag: '🇩🇰', dialCode: '+45'),
   PhoneCountryOption(name: 'Švedska', flag: '🇸🇪', dialCode: '+46'),
@@ -63,10 +71,23 @@ const List<PhoneCountryOption> phoneCountryOptions = [
   PhoneCountryOption(name: 'Moldavija', flag: '🇲🇩', dialCode: '+373'),
   PhoneCountryOption(name: 'Ukrajina', flag: '🇺🇦', dialCode: '+380'),
   PhoneCountryOption(name: 'Turska', flag: '🇹🇷', dialCode: '+90'),
-  PhoneCountryOption(name: 'Sjedinjene Američke Države', flag: '🇺🇸', dialCode: '+1', region: 'USA'),
-  PhoneCountryOption(name: 'Kanada', flag: '🇨🇦', dialCode: '+1', region: 'CANADA'),
-  PhoneCountryOption(name: 'Australija', flag: '🇦🇺', dialCode: '+61', region: 'AUSTRALIA_NZ'),
-  PhoneCountryOption(name: 'Novi Zeland', flag: '🇳🇿', dialCode: '+64', region: 'AUSTRALIA_NZ'),
+  PhoneCountryOption(
+      name: 'Sjedinjene Američke Države',
+      flag: '🇺🇸',
+      dialCode: '+1',
+      region: 'USA'),
+  PhoneCountryOption(
+      name: 'Kanada', flag: '🇨🇦', dialCode: '+1', region: 'CANADA'),
+  PhoneCountryOption(
+      name: 'Australija',
+      flag: '🇦🇺',
+      dialCode: '+61',
+      region: 'AUSTRALIA_NZ'),
+  PhoneCountryOption(
+      name: 'Novi Zeland',
+      flag: '🇳🇿',
+      dialCode: '+64',
+      region: 'AUSTRALIA_NZ'),
 ];
 
 class RegisterScreen extends StatefulWidget {
@@ -95,7 +116,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   bool obscurePassword = true;
   bool acceptedTerms = false;
   String errorMessage = '';
-  String verificationUrl = '';
+
   late String selectedCountry;
   String selectedRegion = 'Evropa';
   late PhoneCountryOption selectedPhoneCountry;
@@ -110,12 +131,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     selectedRegion = deviceCountry.region;
 
     selectedPhoneCountry = phoneCountryOptions.firstWhere(
-          (country) => country.flag == deviceCountry.flag,
+      (country) => country.flag == deviceCountry.flag,
       orElse: () => phoneCountryOptions.first,
     );
   }
+
   String get completePhoneNumber {
-    var localNumber = phoneController.text.trim().replaceAll(RegExp(r'\s+'), '');
+    var localNumber =
+        phoneController.text.trim().replaceAll(RegExp(r'\s+'), '');
 
     while (localNumber.startsWith('0')) {
       localNumber = localNumber.substring(1);
@@ -123,6 +146,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return '${selectedPhoneCountry.dialCode}$localNumber';
   }
+
   String get selectedRole => widget.role;
 
   String roleTitle(AppLocalizations t) {
@@ -133,16 +157,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return t.carrier;
   }
 
-
   void capitalizeWords(
-      String value,
-      TextEditingController controller,
-      ) {
+    String value,
+    TextEditingController controller,
+  ) {
     if (value.isEmpty) return;
 
     final newText = value.replaceAllMapped(
       RegExp(r'(^|\s)(\S)'),
-          (match) => '${match.group(1)}${match.group(2)!.toUpperCase()}',
+      (match) => '${match.group(1)}${match.group(2)!.toUpperCase()}',
     );
 
     if (newText != value) {
@@ -182,7 +205,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() {
       isLoading = true;
       errorMessage = '';
-      verificationUrl = '';
+
     });
 
     try {
@@ -210,27 +233,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final verifyLink = (data['verificationUrl'] ?? '').toString();
+        final registeredEmail = emailController.text.trim();
 
         if (!mounted) return;
-        setState(() {
-          verificationUrl = verifyLink;
-        });
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(t.registrationSuccessfulVerifyEmail),
+        final phoneVerified = await Navigator.push<bool>(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PhoneVerificationScreen(
+              email: registeredEmail,
+            ),
           ),
         );
+
+        if (!mounted) return;
+
+        if (phoneVerified == true) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const LoginScreen(),
+            ),
+            (route) => false,
+          );
+        }
       } else {
         if (!mounted) return;
         setState(() {
           final String backendMessage =
-          (data['message'] ?? '').toString().trim();
+              (data['message'] ?? '').toString().trim();
 
-          errorMessage = backendMessage.isNotEmpty
-              ? backendMessage
-              : t.registrationError;
+          errorMessage =
+              backendMessage.isNotEmpty ? backendMessage : t.registrationError;
         });
       }
     } catch (e) {
@@ -240,10 +274,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         errorMessage = t.registrationConnectionError;
       });
     } finally {
-      if (!mounted) return;
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -256,6 +291,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
   }
+
   Widget countryItem(String flag, String country) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -269,6 +305,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ],
     );
   }
+
   List<PhoneCountryOption> phoneCountryOptionsForDevice() {
     final deviceCountry = countryFromIsoCode(deviceCountryCode());
 
@@ -279,7 +316,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final result = List<PhoneCountryOption>.from(phoneCountryOptions);
 
     final deviceCountryIndex = result.indexWhere(
-          (country) => country.flag == deviceCountry.flag,
+      (country) => country.flag == deviceCountry.flag,
     );
 
     if (deviceCountryIndex == -1) {
@@ -291,6 +328,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return result;
   }
+
   Future<void> selectPhoneCountry() async {
     final AppLocalizations t = AppLocalizations.of(context)!;
 
@@ -302,7 +340,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             final filteredCountries =
-            phoneCountryOptionsForDevice().where((country) {
+                phoneCountryOptionsForDevice().where((country) {
               final query = searchText.trim().toLowerCase();
 
               return query.isEmpty ||
@@ -338,33 +376,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Expanded(
                       child: filteredCountries.isEmpty
                           ? Center(
-                        child: Text(t.noCountriesFound),
-                      )
+                              child: Text(t.noCountriesFound),
+                            )
                           : ListView.separated(
-                        itemCount: filteredCountries.length,
-                        separatorBuilder: (_, __) =>
-                        const Divider(height: 1),
-                        itemBuilder: (context, index) {
-                          final country = filteredCountries[index];
+                              itemCount: filteredCountries.length,
+                              separatorBuilder: (_, __) =>
+                                  const Divider(height: 1),
+                              itemBuilder: (context, index) {
+                                final country = filteredCountries[index];
 
-                          return ListTile(
-                            leading: Text(
-                              country.flag,
-                              style: const TextStyle(fontSize: 24),
+                                return ListTile(
+                                  leading: Text(
+                                    country.flag,
+                                    style: const TextStyle(fontSize: 24),
+                                  ),
+                                  title: Text(country.name),
+                                  trailing: Text(
+                                    country.dialCode,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    Navigator.pop(dialogContext, country);
+                                  },
+                                );
+                              },
                             ),
-                            title: Text(country.name),
-                            trailing: Text(
-                              country.dialCode,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.pop(dialogContext, country);
-                            },
-                          );
-                        },
-                      ),
                     ),
                   ],
                 ),
@@ -394,10 +432,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           onChanged: isLoading
               ? null
               : (value) {
-            setState(() {
-              acceptedTerms = value == true;
-            });
-          },
+                  setState(() {
+                    acceptedTerms = value == true;
+                  });
+                },
         ),
         Expanded(
           child: Wrap(
@@ -408,13 +446,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 onTap: isLoading
                     ? null
                     : () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const TermsScreen(),
-                    ),
-                  );
-                },
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const TermsScreen(),
+                          ),
+                        );
+                      },
                 child: Text(
                   t.termsOfUse,
                   style: const TextStyle(
@@ -448,9 +486,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               constraints: const BoxConstraints(maxWidth: 500),
               child: Column(
                 children: [
-
-
-                  Card (
+                  Card(
                     elevation: 2,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -472,7 +508,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ),
                             const SizedBox(height: 20),
-
                             TextFormField(
                               controller: fullNameController,
                               onChanged: (value) =>
@@ -486,9 +521,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 return null;
                               },
                             ),
-
                             const SizedBox(height: 14),
-
                             TextFormField(
                               controller: companyNameController,
                               onChanged: (value) =>
@@ -498,9 +531,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 t.companyNameOptional,
                               ),
                             ),
-
                             const SizedBox(height: 14),
-
                             if (selectedRole == 'carrier') ...[
                               Card(
                                 color: Colors.amber.shade50,
@@ -514,7 +545,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(14),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Icon(
                                         Icons.info_outline,
@@ -536,7 +568,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               const SizedBox(height: 14),
                             ],
-
                             TextFormField(
                               controller: nicknameController,
                               onChanged: (value) =>
@@ -546,7 +577,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 t.cityOrHeadquarters,
                               ),
                             ),
-
                             const SizedBox(height: 14),
                             DropdownButtonFormField<String>(
                               value: selectedCountry,
@@ -557,7 +587,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   child: countryItem(
                                     country.flag,
                                     country.localizedName(
-                                      Localizations.localeOf(context).languageCode,
+                                      Localizations.localeOf(context)
+                                          .languageCode,
                                     ),
                                   ),
                                 );
@@ -609,7 +640,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     selectedRegion = 'Evropa';
                                   } else if (value == 'Švicarska') {
                                     selectedRegion = 'SWITZERLAND';
-                                  } else if (value == 'Ujedinjeno Kraljevstvo') {
+                                  } else if (value ==
+                                      'Ujedinjeno Kraljevstvo') {
                                     selectedRegion = 'UK';
                                   } else if ([
                                     'Norveška',
@@ -627,7 +659,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 });
                               },
                             ),
-
                             const SizedBox(height: 14),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -699,9 +730,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                               ],
                             ),
-
                             const SizedBox(height: 14),
-
                             TextFormField(
                               controller: emailController,
                               keyboardType: TextInputType.emailAddress,
@@ -717,14 +746,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 return null;
                               },
                             ),
-
                             const SizedBox(height: 14),
-
                             TextFormField(
                               controller: passwordController,
                               obscureText: obscurePassword,
                               textInputAction: TextInputAction.done,
-                              decoration: buildInputDecoration(t.password).copyWith(
+                              decoration:
+                                  buildInputDecoration(t.password).copyWith(
                                 suffixIcon: IconButton(
                                   tooltip: obscurePassword
                                       ? t.showPassword
@@ -756,10 +784,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 }
                               },
                             ),
-
                             const SizedBox(height: 12),
                             buildTermsCheckbox(),
-
                             if (errorMessage.isNotEmpty) ...[
                               const SizedBox(height: 16),
                               Text(
@@ -772,62 +798,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ],
 
-                            if (verificationUrl.isNotEmpty) ...[
-                              const SizedBox(height: 16),
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.withOpacity(0.08),
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(color: Colors.green),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
-                                    Text(
-                                      t.registrationSuccessful,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.green,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      t.copyVerificationLinkForTesting,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    SelectableText(
-                                      verificationUrl,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 12),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.pushAndRemoveUntil(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => LoginScreen(
-                                              errorMessage:
-                                              t.afterEmailVerificationLogin,
-                                            ),
-                                          ),
-                                              (route) => false,
-                                        );
-                                      },
-                                      child: Text(t.goToLogin),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-
                             const SizedBox(height: 20),
-
                             SizedBox(
                               height: 52,
                               child: ElevatedButton(
@@ -839,36 +810,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                                 child: isLoading
                                     ? const SizedBox(
-                                  width: 22,
-                                  height: 22,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2.4,
-                                    color: Colors.white,
-                                  ),
-                                )
+                                        width: 22,
+                                        height: 22,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.4,
+                                          color: Colors.white,
+                                        ),
+                                      )
                                     : Text(
-                                  t.registerButton,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                                        t.registerButton,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                               ),
                             ),
-
                             const SizedBox(height: 14),
-
                             TextButton(
                               onPressed: isLoading
                                   ? null
                                   : () {
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const LoginScreen(),
-                                  ),
-                                );
-                              },
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const LoginScreen(),
+                                        ),
+                                      );
+                                    },
                               child: Text(t.alreadyHaveAccountLogin),
                             ),
                           ],

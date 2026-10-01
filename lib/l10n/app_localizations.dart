@@ -1100,7 +1100,7 @@ abstract class AppLocalizations {
   /// No description provided for @platformFeeExplanation.
   ///
   /// In en, this message translates to:
-  /// **'The job is yours.\n\nTo unlock the contact details, you need to pay the platform fee through Stripe Checkout.\n\nThe fee is 5% of the agreed transport price. For transports worth up to €100.00, fee is €5.00.'**
+  /// **'The job is yours.\n\nTo unlock the contact details, you need to pay the platform fee through Stripe Checkout.\n\nThe fee is 5% of the agreed transport price. For transports worth up to €100.00, the minimum fee is €5.00.'**
   String get platformFeeExplanation;
 
   /// No description provided for @continueToStripeCheckout.
@@ -3086,7 +3086,7 @@ abstract class AppLocalizations {
   /// No description provided for @termsFeeText.
   ///
   /// In en, this message translates to:
-  /// **'The TeReT platform is completely free to use and has no membership or registration fees. A fee is charged only when a transport deal is concluded, meaning when the customer accepts a carrier\'s offer.The commission is paid exclusively by the carrier and only after the customer accepts the carrier\'s offer. The fee is 5% of the agreed transport price, and for transports worth up to €100.00, the fee is €5.00.'**
+  /// **'The TeReT platform is completely free to use and has no membership or registration fees. A fee is charged only when a transport deal is concluded, meaning when the customer accepts a carrier\'s offer. The commission is paid exclusively by the carrier and only after the customer accepts the carrier\'s offer. The fee is 5% of the agreed transport price, and for transports worth up to €100.00, the fee is €5.00.'**
   String get termsFeeText;
 
   /// No description provided for @termsUnlockContactTitle.
@@ -3140,13 +3140,13 @@ abstract class AppLocalizations {
   /// No description provided for @termsProhibitedAdvertisingTitle.
   ///
   /// In en, this message translates to:
-  /// **'8. Prohibited advertising'**
+  /// **'8. Prohibition of advertising transport services'**
   String get termsProhibitedAdvertisingTitle;
 
   /// No description provided for @termsProhibitedAdvertisingText.
   ///
   /// In en, this message translates to:
-  /// **'It is prohibited to use shipment listings for advertising services, offering return routes, publishing contact details, or any other content that is not an actual transport request. TeReT reserves the right to remove such listings.'**
+  /// **'TeReT is intended for customers to publish freight transport requests and for carriers to submit offers through the auction system. Shipment listings may not be used to advertise transport services, available vehicle capacity, return routes, or any other form of advertising intended to bypass the in-app offer system. TeReT reserves the right to remove, without prior notice, any listing it considers to be advertising transport services or misuse of the system. Repeated violations may result in restricted or disabled access to the user account.'**
   String get termsProhibitedAdvertisingText;
 
   /// No description provided for @privacyTitle.

@@ -6,14 +6,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../config.dart';
 import '../utils/country_helper.dart';
 import '../utils/phone_country_helper.dart';
 import '../services/token_storage.dart';
 import 'login_screen.dart';
 import 'my_shipments_screen.dart';
+import 'shipment_list_screen.dart';
 import 'notifications_screen.dart';
 import 'legal_settings_screen.dart';
+import 'admin_dashboard.screen.dart';
 import '../l10n/app_localizations.dart';
 class SenderHomeScreen extends StatefulWidget {
   const SenderHomeScreen({super.key});
@@ -36,6 +39,8 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
   int unreadCount = 0;
   Timer? notificationTimer;
   bool notificationsEnabled = true;
+  bool isAdmin = false;
+  bool updateAvailable = false;
   final TextEditingController nazivTeretaController = TextEditingController();
   final TextEditingController opisTeretaController = TextEditingController();
 
@@ -54,6 +59,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
   final TextEditingController katUtovaraController = TextEditingController();
   final TextEditingController katIstovaraController = TextEditingController();
   final TextEditingController brojTelefonaController = TextEditingController();
+  final TextEditingController startingPriceController = TextEditingController();
   PhoneCountryOption selectedPhoneCountry = phoneCountryOptions.first;
 
   void capitalizeFirstLetter(
@@ -128,6 +134,8 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
   @override
   void initState() {
     super.initState();
+    loadAdminStatus();
+    checkForUpdate();
     final countries = countryOptionsForDevice();
 
     odabranaDrzavaUtovara = countries.first.name;
@@ -141,6 +149,74 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
       const Duration(seconds: 10),
           (_) => loadUnreadCount(),
     );
+  }
+  Future<void> loadAdminStatus() async {
+    final token = await TokenStorage.getToken();
+
+    if (token == null || token.isEmpty) {
+      return;
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse('${AppConfig.baseUrl}/me'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode != 200) {
+        return;
+      }
+
+      final data = jsonDecode(response.body);
+
+      if (!mounted) return;
+
+      setState(() {
+        isAdmin = data['isAdmin'] == true;
+      });
+    } catch (_) {
+      // Ako provjera ne uspije, admin gumb se neće prikazati.
+    }
+  }
+  Future<void> checkForUpdate() async {
+    final token = await TokenStorage.getToken();
+
+    if (token == null || token.isEmpty) return;
+
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+
+      final currentBuildNumber =
+          int.tryParse(packageInfo.buildNumber) ?? 0;
+
+      final response = await http.get(
+        Uri.parse('${AppConfig.baseUrl}/me'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode != 200) return;
+
+      final data = jsonDecode(response.body);
+
+      final latestVersionCode =
+          int.tryParse(
+            data['latestAppVersionCode']?.toString() ?? '0',
+          ) ??
+              0;
+
+      if (!mounted) return;
+
+      setState(() {
+        updateAvailable =
+            latestVersionCode > currentBuildNumber;
+      });
+    } catch (_) {}
   }
   Future<void> checkNotificationPermission() async {
     if (kIsWeb) return;
@@ -199,6 +275,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
     katUtovaraController.dispose();
     katIstovaraController.dispose();
     brojTelefonaController.dispose();
+    startingPriceController.dispose();
     super.dispose();
   }
 
@@ -445,6 +522,11 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
       final payload = {
         'naziv_tereta': nazivTeretaController.text.trim(),
         'opis_tereta': opisTeretaController.text.trim(),
+        'startingPrice': startingPriceController.text.trim().isEmpty
+            ? null
+            : double.parse(
+          startingPriceController.text.trim().replaceAll(',', '.'),
+        ),
         'drzava_utovara': odabranaDrzavaUtovara,
         'mjesto_utovara': mjestoUtovaraController.text.trim(),
         'adresa_utovara': adresaUtovaraController.text.trim(),
@@ -760,17 +842,51 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
       appBar: AppBar(
         title: Text(l10n.sender),
         actions: [
-          TextButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const LegalSettingsScreen(),
+          if (isAdmin)
+            IconButton(
+              tooltip: 'Admin',
+              icon: const Icon(Icons.admin_panel_settings),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const AdminDashboardScreen(),
+                  ),
+                );
+              },
+            ),
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              TextButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => LegalSettingsScreen(
+                        updateAvailable: updateAvailable,
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.menu),
+                label: Text(l10n.info),
+              ),
+
+              if (updateAvailable)
+                Positioned(
+                  right: 2,
+                  top: 2,
+                  child: Container(
+                    width: 9,
+                    height: 9,
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
                 ),
-              );
-            },
-            icon: const Icon(Icons.menu),
-            label: Text(l10n.info),
+            ],
           ),
           IconButton(
             onPressed: logout,
@@ -794,6 +910,19 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (_) => const MyShipmentsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(width: 10),
+                  buildTopActionButton(
+                    icon: Icons.public_outlined,
+                    label: 'Aktivni tereti',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ShipmentListScreen(),
                         ),
                       );
                     },
@@ -940,6 +1069,27 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                       ),
                       const SizedBox(height: 18),
                       buildSectionTitle(l10n.timeAndQuantity),
+                      TextFormField(
+                        controller: startingPriceController,
+                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                        decoration: poljeDekoracija('Prijevoz plaćam maksimalno (€)'),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return null;
+                          }
+
+                          final parsed = double.tryParse(
+                            value.trim().replaceAll(',', '.'),
+                          );
+
+                          if (parsed == null || parsed <= 0) {
+                            return 'Unesite ispravnu cijenu veću od 0.';
+                          }
+
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
                       DropdownButtonFormField<String>(
                         value: odabranoTrajanjeLicitacije,
                         decoration: poljeDekoracija(l10n.auctionDuration),

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -27,13 +28,54 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
   bool isLoading = true;
   bool isConfirmingDelivery = false;
   String errorMessage = '';
-
+  Timer? _commissionTimer;
   @override
   void initState() {
     super.initState();
     fetchShipment();
-  }
 
+    _commissionTimer = Timer.periodic(
+      const Duration(minutes: 1),
+          (_) {
+        if (mounted) {
+          setState(() {});
+        }
+      },
+    );
+  }
+  @override
+  void dispose() {
+    _commissionTimer?.cancel();
+    super.dispose();
+  }
+  String commissionTimeRemaining() {
+    if (shipment == null) return '';
+
+    final rawDeadline =
+    shipment!['commissionPaymentDeadlineAt']?.toString();
+
+    if (rawDeadline == null || rawDeadline.isEmpty) {
+      return '';
+    }
+
+    final deadline = DateTime.tryParse(rawDeadline);
+
+    if (deadline == null) {
+      return '';
+    }
+
+    final difference = deadline.toLocal().difference(DateTime.now());
+    final l10n = AppLocalizations.of(context)!;
+
+    if (difference.isNegative || difference.inSeconds <= 0) {
+      return l10n.commissionPaymentExpired;
+    }
+
+    final hours = difference.inHours;
+    final minutes = difference.inMinutes.remainder(60);
+
+    return l10n.commissionTimeRemaining(hours, minutes);
+  }
   Future<void> fetchShipment() async {
     setState(() {
       isLoading = true;
@@ -60,6 +102,10 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
           shipment = Map<String, dynamic>.from(data);
           isLoading = false;
         });
+
+        print(
+          'COMMISSION DEADLINE = ${shipment?['commissionPaymentDeadlineAt']}',
+        );
       } else if (response.statusCode == 401) {
         setState(() {
           isLoading = false;
@@ -820,7 +866,38 @@ class _AssignedShipmentScreenState extends State<AssignedShipmentScreen> {
               const SizedBox(height: 8),
               confirmDeliveryButton(),
               const SizedBox(height: 18),
-
+              if (commissionTimeRemaining().isNotEmpty) ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.orange.shade200,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.access_time,
+                        color: Colors.orange.shade800,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          commissionTimeRemaining(),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: Colors.orange.shade900,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 18),
+              ],
               sectionTitle(AppLocalizations.of(context)!.assignedBasicShipmentDetails),
               infoTile(
                 label: AppLocalizations.of(context)!.assignedShipmentName,

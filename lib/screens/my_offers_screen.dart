@@ -289,7 +289,9 @@ class _MyOffersScreenState extends State<MyOffersScreen> {
     if (_isRejectedOffer(offerStatus)) return true;
     if (_isExpiredShipment(shipmentStatus)) return true;
     if (_isCompletedShipment(shipmentStatus)) return true;
-
+    if (shipmentStatus.toLowerCase().trim() == 'zatvoreno_bez_odabira') {
+      return true;
+    }
     if (_isAcceptedShipment(shipmentStatus) &&
         !_isAcceptedOffer(offerStatus)) {
       return true;

@@ -77,7 +77,11 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp();
-
+  await FirebaseMessaging.instance.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
   await LanguageService.loadLanguage();
   debugPrint(
     'JEZIK = ${LanguageService.currentLanguage.value}',

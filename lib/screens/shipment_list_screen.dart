@@ -26,11 +26,11 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
   List<dynamic> shipments = [];
   Timer? refreshTimer;
   Timer? timerRefresh;
-
+  bool isSenderUser = false;
   @override
   void initState() {
     super.initState();
-
+    fetchCurrentUserRole();
     fetchShipments();
 
     refreshTimer = Timer.periodic(
@@ -66,7 +66,40 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
           (route) => false,
     );
   }
+  Future<void> fetchCurrentUserRole() async {
+    try {
+      final token = await TokenStorage.getToken();
 
+      if (token == null || token.isEmpty) return;
+
+      final response = await http.get(
+        Uri.parse('${AppConfig.baseUrl}/me'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode != 200) return;
+
+      final data = jsonDecode(response.body);
+
+      final role = (data['role'] ?? '')
+          .toString()
+          .toLowerCase()
+          .trim();
+
+      if (!mounted) return;
+
+      setState(() {
+        isSenderUser =
+            role == 'narucitelj' ||
+                role == 'naručitelj' ||
+                role == 'sender' ||
+                role == 'customer';
+      });
+    } catch (_) {}
+  }
   Future<void> fetchShipments({bool silent = false}) async {
     if (!mounted) return;
 
@@ -669,7 +702,9 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
         elevation: 0.7,
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
-          onTap: () {
+          onTap: isSenderUser
+              ? null
+              : () {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -798,7 +833,8 @@ class _ShipmentListScreenState extends State<ShipmentListScreen> {
                   accepted,
                 ),
                 const SizedBox(height: 6),
-                SizedBox(
+                if (!isSenderUser)
+                  SizedBox(
                   width: double.infinity,
                   child: OutlinedButton.icon(
                     onPressed: () {

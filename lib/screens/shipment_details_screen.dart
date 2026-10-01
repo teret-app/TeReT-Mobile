@@ -35,6 +35,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
   bool isPayingCommission = false;
   bool isConfirmingDelivery = false;
   bool currentUserIsSender = false;
+  bool currentUserIsSenderRole = false;
   int? currentUserId;
   bool get isSenderView =>
       widget.isSenderView ||
@@ -56,16 +57,47 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
       return null;
     }
   }
+  String? _getUserRoleFromToken(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return null;
+
+      final normalizedPayload = base64Url.normalize(parts[1]);
+      final payloadJson =
+      utf8.decode(base64Url.decode(normalizedPayload));
+
+      final payload = jsonDecode(payloadJson);
+
+      if (payload is! Map || payload['role'] == null) {
+        return null;
+      }
+
+      return payload['role'].toString().toLowerCase().trim();
+    } catch (_) {
+      return null;
+    }
+  }
+
   String errorMessage = '';
+
   Map<String, dynamic>? shipment;
 
   final AppLinks _appLinks = AppLinks();
   StreamSubscription<Uri>? _linkSubscription;
+  Timer? _commissionTimer;
   @override
   void initState() {
     super.initState();
     fetchShipmentDetails();
     _listenForPaymentReturn();
+    _commissionTimer = Timer.periodic(
+      const Duration(minutes: 1),
+          (_) {
+        if (mounted) {
+          setState(() {});
+        }
+      },
+    );
   }
   void _listenForPaymentReturn() {
     _linkSubscription = _appLinks.uriLinkStream.listen((uri) async {
@@ -122,6 +154,10 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
         final decodedShipment = Map<String, dynamic>.from(decoded);
 
         currentUserId = _getUserIdFromToken(token);
+        final userRole = _getUserRoleFromToken(token);
+
+        currentUserIsSenderRole =
+            userRole == 'sender' || userRole == 'narucitelj';
         final senderId = int.tryParse(
           decodedShipment['senderId']?.toString() ?? '',
         );
@@ -136,6 +172,9 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
           shipment = decodedShipment;
           isLoading = false;
         });
+        print(
+          'COMMISSION DEADLINE = ${shipment?['commissionPaymentDeadlineAt']}',
+        );
       } else if (response.statusCode == 401) {
         await TokenStorage.clearToken();
 
@@ -1219,7 +1258,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
     }
 
     if (!kontaktOtkljucan &&
-        !isSenderView &&
+
         !commissionPaid &&
         !acceptedTransporterMustPay &&
         _isAcceptedStatus(status)) {
@@ -1452,7 +1491,11 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
     final statusIsAccepted = _isAcceptedStatus(status);
     final statusIsCompleted = _isCompletedStatus(status);
 
-    final bool canSendOffer = !licitacijaZavrsena && statusIsActive;
+    final bool canSendOffer =
+        !currentUserIsSenderRole &&
+            !isSenderView &&
+            !licitacijaZavrsena &&
+            statusIsActive;
 
     final kontaktOtkljucan = shipment!['kontakt_otkljucan'] == true;
     final commissionPaid = shipment!['commissionPaid'] == true;
@@ -1472,12 +1515,15 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
     print('CAN RATE = $canRate');
     print('HAS RATED = $hasRated');
     print('STATUS COMPLETED = $statusIsCompleted');
-    if (!isSenderView && !kontaktOtkljucan) {
+    final bool isShipmentOwner =
+        shipment?['isSenderOwner'] == true;
+
+    if (!isShipmentOwner && !kontaktOtkljucan) {
       adresaUtovara = _maskAddressForTransporter(adresaUtovara);
       adresaIstovara = _maskAddressForTransporter(adresaIstovara);
     }
 
-    final showConfirmDeliveryButton = isSenderView &&
+    final showConfirmDeliveryButton = isShipmentOwner &&
         statusIsAccepted &&
         commissionPaid &&
         !statusIsCompleted;
@@ -1572,7 +1618,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                             ? l10n.statusAuctionFinished
                             : (!isSenderView && statusIsAccepted && !isAcceptedCarrier)
                             ? l10n.statusOtherCarrierSelected
-                            : (isSenderView && statusIsAccepted)
+                            : (isShipmentOwner && statusIsAccepted)
                             ? l10n.statusOfferAcceptedByYou
                             : l10n.statusLabel(_formatStatus(status)),
                         style: TextStyle(
@@ -1669,7 +1715,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                     ),
                   _buildInfoRow(l10n.numberOfOffers, '$offerCount'),
                   _buildInfoRow(l10n.listingViews, '$views'),
-                  if ((isSenderView || kontaktOtkljucan) &&
+                  if ((isShipmentOwner|| kontaktOtkljucan) &&
                       kontaktTelefon.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10),
@@ -1702,7 +1748,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                         ],
                       ),
                     ),
-                  if (!isSenderView &&
+                  if (!isShipmentOwner &&
                       kontaktOtkljucan &&
                       kontaktTelefon.isNotEmpty)
                     Padding(
@@ -1729,7 +1775,7 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
           ),
           const SizedBox(height: 12),
 
-          if (!isSenderView && canSendOffer) ...[
+          if (!isShipmentOwner && canSendOffer) ...[
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -1776,14 +1822,15 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
             const SizedBox(height: 12),
           ],
 
-          _buildBidHistoryButton(),
+          if (!currentUserIsSenderRole && !isSenderView)
+            _buildBidHistoryButton(),
 
           if (showConfirmDeliveryButton) ...[
             const SizedBox(height: 12),
             _buildConfirmDeliveryButton(),
           ],
           if (statusIsCompleted &&
-              (isSenderView || isAcceptedCarrier)) ...[
+              (isShipmentOwner || isAcceptedCarrier)) ...[
             const SizedBox(height: 12),
             Container(
               width: double.infinity,
@@ -1843,16 +1890,16 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
           ],
           if (statusIsCompleted &&
               !hasRated &&
-              (isSenderView || isAcceptedCarrier)) ...[
+              (isShipmentOwner || isAcceptedCarrier)) ...[
             const SizedBox(height: 12),
             _buildRatingButton(
-              canRate: isSenderView || isAcceptedCarrier,
+              canRate: isShipmentOwner || isAcceptedCarrier,
               hasRated: hasRated,
               ratingTargetLabel: ratingTargetLabel,
             ),
           ],
           const SizedBox(height: 12),
-          if (!isSenderView &&
+          if (!isShipmentOwner &&
               !canSendOffer &&
               !acceptedTransporterMustPay &&
               !statusIsActive &&
@@ -1898,9 +1945,38 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
       body: _buildBody(),
     );
   }
+  String commissionTimeRemaining() {
+    if (shipment == null) return '';
+
+    final rawDeadline =
+    shipment!['commissionPaymentDeadlineAt']?.toString();
+
+    if (rawDeadline == null || rawDeadline.isEmpty) {
+      return '';
+    }
+
+    final deadline = DateTime.tryParse(rawDeadline);
+
+    if (deadline == null) {
+      return '';
+    }
+
+    final difference = deadline.toLocal().difference(DateTime.now());
+    final l10n = AppLocalizations.of(context)!;
+
+    if (difference.isNegative || difference.inSeconds <= 0) {
+      return l10n.commissionPaymentExpired;
+    }
+
+    final hours = difference.inHours;
+    final minutes = difference.inMinutes.remainder(60);
+
+    return l10n.commissionTimeRemaining(hours, minutes);
+  }
   @override
   void dispose() {
     _linkSubscription?.cancel();
+    _commissionTimer?.cancel();
     super.dispose();
   }
 }

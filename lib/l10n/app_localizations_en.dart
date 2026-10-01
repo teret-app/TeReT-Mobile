@@ -512,7 +512,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offerAcceptedShort => 'Offer accepted.';
 
   @override
-  String get platformFeeExplanation => 'The job is yours.\n\nTo unlock the contact details, you need to pay the platform fee through Stripe Checkout.\n\nThe fee is 5% of the agreed transport price. For transports worth up to €100.00, fee is €5.00.';
+  String get platformFeeExplanation => 'The job is yours.\n\nTo unlock the contact details, you need to pay the platform fee through Stripe Checkout.\n\nThe fee is 5% of the agreed transport price. For transports worth up to €100.00, the minimum fee is €5.00.';
 
   @override
   String get continueToStripeCheckout => 'Continue to Stripe Checkout';
@@ -1568,7 +1568,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get termsFeeTitle => '3. Platform usage fee';
 
   @override
-  String get termsFeeText => 'The TeReT platform is completely free to use and has no membership or registration fees. A fee is charged only when a transport deal is concluded, meaning when the customer accepts a carrier\'s offer.The commission is paid exclusively by the carrier and only after the customer accepts the carrier\'s offer. The fee is 5% of the agreed transport price, and for transports worth up to €100.00, the fee is €5.00.';
+  String get termsFeeText => 'The TeReT platform is completely free to use and has no membership or registration fees. A fee is charged only when a transport deal is concluded, meaning when the customer accepts a carrier\'s offer. The commission is paid exclusively by the carrier and only after the customer accepts the carrier\'s offer. The fee is 5% of the agreed transport price, and for transports worth up to €100.00, the fee is €5.00.';
 
   @override
   String get termsUnlockContactTitle => '4. Unlocking contact details';
@@ -1595,10 +1595,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get termsTransportResponsibilityText => 'The customer and carrier are solely responsible for the execution of transport, the condition of the goods, delivery time and all other details. TeReT does not participate in transport and accepts no responsibility for any resulting damage.';
 
   @override
-  String get termsProhibitedAdvertisingTitle => '8. Prohibited advertising';
+  String get termsProhibitedAdvertisingTitle => '8. Prohibition of advertising transport services';
 
   @override
-  String get termsProhibitedAdvertisingText => 'It is prohibited to use shipment listings for advertising services, offering return routes, publishing contact details, or any other content that is not an actual transport request. TeReT reserves the right to remove such listings.';
+  String get termsProhibitedAdvertisingText => 'TeReT is intended for customers to publish freight transport requests and for carriers to submit offers through the auction system. Shipment listings may not be used to advertise transport services, available vehicle capacity, return routes, or any other form of advertising intended to bypass the in-app offer system. TeReT reserves the right to remove, without prior notice, any listing it considers to be advertising transport services or misuse of the system. Repeated violations may result in restricted or disabled access to the user account.';
 
   @override
   String get privacyTitle => 'Privacy policy';

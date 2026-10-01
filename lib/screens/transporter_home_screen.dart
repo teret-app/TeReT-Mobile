@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
-
+import 'package:package_info_plus/package_info_plus.dart';
+import 'admin_dashboard.screen.dart';
 import '../config.dart';
 import '../l10n/app_localizations.dart';
 import '../services/token_storage.dart';
@@ -30,7 +31,8 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
 
   Timer? notificationTimer;
   bool notificationsEnabled = true;
-
+  bool isAdmin = false;
+  bool updateAvailable = false;
   final List<Widget> _screens = const [
     ShipmentListScreen(),
     MyOffersScreen(),
@@ -41,15 +43,80 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
   void initState() {
     super.initState();
 
-    loadUnreadNotifications();
-    checkNotificationPermission();
 
-    notificationTimer = Timer.periodic(
-      const Duration(seconds: 10),
-          (_) => loadUnreadNotifications(),
-    );
+      loadAdminStatus();
+      checkForUpdate();
+      loadUnreadNotifications();
+      checkNotificationPermission();
+
+      notificationTimer = Timer.periodic(
+        const Duration(seconds: 10),
+            (_) => loadUnreadNotifications(),
+      );
+    }
+
+  Future<void> loadAdminStatus() async {
+    final token = await TokenStorage.getToken();
+
+    if (token == null || token.isEmpty) return;
+
+    try {
+      final response = await http.get(
+        Uri.parse('${AppConfig.baseUrl}/me'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode != 200) return;
+
+      final data = jsonDecode(response.body);
+
+      if (!mounted) return;
+
+      setState(() {
+        isAdmin = data['isAdmin'] == true;
+      });
+    } catch (_) {}
   }
+  Future<void> checkForUpdate() async {
+    final token = await TokenStorage.getToken();
 
+    if (token == null || token.isEmpty) return;
+
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+
+      final currentBuildNumber =
+          int.tryParse(packageInfo.buildNumber) ?? 0;
+
+      final response = await http.get(
+        Uri.parse('${AppConfig.baseUrl}/me'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode != 200) return;
+
+      final data = jsonDecode(response.body);
+
+      final latestVersionCode =
+          int.tryParse(
+            data['latestAppVersionCode']?.toString() ?? '0',
+          ) ??
+              0;
+
+      if (!mounted) return;
+
+      setState(() {
+        updateAvailable =
+            latestVersionCode > currentBuildNumber;
+      });
+    } catch (_) {}
+  }
   @override
   void dispose() {
     notificationTimer?.cancel();
@@ -261,23 +328,59 @@ class _TransporterHomeScreenState extends State<TransporterHomeScreen> {
         appBar: AppBar(
           title: Text(t.carrier),
           actions: [
-            TextButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const LegalSettingsScreen(),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.menu),
-              label: Text(
-                t.info,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                ),
+            if (isAdmin)
+              IconButton(
+                tooltip: 'Admin',
+                icon: const Icon(Icons.admin_panel_settings),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const AdminDashboardScreen(),
+                    ),
+                  );
+                },
               ),
+
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => LegalSettingsScreen(
+                          updateAvailable: updateAvailable,
+                        ),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.menu),
+                  label: Text(
+                    t.info,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+
+                if (updateAvailable)
+                  Positioned(
+                    right: 2,
+                    top: 2,
+                    child: Container(
+                      width: 9,
+                      height: 9,
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+              ],
             ),
+
             IconButton(
               icon: const Icon(Icons.logout),
               tooltip: t.logout,

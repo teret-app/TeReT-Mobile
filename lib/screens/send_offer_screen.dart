@@ -32,7 +32,7 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
 
   double? lowestOffer;
   double? myOffer;
-
+  double? startingPrice;
   String selectedCurrency = '€';
 
   bool get isMyOfferLowest {
@@ -152,6 +152,25 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
 
         return;
       }
+      final bidHistoryResponse = await http.get(
+        Uri.parse(
+          '${AppConfig.baseUrl}/shipments/${widget.shipmentId}/bid-history',
+        ),
+        headers: {
+          HttpHeaders.contentTypeHeader: 'application/json',
+          HttpHeaders.authorizationHeader: 'Bearer $token',
+        },
+      );
+
+      if (bidHistoryResponse.statusCode == 200) {
+        final decoded = jsonDecode(bidHistoryResponse.body);
+
+        if (decoded is Map) {
+          startingPrice = double.tryParse(
+            '${decoded['startingPrice']}',
+          );
+        }
+      }
 
       final shipmentsResponse = await http.get(
         Uri.parse('${AppConfig.baseUrl}/shipments'),
@@ -173,10 +192,18 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
             },
             orElse: () => null,
           );
+          if (shipment is Map) {
+            if (shipment['lowestOffer'] != null) {
+              lowestOffer = double.tryParse(
+                '${shipment['lowestOffer']}',
+              );
+            }
 
-          if (shipment is Map && shipment['lowestOffer'] != null) {
-            lowestOffer = double.tryParse(
-              '${shipment['lowestOffer']}',
+            startingPrice = double.tryParse(
+              '${shipment['startingPrice'] ??
+                  shipment['startPrice'] ??
+                  shipment['initialPrice'] ??
+                  shipment['pocetnaCijena']}',
             );
           }
         }
@@ -456,7 +483,9 @@ class _SendOfferScreenState extends State<SendOfferScreen> {
 
     if (lowestOffer == null && myOffer == null) {
       return Text(
-        l10n.noOffersForShipmentYet,
+        startingPrice == null
+            ? l10n.noOffersForShipmentYet
+            : 'Početna cijena: ${formatPrice(startingPrice)}',
         style: const TextStyle(
           fontWeight: FontWeight.w700,
         ),

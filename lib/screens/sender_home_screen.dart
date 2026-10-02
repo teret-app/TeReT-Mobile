@@ -59,7 +59,6 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
   final TextEditingController katUtovaraController = TextEditingController();
   final TextEditingController katIstovaraController = TextEditingController();
   final TextEditingController brojTelefonaController = TextEditingController();
-  final TextEditingController startingPriceController = TextEditingController();
   PhoneCountryOption selectedPhoneCountry = phoneCountryOptions.first;
 
   void capitalizeFirstLetter(
@@ -275,7 +274,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
     katUtovaraController.dispose();
     katIstovaraController.dispose();
     brojTelefonaController.dispose();
-    startingPriceController.dispose();
+
     super.dispose();
   }
 
@@ -522,11 +521,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
       final payload = {
         'naziv_tereta': nazivTeretaController.text.trim(),
         'opis_tereta': opisTeretaController.text.trim(),
-        'startingPrice': startingPriceController.text.trim().isEmpty
-            ? null
-            : double.parse(
-          startingPriceController.text.trim().replaceAll(',', '.'),
-        ),
+
         'drzava_utovara': odabranaDrzavaUtovara,
         'mjesto_utovara': mjestoUtovaraController.text.trim(),
         'adresa_utovara': adresaUtovaraController.text.trim(),
@@ -1069,27 +1064,7 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                       ),
                       const SizedBox(height: 18),
                       buildSectionTitle(l10n.timeAndQuantity),
-                      TextFormField(
-                        controller: startingPriceController,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        decoration: poljeDekoracija('Prijevoz plaćam maksimalno (€)'),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return null;
-                          }
 
-                          final parsed = double.tryParse(
-                            value.trim().replaceAll(',', '.'),
-                          );
-
-                          if (parsed == null || parsed <= 0) {
-                            return 'Unesite ispravnu cijenu veću od 0.';
-                          }
-
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 12),
                       DropdownButtonFormField<String>(
                         value: odabranoTrajanjeLicitacije,
                         decoration: poljeDekoracija(l10n.auctionDuration),

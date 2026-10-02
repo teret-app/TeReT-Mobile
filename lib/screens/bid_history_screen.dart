@@ -257,7 +257,7 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     final lowestOffer = data?['lowestOffer'];
-    final startingPrice = data?['startingPrice'];
+
     final myOfferAmount = data?['myOfferAmount'];
 
     final offersCount = bidHistory.length;
@@ -284,11 +284,7 @@ class _BidHistoryScreenState extends State<BidHistoryScreen> {
 
             const SizedBox(height: 10),
 
-            if (startingPrice != null)
-              _summaryRow(
-                'Početna cijena prijevoza',
-                formatAmount(startingPrice),
-              ),
+
             _summaryRow(
               l10n.bidHistoryCurrentLowestOffer,
               formatAmount(lowestOffer),

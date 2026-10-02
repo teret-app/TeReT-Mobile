@@ -97,6 +97,8 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
   bool trebaPomocVozaca = false;
   bool liftNaUtovaru = false;
   bool liftNaIstovaru = false;
+  bool podlijezeCarini = false;
+  bool posjedujeCarinskeDokumente = false;
   bool isLoading = false;
 
   List<XFile> odabraneSlike = [];
@@ -545,6 +547,9 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
         'lift_na_istovaru': liftNaIstovaru,
         'prilaz_za_tegljac': prilazZaTegljac,
         'treba_pomoc_vozaca': trebaPomocVozaca,
+        'podlijeze_carini': podlijezeCarini,
+        'posjeduje_carinske_dokumente':
+        podlijezeCarini && posjedujeCarinskeDokumente,
         'broj_telefona': brojTelefonaController.text.trim(),
         'slike': slikeBase64,
       };
@@ -987,6 +992,43 @@ class _SenderHomeScreenState extends State<SenderHomeScreen> {
                           return null;
                         },
                       ),
+                      const SizedBox(height: 8),
+
+                      SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text(
+                          'Teret podliježe carini',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        value: podlijezeCarini,
+                        onChanged: (value) {
+                          setState(() {
+                            podlijezeCarini = value;
+
+                            if (!value) {
+                              posjedujeCarinskeDokumente = false;
+                            }
+                          });
+                        },
+                      ),
+
+                      if (podlijezeCarini)
+                        CheckboxListTile(
+                          contentPadding: EdgeInsets.zero,
+                          controlAffinity: ListTileControlAffinity.leading,
+                          title: const Text(
+                            'Posjedujem sve potrebne carinske dokumente',
+                          ),
+                          value: posjedujeCarinskeDokumente,
+                          onChanged: (value) {
+                            setState(() {
+                              posjedujeCarinskeDokumente = value ?? false;
+                            });
+                          },
+                        ),
+
                       const SizedBox(height: 18),
                       buildSectionTitle(l10n.route),
                       buildCountryDropdown(

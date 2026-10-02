@@ -1444,7 +1444,13 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
       'treba_pomoc_vozaca',
       'trebaPomocVozaca',
     ]);
+    final podlijezeCarini = _boolValue([
+      'podlijeze_carini',
+    ]);
 
+    final posjedujeCarinskeDokumente = _boolValue([
+      'posjeduje_carinske_dokumente',
+    ]);
     final prilazZaTegljac = _boolValue([
       'prilaz_za_tegljac',
       'prilazZaTegljac',
@@ -1695,6 +1701,20 @@ class _ShipmentDetailsScreenState extends State<ShipmentDetailsScreen> {
                     l10n.driverHelpNeeded,
                     trebaPomocVozaca ? l10n.yes : l10n.no,
                   ),
+
+                  if (podlijezeCarini) ...[
+                    _buildInfoRow(
+                      'Carina',
+                      'Teret podliježe carini',
+                    ),
+                    _buildInfoRow(
+                      'Carinski dokumenti',
+                      posjedujeCarinskeDokumente
+                          ? 'Naručitelj posjeduje potrebne carinske dokumente'
+                          : 'Naručitelj nije potvrdio potrebne carinske dokumente',
+                    ),
+                  ],
+
                   _buildInfoRow(
                     l10n.truckAccess,
                     prilazZaTegljac ? l10n.yes : l10n.no,
